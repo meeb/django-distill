@@ -1,5 +1,7 @@
 # django-distill
 
+**WORK IN PROGRESS, DO NOT USE**
+
 `django-distill` is a minimal configuration static site generator and publisher
 for Django.
 
@@ -71,7 +73,7 @@ Your site will still function identically with the above changes, however you
 can now generate a complete functioning static site with:
 
 ```bash
-$ ./manage.py distill [optional /path/to/export/directory]
+$ ./manage.py distill-local [optional /path/to/export/directory]
 ```
 
 Under the hood this simply iterates all URLs registered with `distill_url` and

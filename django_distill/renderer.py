@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 import types
+from shutil import copy2
 
 from django.utils import (six, translation)
 from django.conf import settings
@@ -16,6 +18,8 @@ class DistillRender(object):
         Renders a complete static site from all urls registered with
         distill_url() and then copies over all static media.
     '''
+
+    ignore_static_dirs = ('admin', 'grappelli')
 
     def __init__(self, output_dir, urls_to_distill):
         self.output_dir = output_dir
@@ -80,5 +84,22 @@ class DistillRender(object):
             raise DistillError('View returned a non-200 status code: {}'
                 .format(response.status_code))
         return response
+
+    def copy_static(self, dir_from, dir_to):
+        if not dir_from.endswith('/'):
+            dir_from = dir_from + '/'
+        if not dir_to.endswith('/'):
+            dir_to = dir_to + '/'
+        for root, dirs, files in os.walk(dir_from):
+            dirs[:] = [d for d in dirs if d not in self.ignore_static_dirs]
+            for f in files:
+                from_path = os.path.join(root, f)
+                base_path = from_path[len(dir_from):]
+                to_path = os.path.join(dir_to, base_path)
+                to_path_dir = os.path.dirname(to_path)
+                if not os.path.isdir(to_path_dir):
+                    os.makedirs(to_path_dir)
+                copy2(from_path, to_path)
+                yield from_path, to_path
 
 # eof

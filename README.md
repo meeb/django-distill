@@ -1,7 +1,5 @@
 # django-distill
 
-**WORK IN PROGRESS, DO NOT USE**
-
 `django-distill` is a minimal configuration static site generator and publisher
 for Django.
 
@@ -11,7 +9,9 @@ a mostly static front end but you still want to use a CMS to manage the
 content.
 
 It plugs directly into the existing Django framework without the need to write
-custom renderers or other more verbose code.
+custom renderers or other more verbose code. You can also use existing fully
+dynamic sites and just generate static pages for a small subsection of pages
+rather than the entire site.
 
 # Installation
 
@@ -27,62 +27,134 @@ Add `django_distill` to your `INSTALLED_APPS` in your `settings.py`:
 INSTALLED_APPS += ('django_distill',)
 ```
 
+That's it.
+
+# Limitations
+
+`django-distill` generates static pages and therefore only views which allow
+`GET` requests that return an `HTTP 200` status code are supported.
+
+It is assumed you are using URI parameters such as `/blog/123-abc` and not
+querystring parameters such as `/blog?post_id=123&title=abc`. Querystring
+parameters do not make sense for static page generation for obvious reasons.
+
+Additionally With one-off static pages dynamic internationalisation won't work
+so all files are generated using the `LANGUAGE_CODE` value in your `settings.py`.
+
+Static media files such as images and style sheets are copied from your static
+media directory defined in `STATIC_ROOT`. This means that you will want to run
+`./manage.py collectstatic` **before** you run `./manage.py distill-local`
+if you have made changes to static media. `django-distill` doesn't chain this
+request by design, however you can enable it with the `--collectstatic`
+argument.
+
 # Usage
 
 Assuming you have an existing Django project, edit a `urls.py` to include the
-`distill_url` function which replaces the existing `url` function and supports
-a new keyword argument `distill`. The `distill` argument should be provided with
-a function that returns an iterable. An example for a theoretical blogging app:
+`distill_url` function which replaces Django's standard `url` function and which
+supports a new keyword argument `distill`. The `distill` argument should be
+provided with a function or callable class that returns an iterable. An example
+for a theoretical blogging app:
 
 ```python
 # replaces the standard django.conf.urls.url, identical syntax
 from django_distill import distill_url
 
 from django.conf.urls import patterns
+
+# views and models from a theoretical blogging app
 from blog.views import PostView, PostYear
 from blog.models import Post
 
-# /post/123-some-post-title
+def get_all_blogposts():
+    # This function needs to return an iterable of dictionaries. Dictionaries
+    # are required as the URL this distill function is for has named parameters.
+    # You can just export a small subset of values here if you wish to
+    # limit what pages will be generated.
+    for post in Post.objects.all():
+        yield {'blog_id': post_id, 'blog_title': post.title}
+
+def get_years():
+    # You can also just return an iterable containing static strings if the
+    # URL only has one argument and you are using positional URL parameters:
+    return ('2014', '2015')
+    # This is really just shorthand for (('2014',), ('2015',))
+
 urlpatterns = patterns('blog',
+    # e.g. /post/123-some-post-title using named parameters
     distill_url(r'^post/(?P<blog_id>[\d]+)-(?P<blog_title>[\w]+)$',
                 PostView.as_view(),
                 name='blog-post',
                 distill=get_all_blogposts),
-    distill_url(r'^posts-by-year/(?P<year>[\d]{4}))$',
+    # e.g. /posts-by-year/2015 using positional parameters
+    distill_url(r'^posts-by-year/([\d]{4}))$',
                 PostYear.as_view(),
                 name='blog-year',
                 distill=get_years),
 )
-
-def get_all_blogposts():
-    # This function needs to return an iterable in the format of:
-    # [(blog_id, blog_title), (blog_id, blog_title), ...]
-    # to match the URL above that accepts two URL arguments.
-    # You can just export a small subset of values here if you wish to
-    # limit what pages will be generated.
-    for post in Post.objects.all():
-        yield (post.id, post.title)
-
-def get_years():
-    # You can also just return an iterable containing static strings. If the
-    # URL only has one argument you can use a flat tuple or list:
-    return ('2014', '2015')
 ```
 
-Your site will still function identically with the above changes, however you
-can now generate a complete functioning static site with:
+Your site will still function identically with the above changes. Internally
+the `distill` parameter is removed and the URL is passed back to Django for
+normal processing. This has no runtime performance impact as this happens only
+once upon starting the application.
+
+# The `distill-local` command
+
+Once you have wrapped the URLs you want to generate statically you can now
+generate a complete functioning static site with:
 
 ```bash
 $ ./manage.py distill-local [optional /path/to/export/directory]
 ```
 
 Under the hood this simply iterates all URLs registered with `distill_url` and
-generates the pages for them using `reverse` and then copies over the static
-files. Existing files with the same name are replaced in the target directory.
+generates the pages for them using parts of the Django testing framework to
+spoof requests. Once the site pages have been rendered then files from the
+`STATIC_ROOT` are copied over. Existing files with the same name are replaced in
+the target directory and orphan files are deleted.
 
-# Configuration settings
+`distill-local` supports the following optional argument:
 
-You can set the following optional `settings.py` variables to speed up usage:
+`--collectstatic`: Automatically run `collectstatic` on your site before
+rendering, this is just a shortcut to save you typing an extra command.
+
+# The `distill-publish` command
+
+```bash
+$ ./manage.py distill-publish [optional destination here]
+```
+
+If you have configured at least once publishing destination (see below) you can
+use the `distill-publish` command to publish the site to a remote location.
+
+This will perform a full synchronisation, removing any remote files that are no
+longer present in the generated static site and uploading any new or changed
+files. The site will be built into a temporary directory locally first when
+publishing which is deleted once the site has been published. Each file will be
+checked that it has been published correctly by requesting it via the
+`PUBLIC_URL`.
+
+`distill-publish` supports the following optional argument:
+
+`--collectstatic`: Automatically run `collectstatic` on your site before
+rendering, this is just a shortcut to save you typing an extra command.
+
+# The `distill-test-publish` command
+
+```bash
+$ ./manage.py distill-test-publish [optional destination here]
+```
+
+This will connect to your publishing target, authenticate to it, upload a
+randomly named file, verify it exists on the `PUBLIC_URL` and then delete it
+again. Use this to check your publishing settings are correct.
+
+`distill-test-publish` has no arguments.
+
+# Optional configuration settings
+
+You can set the following optional `settings.py` variables:
 
 **DISTILL_DIR**: string, default directory to export to:
 
@@ -90,7 +162,8 @@ You can set the following optional `settings.py` variables to speed up usage:
 DISTILL_DIR = '/path/to/export/directory'
 ```
 
-**DISTILL_PUBLISH**: dictionary, like Django's `DATABASES`, supports `default`:
+**DISTILL_PUBLISH**: dictionary, like Django's `settings.DATABASES`, supports
+`default`:
 
 ```python
 DISTILL_PUBLISH = {
@@ -103,15 +176,15 @@ DISTILL_PUBLISH = {
 }
 ```
 
-# Publishing sites
+# Publishing targets
 
 You can automatically publish sites to various supported remote targets through
-back ends, very similar to how you can use MySQL, SQLite, PostgreSQL etc. with
-Django by changing the back end engine. Currently the engines supported in
-`django-distill` are:
+backends just like how you can use MySQL, SQLite, PostgreSQL etc. with
+Django by changing the backend database engine. Currently the engines supported
+in `django-distill` are:
 
-**django_distill.backends.ftp**: Publish to an FTP server. Requires the Python
-  library `ftplib`. Options:
+**django_distill.backends.ftp**: Publish to an FTP server. Uses the default
+  Python library `ftplib`. Options:
 
 ```python
 'ftp-publish-target': {
@@ -128,7 +201,7 @@ Django by changing the back end engine. Currently the engines supported in
 ```
 
 **django_distill.backends.ftp_tls**: Publish to an FTP server with TLS
-  support. Requires the Python library `ftplib`. Options:
+  support. Uses the default Python library `ftplib`. Options:
 
 ```python
 'ftp_tls-publish-target': {
@@ -145,8 +218,8 @@ Django by changing the back end engine. Currently the engines supported in
 },
 ```
 
-**django_distill.backends.amazon_s3**: Publish to an an Amazon S3 bucket.
-  Requires the Python library `s3` (`$ pip install s3`). Options:
+**django_distill.backends.amazon_s3**: Publish to an Amazon S3 bucket. Requires
+  the Python library `s3` (`$ pip install s3`). Options:
 
 ```python
 's3-target': {
@@ -159,8 +232,8 @@ Django by changing the back end engine. Currently the engines supported in
 },
 ```
 
-**django_distill.backends.rackspace_files**: Publish to an a Rackspace Cloud
-  Files container.  Requires the Python library `pyrax` (`$ pip install pyrax`).
+**django_distill.backends.rackspace_files**: Publish to a Rackspace Cloud Files
+  container. Requires the Python library `pyrax` (`$ pip install pyrax`).
   Options:
 
 ```python
@@ -174,24 +247,7 @@ Django by changing the back end engine. Currently the engines supported in
 },
 ```
 
-You can then publish the site with:
+# Contributing
 
-```bash
-$ ./manage.py distill-publish [optional name here]
-```
-
-This will perform a full synchronisation, removing any remote files that are no
-longer present in the generated static site and uploading any new or changed
-files. The site will be built into a temporary directory locally first when
-publishing. Each file will be checked that it has been published correctly by
-requesting it via the `PUBLIC_URL`.
-
-You can test your publishing target with:
-
-```bash
-$ ./manage.py distill-test-publish [optional name here]
-```
-
-This will connect to your publishing target, authenticate to it, upload a
-randomly named file, verify it exists on the `PUBLIC_URL` and then delete it
-again. Use this to check your publishing settings are correct.
+All properly formatted and sensible pull requests, issues and comments are
+welcome.

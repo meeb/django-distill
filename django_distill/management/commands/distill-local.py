@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 from shutil import rmtree
 
 from django.core.management.base import (BaseCommand, CommandError)
 from django.conf import settings
 from django.conf.urls import include as include_urls
 
-from django_distill import (urls_to_distill, DistillRender)
+from django_distill import (urls_to_distill, DistillRender, run_collectstatic)
 
 class Command(BaseCommand):
 
@@ -15,29 +16,41 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('output_dir', nargs='?', type=str)
+        parser.add_argument('--collectstatic', dest='collectstatic',
+                            action='store_true')
 
     def handle(self, *args, **options):
         output_dir = options.get('output_dir')
+        collectstatic = options.get('collectstatic')
         static_dir = settings.STATIC_ROOT
         static_url = settings.STATIC_URL
         if not output_dir:
             raise CommandError('Usage: ./manage.py distill-local [directory]')
+        if collectstatic:
+            self.stdout.write('Distill is running collectstatic...')
+            run_collectstatic()
+            self.stdout.write('')
+            self.stdout.write('collectstatic complete, running distill...')
+            self.stdout.write('')
         output_dir = os.path.abspath(os.path.expanduser(output_dir))
         static_output_dir = os.path.join(output_dir, static_url[1:])
-        self.stdout.write('Static path: {}'.format(static_dir))
-        self.stdout.write('Output path: {}'.format(output_dir))
+        self.stdout.write('    Source static path:  {}'.format(static_dir))
+        self.stdout.write('    Distill output path: {}'.format(output_dir))
+        self.stdout.write('')
         if os.path.isdir(output_dir):
-            q = 'Output directory exists, delete all files in it? (YES/no): '
-            answer = raw_input(q)
-            if not answer or answer == 'YES':
-                self.stdout.write('Deleting all files in output directory...')
+            self.stdout.write('Distill output directory exists, clean up?')
+            self.stdout.write('This will delete and recreate all files in it!')
+            self.stdout.write('')
+            ans = raw_input('Type \'yes\' to continue, or \'no\' to cancel: ')
+            if ans == 'yes':
+                self.stdout.write('Recreating output directory...')
                 rmtree(output_dir)
                 os.makedirs(output_dir)
             else:
-                raise CommandError('Aborting...')
+                raise CommandError('Distilling site cancelled.')
         else:
-            answer = raw_input('Does not exist, create it? (YES/no): ')
-            if not answer or answer == 'YES':
+            ans = raw_input('Does not exist, create it? (YES/no): ')
+            if ans == 'yes':
                 self.stdout.write('Creating directory...')
                 os.makedirs(output_dir)
             else:

@@ -10,6 +10,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.test import RequestFactory
 from django.core.urlresolvers import reverse
+from django.core.management import call_command
 
 from errors import (DistillError, DistillWarning)
 
@@ -86,6 +87,8 @@ class DistillRender(object):
         return response
 
     def copy_static(self, dir_from, dir_to):
+        # we need to ignore some static dirs such as 'admin' so this is a little
+        # more complex than a straight shutil.copytree()
         if not dir_from.endswith('/'):
             dir_from = dir_from + '/'
         if not dir_to.endswith('/'):
@@ -101,5 +104,9 @@ class DistillRender(object):
                     os.makedirs(to_path_dir)
                 copy2(from_path, to_path)
                 yield from_path, to_path
+
+def run_collectstatic():
+    # bit of a hack to wrap collectstatic for the local site
+    call_command('collectstatic')
 
 # eof

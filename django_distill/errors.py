@@ -6,4 +6,7 @@ class DistillError(Exception):
 class DistillWarning(RuntimeWarning):
     pass
 
+class DistillPublishError(Exception):
+    pass
+
 # eof

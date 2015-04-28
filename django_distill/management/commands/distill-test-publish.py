@@ -46,24 +46,30 @@ class Command(BaseCommand):
         self.stdout.write('')
         self.stdout.write('Connecting to backend engine')
         backend_class = get_backend(publish_engine)
-        backend = backend_class('/dev/null', publish_target)
-        self.stdout.write('Authenticating')
-        backend.authenticate()
+        random_file = NamedTemporaryFile(delete=False)
         random_str = hexlify(os.urandom(16))
         random_name = '/' + hexlify(os.urandom(16))
-        random_file = NamedTemporaryFile(delete=False)
         random_file.write(random_str)
         random_file.close()
+        backend = backend_class(os.path.dirname(random_file.name),
+            publish_target)
+        self.stdout.write('Authenticating')
+        backend.authenticate()
         remote_file_name = os.path.basename(random_file.name)
         self.stdout.write('Uploading test file: {}'.format(random_file.name))
         backend.upload_file(random_file.name, remote_file_name)
-        self.stdout.write('Verifying remote test file')
-        backend.check_file(random_file.name, remote_file_name)
+        url = backend.remote_url(random_file.name)
+        self.stdout.write('Verifying remote test file: {}'.format(url))
+        if backend.check_file(random_file.name, url):
+            self.stdout.write('File uploaded correctly, file hash is correct')
+        else:
+            self.stderr.write('File error, remote file hash differs from local')
         self.stdout.write('Deleting remote test file')
         backend.delete_remote_file(remote_file_name)
         if os.path.exists(random_file.name):
+            self.stdout.write('Deleting local test file')
             os.unlink(random_file.name)
         self.stdout.write('')
-        self.stdout.write('Backend testing successful!')
+        self.stdout.write('Backend testing complete.')
 
 # eof

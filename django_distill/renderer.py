@@ -19,9 +19,7 @@ class DistillRender(object):
         Renders a complete static site from all urls registered with
         distill_url() and then copies over all static media.
     '''
-
-    ignore_static_dirs = ('admin', 'grappelli')
-
+    
     def __init__(self, output_dir, urls_to_distill):
         self.output_dir = output_dir
         self.urls_to_distill = urls_to_distill
@@ -89,12 +87,12 @@ class DistillRender(object):
     def copy_static(self, dir_from, dir_to):
         # we need to ignore some static dirs such as 'admin' so this is a little
         # more complex than a straight shutil.copytree()
-        if not dir_from.endswith('/'):
-            dir_from = dir_from + '/'
-        if not dir_to.endswith('/'):
-            dir_to = dir_to + '/'
+        if not dir_from.endswith(os.sep):
+            dir_from = dir_from + os.sep
+        if not dir_to.endswith(os.sep):
+            dir_to = dir_to + os.sep
         for root, dirs, files in os.walk(dir_from):
-            dirs[:] = [d for d in dirs if d not in self.ignore_static_dirs]
+            dirs[:] = filter_dirs(dirs)
             for f in files:
                 from_path = os.path.join(root, f)
                 base_path = from_path[len(dir_from):]
@@ -108,5 +106,9 @@ class DistillRender(object):
 def run_collectstatic():
     # bit of a hack to wrap collectstatic for the local site
     call_command('collectstatic')
+
+_ignore_dirs = ('admin', 'grappelli')
+def filter_dirs(dirs):
+    return [d for d in dirs if d not in _ignore_dirs]
 
 # eof

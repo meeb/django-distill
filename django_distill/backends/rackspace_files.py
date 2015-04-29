@@ -23,6 +23,12 @@ class RackspaceCloudFilesBackend(BackendBase):
     REQUIRED_OPTIONS = ('ENGINE', 'PUBLIC_URL', 'USERNAME', 'API_KEY', 'REGION',
                         'CONTAINER')
 
+    def account_username(self):
+        return self.options.get('USERNAME', '')
+
+    def account_container(self):
+        return self.options.get('CONTAINER', '')
+
     def authenticate(self):
         username = self.options.get('USERNAME', '')
         api_get = self.options.get('API_KEY', '')
@@ -41,15 +47,13 @@ class RackspaceCloudFilesBackend(BackendBase):
     def list_remote_files(self):
         rtn = set()
         m, l = 100, ''
-        objects = self.d['container'].get_objects(limit=l, marker=m)
-        marker = objects[-1].name
         while True:
             objects = self.d['container'].get_objects(limit=l, marker=m)
             if not objects:
                 break
-            for o in object:
-                s.add(o.name)
-            marker = objects[-1].name
+            for o in objects:
+                rtn.add(o.name)
+            m = objects[-1].name
         return rtn
 
     def delete_remote_file(self, remote_name):
@@ -61,7 +65,7 @@ class RackspaceCloudFilesBackend(BackendBase):
                 local_name))
         local_hash = self._get_local_file_hash(local_name)
         o = self.d['container'].get_object(remote_name)
-        return o.tag == local_hash
+        return o.etag == local_hash
 
     def upload_file(self, local_name, remote_name):
         if not self._file_exists(local_name):
@@ -71,6 +75,10 @@ class RackspaceCloudFilesBackend(BackendBase):
         remote_obj = self.d['container'].upload_file(local_name, remote_name,
             etag=local_hash)
         return local_hash == remote_obj.etag
+
+    def create_remote_dir(self, remote_dir_name):
+        # Rackspace Files containers have no directories
+        pass
 
 backend_class = RackspaceCloudFilesBackend
 

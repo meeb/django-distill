@@ -135,10 +135,18 @@ publishing which is deleted once the site has been published. Each file will be
 checked that it has been published correctly by requesting it via the
 `PUBLIC_URL`.
 
-`distill-publish` supports the following optional argument:
+`distill-publish` supports the following optional arguments:
 
 `--collectstatic`: Automatically run `collectstatic` on your site before
 rendering, this is just a shortcut to save you typing an extra command.
+
+`--quiet`: Disable all output other than asking confirmation questions.
+
+`--force`: Assume 'yes' to all confirmation questions.
+
+**Note** that this means if you use `--force` and `--quiet` that the output
+directory will have all files not part of the site export deleted without any
+confirmation.
 
 # The `distill-test-publish` command
 
@@ -180,57 +188,8 @@ DISTILL_PUBLISH = {
 
 You can automatically publish sites to various supported remote targets through
 backends just like how you can use MySQL, SQLite, PostgreSQL etc. with
-Django by changing the backend database engine. Currently the engines supported
-in `django-distill` are:
-
-**django_distill.backends.ftp**: Publish to an FTP server. Uses the default
-  Python library `ftplib`. Options:
-
-```python
-'ftp-publish-target': {
-    'ENGINE': 'django_distill.backends.ftp',
-    'PUBLIC_URL': 'http://.../',
-    'PORT': 21,                 # optional, the default
-    'TIMEOUT': 60,              # optional, the default, timeout in seconds
-    'PASSIVE': False,           # optional, the default
-    'HOSTNAME': '...',
-    'USERNAME': '...',
-    'PASSWORD': '...',
-    'REMOTE_DIRECTORY': '...',  # path to remote web root, such as /docs/
-},
-```
-
-**django_distill.backends.ftp_tls**: Publish to an FTP server with TLS
-  support. Uses the default Python library `ftplib`. Options:
-
-```python
-'ftp_tls-publish-target': {
-    'ENGINE': 'django_distill.backends.ftp_tls',
-    'PUBLIC_URL': 'http://.../',
-    'PORT': 21,                 # optional, the default
-    'TIMEOUT': 60,              # optional, the default, timeout in seconds
-    'HOSTNAME': '...',
-    'USERNAME': '...',
-    'PASSWORD': '...',
-    'REMOTE_DIRECTORY': '...',  # path to remote web root, such as /docs/
-    'CONTEXT': ssl_context,     # optional, an ssl.SSLContext object to validate
-                                # certificates with etc.
-},
-```
-
-**django_distill.backends.amazon_s3**: Publish to an Amazon S3 bucket. Requires
-  the Python library `s3` (`$ pip install s3`). Options:
-
-```python
-'s3-target': {
-    'ENGINE': 'django_distill.backends.amazon_s3',
-    'PUBLIC_URL': 'http://.../',
-    'ACCESS_KEY_ID': '...',
-    'SECRET_ACCESS_KEY': '...',
-    'BUCKET': '...',
-    'ENDPOINT': '...',
-},
-```
+Django by changing the backend database engine. Currently the only engine
+supported by `django-distill` is:
 
 **django_distill.backends.rackspace_files**: Publish to a Rackspace Cloud Files
   container. Requires the Python library `pyrax` (`$ pip install pyrax`).

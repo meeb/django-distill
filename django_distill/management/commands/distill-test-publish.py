@@ -2,7 +2,6 @@
 
 import os
 from binascii import hexlify
-from cStringIO import StringIO
 from tempfile import NamedTemporaryFile
 
 from django.conf import settings

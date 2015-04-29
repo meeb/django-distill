@@ -7,6 +7,7 @@ from shutil import copy2
 
 from django.utils import (six, translation)
 from django.conf import settings
+from django.conf.urls import include as include_urls
 from django.http import HttpResponse
 from django.test import RequestFactory
 from django.core.urlresolvers import reverse
@@ -19,7 +20,7 @@ class DistillRender(object):
         Renders a complete static site from all urls registered with
         distill_url() and then copies over all static media.
     '''
-    
+
     def __init__(self, output_dir, urls_to_distill):
         self.output_dir = output_dir
         self.urls_to_distill = urls_to_distill
@@ -103,12 +104,41 @@ class DistillRender(object):
                 copy2(from_path, to_path)
                 yield from_path, to_path
 
-def run_collectstatic():
-    # bit of a hack to wrap collectstatic for the local site
+def run_collectstatic(stdout):
+    stdout('Distill is running collectstatic...')
     call_command('collectstatic')
+    stdout('')
+    stdout('collectstatic complete, continuing...')
 
 _ignore_dirs = ('admin', 'grappelli')
 def filter_dirs(dirs):
     return [d for d in dirs if d not in _ignore_dirs]
+
+def load_urls(stdout):
+    stdout('Loading site URLs')
+    site_urls = getattr(settings, 'ROOT_URLCONF')
+    if site_urls:
+        include_urls(site_urls)
+
+def render_to_dir(output_dir, urls_to_distill, stdout):
+    mimes = {}
+    load_urls(stdout)
+    renderer = DistillRender(output_dir, urls_to_distill)
+    for page_uri, http_response in renderer.render():
+        full_path = os.path.join(output_dir, page_uri[1:])
+        content = http_response.content
+        mime = http_response.get('Content-Type')
+        stdout('Rendering page: {} -> {} ["{}", {} bytes]'.format(page_uri,
+            full_path, mime, len(content)))
+        with open(full_path, 'w') as f:
+            f.write(content)
+        mimes[full_path] = mime.split(';')[0].strip()
+    static_url = settings.STATIC_URL
+    static_url = static_url[1:] if static_url.startswith('/') else static_url
+    static_output_dir = os.path.join(output_dir, static_url)
+    for file_from, file_to in renderer.copy_static(settings.STATIC_ROOT,
+        static_output_dir):
+        stdout('Copying static: {} -> {}'.format(file_from, file_to))
+    return mime
 
 # eof

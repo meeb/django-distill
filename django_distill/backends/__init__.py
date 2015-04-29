@@ -4,6 +4,7 @@ import os
 import sys
 import warnings
 from hashlib import md5
+from binascii import hexlify
 from urlparse import (urlsplit, urlunsplit)
 
 import requests
@@ -29,7 +30,6 @@ class BackendBase(object):
         self.remote_url_parts = urlsplit(options.get('PUBLIC_URL', ''))
         self.d = {}
         self._validate_options()
-        self._index_local_files()
 
     def _validate_options(self):
         for o in self.REQUIRED_OPTIONS:
@@ -37,7 +37,7 @@ class BackendBase(object):
                 e = 'Missing required settings value for this backend: {}'
                 raise DistillPublishError(e.format(o))
 
-    def _index_local_files(self):
+    def index_local_files(self):
         for root, dirs, files in os.walk(self.source_dir):
             dirs[:] = filter_dirs(dirs)
             for d in dirs:
@@ -59,6 +59,8 @@ class BackendBase(object):
         return digest.hexdigest()
 
     def _get_url_hash(self, url, digest_func=md5, chunk=1024):
+        # CDN cache buster
+        url += '?' + hexlify(os.urandom(16))
         request = requests.get(url, stream=True)
         digest = digest_func()
         for block in request.iter_content(chunk_size=chunk):
@@ -83,7 +85,7 @@ class BackendBase(object):
         return self.local_dirs
 
     def list_local_files(self):
-        return self.remote_files
+        return self.local_files
 
     def check_file(self, local_name, url):
         if not self._file_exists(local_name):
@@ -95,6 +97,12 @@ class BackendBase(object):
 
     def remote_path(self, local_name):
         return local_name[len(self.source_dir):]
+
+    def account_username(self):
+        raise NotImplementedError('account_username must be implemented')
+
+    def account_container(self):
+        raise NotImplementedError('account_container must be implemented')
 
     def authenticate(self):
         raise NotImplementedError('authenticate must be implemented')
@@ -110,6 +118,9 @@ class BackendBase(object):
 
     def upload_file(self, local_name, remote_name):
         raise NotImplementedError('upload_file must be implemented')
+
+    def create_remote_dir(self, remote_dir_name):
+        raise NotImplementedError('create_remote_dir must be implemented')
 
 def get_backend(engine):
     with warnings.catch_warnings():

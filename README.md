@@ -114,10 +114,14 @@ spoof requests. Once the site pages have been rendered then files from the
 `STATIC_ROOT` are copied over. Existing files with the same name are replaced in
 the target directory and orphan files are deleted.
 
-`distill-local` supports the following optional argument:
+`distill-local` supports the following optional arguments:
 
 `--collectstatic`: Automatically run `collectstatic` on your site before
 rendering, this is just a shortcut to save you typing an extra command.
+
+`--quiet`: Disable all output other than asking confirmation questions.
+
+`--force`: Assume 'yes' to all confirmation questions.
 
 # The `distill-publish` command
 

@@ -18,7 +18,7 @@ rather than the entire site.
 Install from pip:
 
 ```bash
-$ pip install --upgrade git+git://github.com/meeb/django-distill.git@master
+$ pip install --upgrade git+git://github.com/mgrp/django-distill.git@master
 ```
 
 Add `django_distill` to your `INSTALLED_APPS` in your `settings.py`:

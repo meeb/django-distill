@@ -13,6 +13,11 @@ custom renderers or other more verbose code. You can also use existing fully
 dynamic sites and just generate static pages for a small subsection of pages
 rather than the entire site.
 
+For static files on CDNs we use the following 'cache buster' library to allow
+for fast static media updates when pushing changes:
+
+https://github.com/mgrp/django-cachebuster
+
 # Installation
 
 Install from pip:

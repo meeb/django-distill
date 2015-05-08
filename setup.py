@@ -2,11 +2,8 @@
 
 import os
 import sys
-from setuptools import setup
+from setuptools import (setup, find_packages)
 from django_distill import __version__ as version
-
-def fread(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
     name='django-distill',
@@ -18,6 +15,7 @@ setup(
     license='MIT',
     include_package_data=True,
     install_requires = ('requests',),
+    packages=find_packages(),
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',

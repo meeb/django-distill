@@ -2,7 +2,7 @@
 
 from django.conf.urls import url
 
-from errors import (DistillError, DistillWarning)
+from django_distill.errors import (DistillError, DistillWarning)
 
 urls_to_distill = []
 

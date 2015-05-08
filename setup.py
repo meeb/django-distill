@@ -17,7 +17,7 @@ setup(
     description=('Static site renderer and publisher for Django.'),
     license='MIT',
     include_package_data=True,
-    install_requires = ('requests',)
+    install_requires = ('requests',),
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',

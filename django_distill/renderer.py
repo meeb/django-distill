@@ -13,7 +13,7 @@ from django.test import RequestFactory
 from django.core.urlresolvers import reverse
 from django.core.management import call_command
 
-from errors import (DistillError, DistillWarning)
+from django_distill.errors import (DistillError, DistillWarning)
 
 class DistillRender(object):
     '''

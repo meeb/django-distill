@@ -43,8 +43,7 @@ class DistillRender(object):
         try:
             v = func()
         except Exception as e:
-            trace = sys.exc_info()[2]
-            raise DistillError('Failed to call distill function'), None, trace
+            raise DistillError('Failed to call distill function: {}'.format(e))
         t = type(v)
         if t in (list, tuple):
             return v

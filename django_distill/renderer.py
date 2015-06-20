@@ -138,6 +138,6 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
     for file_from, file_to in renderer.copy_static(settings.STATIC_ROOT,
         static_output_dir):
         stdout('Copying static: {} -> {}'.format(file_from, file_to))
-    return mime
+    return True
 
 # eof

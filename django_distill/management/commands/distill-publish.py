@@ -12,6 +12,11 @@ from django_distill.distill import urls_to_distill
 from django_distill.renderer import (run_collectstatic, render_to_dir)
 from django_distill.publisher import publish_dir
 
+try:
+    input = raw_input
+except NameError:
+    pass
+
 class Command(BaseCommand):
 
     help = 'Distills a site into a temporary local directory then publishes it'
@@ -65,7 +70,7 @@ class Command(BaseCommand):
             stdout('')
             if collectstatic:
                 run_collectstatic(stdout)
-            ans = raw_input('Type \'yes\' to continue, or \'no\' to cancel: ')
+            ans = input('Type \'yes\' to continue, or \'no\' to cancel: ')
             if ans == 'yes':
                 pass
             else:

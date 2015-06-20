@@ -10,6 +10,11 @@ from django.conf import settings
 from django_distill.distill import urls_to_distill
 from django_distill.renderer import (run_collectstatic, render_to_dir)
 
+try:
+    input = raw_input
+except NameError:
+    pass
+
 class Command(BaseCommand):
 
     help = 'Generates a static local site using distill'
@@ -52,7 +57,7 @@ class Command(BaseCommand):
             if force:
                 ans = 'yes'
             else:
-                ans = raw_input('Type \'yes\' to continue, or \'no\' to cancel: ')
+                ans = input('Type \'yes\' to continue, or \'no\' to cancel: ')
             if ans == 'yes':
                 stdout('Recreating output directory...')
                 rmtree(output_dir)
@@ -60,7 +65,7 @@ class Command(BaseCommand):
             else:
                 raise CommandError('Distilling site cancelled.')
         else:
-            ans = raw_input('Does not exist, create it? (YES/no): ')
+            ans = input('Does not exist, create it? (YES/no): ')
             if ans == 'yes':
                 stdout('Creating directory...')
                 os.makedirs(output_dir)

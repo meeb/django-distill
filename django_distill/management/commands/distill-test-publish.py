@@ -9,6 +9,11 @@ from django.core.management.base import (BaseCommand, CommandError)
 
 from django_distill.backends import get_backend
 
+try:
+    input = raw_input
+except NameError:
+    pass
+
 class Command(BaseCommand):
 
     help = 'Tests a distill publishing target'
@@ -36,7 +41,7 @@ class Command(BaseCommand):
         self.stdout.write('    Name:   {}'.format(publish_target_name))
         self.stdout.write('    Engine: {}'.format(publish_engine))
         self.stdout.write('')
-        ans = raw_input('Type \'yes\' to continue, or \'no\' to cancel: ')
+        ans = input('Type \'yes\' to continue, or \'no\' to cancel: ')
         if ans == 'yes':
             self.stdout.write('')
             self.stdout.write('Testing publishing target...')

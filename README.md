@@ -44,7 +44,8 @@ querystring parameters such as `/blog?post_id=123&title=abc`. Querystring
 parameters do not make sense for static page generation for obvious reasons.
 
 Additionally With one-off static pages dynamic internationalisation won't work
-so all files are generated using the `LANGUAGE_CODE` value in your `settings.py`.
+so all files are generated using the `LANGUAGE_CODE` value in your
+`settings.py`.
 
 Static media files such as images and style sheets are copied from your static
 media directory defined in `STATIC_ROOT`. This means that you will want to run
@@ -56,10 +57,14 @@ argument.
 # Usage
 
 Assuming you have an existing Django project, edit a `urls.py` to include the
-`distill_url` function which replaces Django's standard `url` function and which
-supports a new keyword argument `distill`. The `distill` argument should be
-provided with a function or callable class that returns an iterable. An example
-for a theoretical blogging app:
+`distill_url` function which replaces Django's standard `url` function and
+supports the new keyword arguments `distill_func` and `distill_file`. The
+`distill_func` argument should be provided with a function or callable class
+that returns an iterable or None. The `distill_file` argument is entirely
+optional and allows you to override the URL that would otherwise be generated
+from the reverse of the URL regex. This allows you to rename URLs like `/` to
+something more sensible for static files like `index.html`. An example distill
+setup for a theoretical blogging app would be:
 
 ```python
 # replaces the standard django.conf.urls.url, identical syntax
@@ -68,8 +73,13 @@ from django_distill import distill_url
 from django.conf.urls import patterns
 
 # views and models from a theoretical blogging app
-from blog.views import PostView, PostYear
+from blog.views import PostIndex, PostView, PostYear
 from blog.models import Post
+
+def get_index():
+    # The index URI regex, ^$, contains no parameters, named or otherwise.
+    # You can simply just return nothing here.
+    return None
 
 def get_all_blogposts():
     # This function needs to return an iterable of dictionaries. Dictionaries
@@ -86,16 +96,23 @@ def get_years():
     # This is really just shorthand for (('2014',), ('2015',))
 
 urlpatterns = patterns('blog',
+    # e.g. / the blog index
+    distill_url(r'^$',
+                PostIndex.as_view(),
+                name='blog-index',
+                distill_func=get_index,
+                # / is not a valid file name! override it to index.html
+                distill_file='index.html'),
     # e.g. /post/123-some-post-title using named parameters
     distill_url(r'^post/(?P<blog_id>[\d]+)-(?P<blog_title>[\w]+)$',
                 PostView.as_view(),
                 name='blog-post',
-                distill=get_all_blogposts),
+                distill_func=get_all_blogposts),
     # e.g. /posts-by-year/2015 using positional parameters
     distill_url(r'^posts-by-year/([\d]{4}))$',
                 PostYear.as_view(),
                 name='blog-year',
-                distill=get_years),
+                distill_func=get_years),
 )
 ```
 

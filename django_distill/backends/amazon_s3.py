@@ -4,10 +4,10 @@ import sys
 import warnings
 
 try:
-    import s3
+    import boto
 except ImportError:
     l = 'django_distill.backends.amazon_s3'
-    m = 's3'
+    m = 'boto'
     sys.stdout.write('{} backend requires {}:\n'.format(l, m))
     sys.stdout.write('$ pip install {}\n\n'.format(m))
     raise

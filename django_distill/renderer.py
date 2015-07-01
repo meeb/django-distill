@@ -30,7 +30,9 @@ class DistillRender(object):
     def render(self):
         for distill_func, view_name, args, kwargs in self.urls_to_distill:
             for param_set in self.get_uri_values(distill_func):
-                if self._is_str(param_set):
+                if param_set == None:
+                    param_set = ()
+                elif self._is_str(param_set):
                     param_set = param_set,
                 uri = self.generate_uri(view_name, param_set)
                 render = self.render_view(uri, param_set, args)
@@ -45,7 +47,9 @@ class DistillRender(object):
         except Exception as e:
             raise DistillError('Failed to call distill function: {}'.format(e))
         t = type(v)
-        if t in (list, tuple):
+        if t == None:
+            return None
+        elif t in (list, tuple):
             return v
         elif t == types.GeneratorType:
             return list(v)

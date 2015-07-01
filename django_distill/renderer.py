@@ -15,11 +15,6 @@ from django.core.management import call_command
 
 from django_distill.errors import (DistillError, DistillWarning)
 
-RENDER_URI_MAP = {
-    '': 'index.html',
-    '/': '/index.html',
-}
-
 class DistillRender(object):
     '''
         Renders a complete static site from all urls registered with
@@ -33,18 +28,15 @@ class DistillRender(object):
         translation.activate(settings.LANGUAGE_CODE)
 
     def render(self):
-        for distill_func, view_name, args, kwargs in self.urls_to_distill:
+        for distill_func, file_name, view_name, a, k in self.urls_to_distill:
             for param_set in self.get_uri_values(distill_func):
                 if not param_set:
                     param_set = ()
                 elif self._is_str(param_set):
                     param_set = param_set,
                 uri = self.generate_uri(view_name, param_set)
-                render = self.render_view(uri, param_set, args)
-                uri_map = RENDER_URI_MAP.get(uri)
-                if uri_map:
-                    uri = uri_map
-                yield uri, render
+                render = self.render_view(uri, param_set, a)
+                yield uri, file_name, render
 
     def _is_str(self, s):
         return isinstance(s, six.string_types)
@@ -135,18 +127,30 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
     mimes = {}
     load_urls(stdout)
     renderer = DistillRender(output_dir, urls_to_distill)
-    for page_uri, http_response in renderer.render():
-        full_path = os.path.join(output_dir, page_uri[1:])
+    for page_uri, file_name, http_response in renderer.render():
+        if file_name:
+            local_uri = file_name
+            full_path = os.path.join(output_dir, file_name)
+        else:
+            local_uri = page_uri
+            if page_uri.startswith(os.sep):
+                page_uri = page_uri[1:]
+            full_path = os.path.join(output_dir, page_uri)
         try:
             content = http_response.content.decode(settings.DEFAULT_CHARSET)
         except Exception as e:
             DistillError('Failed to encode {} into {}: {}'.format(page_uri,
                 settings.DEFAULT_CHARSET, e))
         mime = http_response.get('Content-Type')
-        stdout('Rendering page: {} -> {} ["{}", {} bytes]'.format(page_uri,
-            full_path, mime, len(content)))
-        with open(full_path, 'w') as f:
-            f.write(content)
+        renamed = ' (renamed from "{}")'.format(page_uri) if file_name else ''
+        stdout('Rendering page: {} -> {} ["{}", {} bytes] {}'.format(local_uri,
+            full_path, mime, len(content), renamed))
+        try:
+            with open(full_path, 'w') as f:
+                f.write(content)
+        except IsADirectoryError:
+            raise DistillError('Output path: {} is a directory! Try adding' \
+                'a "distill_file" arg to your distill_url()'.format(full_path))
         mimes[full_path] = mime.split(';')[0].strip()
     static_url = settings.STATIC_URL
     static_url = static_url[1:] if static_url.startswith('/') else static_url

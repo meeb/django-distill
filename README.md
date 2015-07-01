@@ -218,8 +218,8 @@ Django by changing the backend database engine. Currently the only engine
 supported by `django-distill` is:
 
 **django_distill.backends.rackspace_files**: Publish to a Rackspace Cloud Files
-  container. Requires the Python library `pyrax` (`$ pip install pyrax`).
-  Options:
+  container. Requires the Python library `pyrax` (`$ pip install pyrax`). The
+  container must already exist (use the Rackspace Cloud control panel). Options:
 
 ```python
 'some-rackspace-container':

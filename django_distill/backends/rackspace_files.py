@@ -30,10 +30,10 @@ class RackspaceCloudFilesBackend(BackendBase):
         return self.options.get('CONTAINER', '')
 
     def authenticate(self):
-        username = self.options.get('USERNAME', '')
+        username = self.account_username()
         api_get = self.options.get('API_KEY', '')
         region = self.options.get('REGION', '')
-        container = self.options.get('CONTAINER', '')
+        container = self.account_container()
         pyrax.set_setting('identity_type', 'rackspace')
         with warnings.catch_warnings():
             warnings.simplefilter('ignore')

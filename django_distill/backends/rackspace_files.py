@@ -31,13 +31,13 @@ class RackspaceCloudFilesBackend(BackendBase):
 
     def authenticate(self):
         username = self.account_username()
-        api_get = self.options.get('API_KEY', '')
+        api_key = self.options.get('API_KEY', '')
         region = self.options.get('REGION', '')
         container = self.account_container()
         pyrax.set_setting('identity_type', 'rackspace')
         with warnings.catch_warnings():
             warnings.simplefilter('ignore')
-            pyrax.set_credentials(username, api_get, region=region)
+            pyrax.set_credentials(username, api_key, region=region)
         self.d['connection'] = pyrax.cloudfiles
         if not self.d['connection']:
             e = 'Failed to connect to Rackspace Cloud Files, check credentials'

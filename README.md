@@ -214,21 +214,35 @@ DISTILL_PUBLISH = {
 
 You can automatically publish sites to various supported remote targets through
 backends just like how you can use MySQL, SQLite, PostgreSQL etc. with
-Django by changing the backend database engine. Currently the only engine
-supported by `django-distill` is:
+Django by changing the backend database engine. Currently the engines supported
+by `django-distill` are:
 
 **django_distill.backends.rackspace_files**: Publish to a Rackspace Cloud Files
   container. Requires the Python library `pyrax` (`$ pip install pyrax`). The
   container must already exist (use the Rackspace Cloud control panel). Options:
 
 ```python
-'some-rackspace-container':
+'some-rackspace-container': {
     'ENGINE': 'django_distill.backends.rackspace_files',
     'PUBLIC_URL': 'http://.../',
     'USERNAME': '...',
     'API_KEY': '...',
     'REGION': '...',
     'CONTAINER': '...',
+},
+```
+
+**django_distill.backends.amazon_s3**: Publish to an Amazon S3 bucket. Requires
+  the Python library `boto` (`$ pip install boto`). The bucket must already
+  exist (use the AWS control panel). Options:
+
+```python
+'some-s3-container': {
+    'ENGINE': 'django_distill.backends.amazon_s3',
+    'PUBLIC_URL': 'http://.../',
+    'ACCESS_KEY_ID': '...',
+    'SECRET_ACCESS_KEY': '...',
+    'BUCKET': '...',
 },
 ```
 

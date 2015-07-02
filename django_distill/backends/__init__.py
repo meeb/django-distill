@@ -5,9 +5,10 @@ import sys
 import warnings
 from hashlib import md5
 from binascii import hexlify
-from urlparse import (urlsplit, urlunsplit)
 
 import requests
+
+from django.utils.six.moves.urllib.parse import (urlsplit, urlunsplit)
 
 from django_distill.errors import DistillPublishError
 from django_distill.renderer import filter_dirs
@@ -50,7 +51,7 @@ class BackendBase(object):
         if not self._file_exists(file_path):
             return None
         digest = digest_func()
-        with open(file_path, 'r') as f:
+        with open(file_path, 'rb') as f:
             while True:
                 data = f.read(chunk)
                 if not data:
@@ -60,7 +61,7 @@ class BackendBase(object):
 
     def _get_url_hash(self, url, digest_func=md5, chunk=1024):
         # CDN cache buster
-        url += '?' + hexlify(os.urandom(16))
+        url += '?' + hexlify(os.urandom(16)).decode('utf-8')
         request = requests.get(url, stream=True)
         digest = digest_func()
         for block in request.iter_content(chunk_size=chunk):

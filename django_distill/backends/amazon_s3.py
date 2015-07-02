@@ -4,7 +4,8 @@ import sys
 import warnings
 
 try:
-    import boto
+    from boto.s3.connection import S3Connection
+    from boto.s3.key import Key
 except ImportError:
     l = 'django_distill.backends.amazon_s3'
     m = 'boto'
@@ -21,7 +22,7 @@ class AmazonS3Backend(BackendBase):
     '''
 
     REQUIRED_OPTIONS = ('ENGINE', 'PUBLIC_URL', 'ACCESS_KEY_ID',
-                        'SECRET_ACCESS_KEY', 'BUCKET', 'ENDPOINT')
+                        'SECRET_ACCESS_KEY', 'BUCKET')
 
     def account_username(self):
         return self.options.get('ACCESS_KEY_ID', '')
@@ -30,22 +31,36 @@ class AmazonS3Backend(BackendBase):
         return self.options.get('BUCKET', '')
 
     def authenticate(self):
-        raise DistillPublishError('TODO')
+        access_key_id = self.account_username()
+        secret_access_key = self.options.get('SECRET_ACCESS_KEY', '')
+        bucket = self.account_container()
+        self.d['connection'] = S3Connection(access_key_id, secret_access_key)
+        self.d['bucket'] = self.d['connection'].get_bucket(bucket)
 
     def list_remote_files(self):
-        raise DistillPublishError('TODO')
+        rtn = set()
+        for k in self.d['bucket'].list():
+            rtn.add(k.name)
+        return rtn
 
     def delete_remote_file(self, remote_name):
-        raise DistillPublishError('TODO')
+        key = self.d['bucket'].get_key(remote_name)
+        return key.delete()
 
     def compare_file(self, local_name, remote_name):
-        raise DistillPublishError('TODO')
+        key = self.d['bucket'].get_key(remote_name)
+        local_hash = self._get_local_file_hash(local_name)
+        return local_hash == key.etag[1:-1]
 
     def upload_file(self, local_name, remote_name):
-        raise DistillPublishError('TODO')
+        k = Key(self.d['bucket'])
+        k.key = remote_name
+        k.set_contents_from_filename(local_name)
+        return True
 
     def create_remote_dir(self, remote_dir_name):
-        raise DistillPublishError('TODO')
+        # not required for S3 buckets
+        return True
 
 backend_class = AmazonS3Backend
 

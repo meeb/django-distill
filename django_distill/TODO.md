@@ -32,17 +32,3 @@
                                 # certificates with etc.
 },
 ```
-
-**django_distill.backends.amazon_s3**: Publish to an Amazon S3 bucket. Requires
-  the Python library `s3` (`$ pip install s3`). Options:
-
-```python
-'s3-target': {
-    'ENGINE': 'django_distill.backends.amazon_s3',
-    'PUBLIC_URL': 'http://.../',
-    'ACCESS_KEY_ID': '...',
-    'SECRET_ACCESS_KEY': '...',
-    'BUCKET': '...',
-    'ENDPOINT': '...',
-},
-```

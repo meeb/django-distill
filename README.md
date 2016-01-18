@@ -117,9 +117,9 @@ urlpatterns = patterns('blog',
 ```
 
 Your site will still function identically with the above changes. Internally
-the `distill` parameter is removed and the URL is passed back to Django for
-normal processing. This has no runtime performance impact as this happens only
-once upon starting the application.
+the `distill_func` and `distill_file` parameters are removed and the URL is
+passed back to Django for normal processing. This has no runtime performance
+impact as this happens only once upon starting the application.
 
 # The `distill-local` command
 

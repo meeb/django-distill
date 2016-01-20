@@ -15,10 +15,10 @@ setup(
     description=('Static site renderer and publisher for Django.'),
     license='MIT',
     include_package_data=True,
-    install_requires = ('requests',),
+    install_requires = ('django', 'requests',),
     packages=find_packages(),
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
@@ -29,12 +29,13 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    keywords = ['django', 'distill'],
+    keywords = ['django', 'distill', 'static', 's3', 'rackspace'],
 )
 
 # eof

@@ -16,7 +16,7 @@ rather than the entire site.
 For static files on CDNs we use the following 'cache buster' library to allow
 for fast static media updates when pushing changes:
 
-https://github.com/mgrp/django-cachebuster
+https://github.com/mgrp/django-cachekiller
 
 # Installation
 

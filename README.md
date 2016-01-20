@@ -23,7 +23,7 @@ https://github.com/mgrp/django-cachebuster
 Install from pip:
 
 ```bash
-$ pip install --upgrade git+git://github.com/mgrp/django-distill.git@master
+$ pip install django-distill
 ```
 
 Add `django_distill` to your `INSTALLED_APPS` in your `settings.py`:

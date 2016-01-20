@@ -9,6 +9,7 @@ setup(
     name='django-distill',
     version=str(version),
     url='https://github.com/mgrp/django-distill',
+    download_url='https://github.com/mgrp/django-distill/tarball/79cdbe8',
     author='the m group, https://m.pr/',
     author_email='hi@m.pr',
     description=('Static site renderer and publisher for Django.'),
@@ -33,7 +34,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    keywords = ['django', 'distill',],
+    keywords = ['django', 'distill'],
 )
 
 # eof

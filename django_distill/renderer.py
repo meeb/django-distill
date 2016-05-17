@@ -147,6 +147,9 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
         stdout('Rendering page: {} -> {} ["{}", {} bytes] {}'.format(local_uri,
             full_path, mime, len(content), renamed))
         try:
+            dirname = os.path.dirname(full_path)
+            if not os.path.isdir(dirname):
+                os.makedirs(dirname)
             with open(full_path, 'w') as f:
                 f.write(content)
         except IsADirectoryError:

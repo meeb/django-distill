@@ -9,7 +9,7 @@ setup(
     name='django-distill',
     version=str(version),
     url='https://github.com/mgrp/django-distill',
-    download_url='https://github.com/mgrp/django-distill/tarball/0.2',
+    download_url='https://github.com/mgrp/django-distill/tarball/0.3',
     author='the m group, https://m.pr/',
     author_email='hi@m.pr',
     description=('Static site renderer and publisher for Django.'),

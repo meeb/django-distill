@@ -80,7 +80,7 @@ class BackendBase(object):
         remote_file = '/'.join(truncated.split(os.sep))
         remote_uri = self.remote_url_parts.path + remote_file
         return urlunsplit((self.remote_url_parts.scheme,
-            self.remote_url_parts.netloc, remote_uri, '', ''))
+                           self.remote_url_parts.netloc, remote_uri, '', ''))
 
     def list_local_dirs(self):
         return self.local_dirs

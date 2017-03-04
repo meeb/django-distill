@@ -246,6 +246,22 @@ by `django-distill` are:
 },
 ```
 
+**django_distill.backends.google_storage**: Publish to a Google Cloud Storage
+  bucket. Requires the Python libraries `google-api-python-client` and
+  `google-cloud-storage`
+  (`$ pip install google-api-python-client google-cloud-storage``). The bucket
+  must already exist and be set up to host a public static website (use the
+  Google Cloud control panel). Options:
+
+```python
+'some-google-storage-bucket': {
+    'ENGINE': 'django_distill.backends.google_storage',
+    'PUBLIC_URL': 'https://storage.googleapis.com/[bucket.name.here]/',
+    'JSON_CREDENTIALS': '/path/to/some/credentials.json',
+    'BUCKET': '[bucket.name.here]',
+},
+```
+
 # Contributing
 
 All properly formatted and sensible pull requests, issues and comments are

@@ -15,9 +15,9 @@ setup(
     description=('Static site renderer and publisher for Django.'),
     license='MIT',
     include_package_data=True,
-    install_requires = ('django', 'requests',),
+    install_requires=('django', 'requests'),
     packages=find_packages(),
-    classifiers=[
+    classifiers=(
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
@@ -34,8 +34,9 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Software Development :: Libraries :: Python Modules',
-    ],
-    keywords = ['django', 'distill', 'static', 's3', 'rackspace'],
+    ),
+    keywords=('django', 'distill', 'static', 's3', 'rackspace',
+              'google cloud storage'),
 )
 
 # eof

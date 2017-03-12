@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+
 from django_distill.errors import DistillPublishError
+
 
 def publish_dir(local_dir, backend, stdout):
     stdout('Authenticating')
@@ -38,8 +40,8 @@ def publish_dir(local_dir, backend, stdout):
         url = backend.remote_url(f)
         stdout('Verifying: {}'.format(url))
         if not backend.check_file(f, url):
-            raise DistillPublishError('Remote file {} failed hash check'.format(
-                url))
+            err = 'Remote file {} failed hash check'
+            raise DistillPublishError(err.format(url))
     # delete any orphan files
     for f in to_delete:
         stdout('Deleting remote: {}'.format(f))

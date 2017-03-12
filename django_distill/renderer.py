@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+
 import os
 import sys
 import types
 import errno
 from shutil import copy2
+
 
 from django.utils import (six, translation)
 from django.conf import settings
@@ -15,7 +17,9 @@ from django.test import RequestFactory
 from django.core.urlresolvers import reverse
 from django.core.management import call_command
 
+
 from django_distill.errors import (DistillError, DistillWarning)
+
 
 class DistillRender(object):
     '''
@@ -48,16 +52,15 @@ class DistillRender(object):
             v = func()
         except Exception as e:
             raise DistillError('Failed to call distill function: {}'.format(e))
-        t = type(v)
         if not v:
             return (None,)
-        elif t in (list, tuple):
+        elif isinstance(t, (list, tuple)):
             return v
-        elif t == types.GeneratorType:
+        elif isinstance(t, types.GeneratorType):
             return list(v)
         else:
-            raise DistillError('Distill function returned an invalid type: {}'
-                .format(t))
+            err = 'Distill function returned an invalid type: {}'
+            raise DistillError(err.format(t))
 
     def generate_uri(self, view_name, param_set):
         t = type(param_set)
@@ -66,8 +69,8 @@ class DistillRender(object):
         elif t == dict:
             uri = reverse(view_name, kwargs=param_set)
         else:
-            raise DistillError('Distill function returned an invalid type: {}'
-                .format(t))
+            err = 'Distill function returned an invalid type: {}'
+            raise DistillError(err.format(t))
         return uri
 
     def render_view(self, uri, param_set, args):
@@ -86,13 +89,13 @@ class DistillRender(object):
         elif isinstance(response, TemplateResponse):
             response.render()
         if response.status_code != 200:
-            raise DistillError('View returned a non-200 status code: {}'
-                .format(response.status_code))
+            err = 'View returned a non-200 status code: {}'
+            raise DistillError(err.format(response.status_code))
         return response
 
     def copy_static(self, dir_from, dir_to):
-        # we need to ignore some static dirs such as 'admin' so this is a little
-        # more complex than a straight shutil.copytree()
+        # we need to ignore some static dirs such as 'admin' so this is a
+        # little more complex than a straight shutil.copytree()
         if not dir_from.endswith(os.sep):
             dir_from = dir_from + os.sep
         if not dir_to.endswith(os.sep):
@@ -109,21 +112,27 @@ class DistillRender(object):
                 copy2(from_path, to_path)
                 yield from_path, to_path
 
+
 def run_collectstatic(stdout):
     stdout('Distill is running collectstatic...')
     call_command('collectstatic')
     stdout('')
     stdout('collectstatic complete, continuing...')
 
+
 _ignore_dirs = ('admin', 'grappelli')
+
+
 def filter_dirs(dirs):
     return [d for d in dirs if d not in _ignore_dirs]
+
 
 def load_urls(stdout):
     stdout('Loading site URLs')
     site_urls = getattr(settings, 'ROOT_URLCONF')
     if site_urls:
         include_urls(site_urls)
+
 
 def render_to_dir(output_dir, urls_to_distill, stdout):
     mimes = {}
@@ -141,12 +150,12 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
         try:
             content = http_response.content.decode(settings.DEFAULT_CHARSET)
         except Exception as e:
-            DistillError('Failed to encode {} into {}: {}'.format(page_uri,
-                settings.DEFAULT_CHARSET, e))
+            err = 'Failed to encode {} into {}: {}'
+            DistillError(err.format(page_uri, settings.DEFAULT_CHARSET, e))
         mime = http_response.get('Content-Type')
         renamed = ' (renamed from "{}")'.format(page_uri) if file_name else ''
-        stdout('Rendering page: {} -> {} ["{}", {} bytes] {}'.format(local_uri,
-            full_path, mime, len(content), renamed))
+        msg = 'Rendering page: {} -> {} ["{}", {} bytes] {}'
+        stdout(msg.format(local_uri, full_path, mime, len(content), renamed))
         try:
             dirname = os.path.dirname(full_path)
             if not os.path.isdir(dirname):
@@ -154,7 +163,7 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
             with open(full_path, 'w') as f:
                 f.write(content)
         except IOError as e:
-            if e.errno = errno.EISDIR:
+            if e.errno == errno.EISDIR:
                 err = ('Output path: {} is a directory! Try adding a '
                        '"distill_file" arg to your distill_url()')
                 raise DistillError(err.format(full_path))
@@ -165,8 +174,9 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
     static_url = static_url[1:] if static_url.startswith('/') else static_url
     static_output_dir = os.path.join(output_dir, static_url)
     for file_from, file_to in renderer.copy_static(settings.STATIC_ROOT,
-        static_output_dir):
+                                                   static_output_dir):
         stdout('Copying static: {} -> {}'.format(file_from, file_to))
     return True
+
 
 # eof

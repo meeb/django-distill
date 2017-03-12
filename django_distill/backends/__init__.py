@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 
+
 import os
 import sys
 import warnings
 from hashlib import md5
 from binascii import hexlify
 
-import requests
 
+import requests
 from django.utils.six.moves.urllib.parse import (urlsplit, urlunsplit)
+
 
 from django_distill.errors import DistillPublishError
 from django_distill.renderer import filter_dirs
+
 
 class BackendBase(object):
     '''
@@ -123,11 +126,13 @@ class BackendBase(object):
     def create_remote_dir(self, remote_dir_name):
         raise NotImplementedError('create_remote_dir must be implemented')
 
+
 def get_backend(engine):
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
         try:
-            backend = __import__(engine, globals(), locals(), ['backend_class'])
+            backend = __import__(engine, globals(), locals(),
+                                 ['backend_class'])
         except ImportError as e:
             sys.stderr.write('Failed to import backend engine')
             raise
@@ -135,5 +140,6 @@ def get_backend(engine):
     if not module:
         raise ImportError('Backend engine has no backend_class attribute')
     return module
+
 
 # eof

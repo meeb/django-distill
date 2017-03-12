@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+
 import sys
 import warnings
+
 
 try:
     from boto.s3.connection import S3Connection
@@ -13,8 +15,10 @@ except ImportError:
     sys.stdout.write('$ pip install {}\n\n'.format(m))
     raise
 
+
 from django_distill.errors import DistillPublishError
 from django_distill.backends import BackendBase
+
 
 class AmazonS3Backend(BackendBase):
     '''
@@ -62,6 +66,8 @@ class AmazonS3Backend(BackendBase):
         # not required for S3 buckets
         return True
 
+
 backend_class = AmazonS3Backend
+
 
 # eof

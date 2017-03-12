@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+
 import sys
 import warnings
+
 
 try:
     import pyrax
@@ -12,16 +14,18 @@ except ImportError:
     sys.stdout.write('$ pip install {}\n\n'.format(m))
     raise
 
+
 from django_distill.errors import DistillPublishError
 from django_distill.backends import BackendBase
+
 
 class RackspaceCloudFilesBackend(BackendBase):
     '''
         Publisher for Rackspace Cloud Files. Implements the BackendBase.
     '''
 
-    REQUIRED_OPTIONS = ('ENGINE', 'PUBLIC_URL', 'USERNAME', 'API_KEY', 'REGION',
-                        'CONTAINER')
+    REQUIRED_OPTIONS = ('ENGINE', 'PUBLIC_URL', 'USERNAME', 'API_KEY',
+                        'REGION', 'CONTAINER')
 
     def account_username(self):
         return self.options.get('USERNAME', '')
@@ -73,13 +77,15 @@ class RackspaceCloudFilesBackend(BackendBase):
                 local_name))
         local_hash = self._get_local_file_hash(local_name)
         remote_obj = self.d['container'].upload_file(local_name, remote_name,
-            etag=local_hash)
+                                                     etag=local_hash)
         return local_hash == remote_obj.etag
 
     def create_remote_dir(self, remote_dir_name):
         # Rackspace Files containers have no directories
         pass
 
+
 backend_class = RackspaceCloudFilesBackend
+
 
 # eof

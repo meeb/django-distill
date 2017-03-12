@@ -59,7 +59,7 @@ class GoogleCloudStorageBackend(BackendBase):
     def compare_file(self, local_name, remote_name):
         b = self.d['bucket'].get_blob(remote_name)
         local_hash = self._get_local_file_hash(local_name)
-        remote_hash = hexlify(b64decode(b.md5_hash))
+        remote_hash = str(hexlify(b64decode(b.md5_hash)).decode())
         return local_hash == remote_hash
 
     def upload_file(self, local_name, remote_name):

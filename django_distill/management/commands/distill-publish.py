@@ -1,21 +1,26 @@
 # -*- coding: utf-8 -*-
 
+
 import os
 from tempfile import mkdtemp
 from shutil import rmtree
 
+
 from django.conf import settings
 from django.core.management.base import (BaseCommand, CommandError)
+
 
 from django_distill.backends import get_backend
 from django_distill.distill import urls_to_distill
 from django_distill.renderer import (run_collectstatic, render_to_dir)
 from django_distill.publisher import publish_dir
 
+
 try:
     input = raw_input
 except NameError:
     pass
+
 
 class Command(BaseCommand):
 
@@ -27,6 +32,9 @@ class Command(BaseCommand):
                             action='store_true')
         parser.add_argument('--quiet', dest='quiet', action='store_true')
         parser.add_argument('--force', dest='force', action='store_true')
+
+    def _quiet(self, *args, **kwargs):
+        pass
 
     def handle(self, *args, **options):
         publish_target_name = options.get('publish_target_name')
@@ -46,7 +54,7 @@ class Command(BaseCommand):
         quiet = options.get('quiet')
         force = options.get('force')
         if quiet:
-            stdout = lambda x: None
+            stdout = self._quiet
         else:
             stdout = self.stdout.write
         static_dir = settings.STATIC_ROOT
@@ -80,8 +88,8 @@ class Command(BaseCommand):
                 raise CommandError('Publishing site cancelled.')
             self.stdout.write('')
             static_output_dir = os.path.join(output_dir, static_url[1:])
-            stdout('Generating static site into directory: {}'
-                .format(output_dir))
+            msg = 'Generating static site into directory: {}'
+            stdout(msg.format(output_dir))
             render_to_dir(output_dir, urls_to_distill, stdout)
             stdout('')
             stdout('Publishing site')

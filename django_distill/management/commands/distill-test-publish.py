@@ -1,18 +1,23 @@
 # -*- coding: utf-8 -*-
 
+
 import os
 from binascii import hexlify
 from tempfile import NamedTemporaryFile
 
+
 from django.conf import settings
 from django.core.management.base import (BaseCommand, CommandError)
 
+
 from django_distill.backends import get_backend
+
 
 try:
     input = raw_input
 except NameError:
     pass
+
 
 class Command(BaseCommand):
 
@@ -56,7 +61,7 @@ class Command(BaseCommand):
         random_file.write(random_str)
         random_file.close()
         backend = backend_class(os.path.dirname(random_file.name),
-            publish_target)
+                                publish_target)
         self.stdout.write('Authenticating')
         backend.authenticate()
         remote_file_name = os.path.basename(random_file.name)
@@ -67,7 +72,8 @@ class Command(BaseCommand):
         if backend.check_file(random_file.name, url):
             self.stdout.write('File uploaded correctly, file hash is correct')
         else:
-            self.stderr.write('File error, remote file hash differs from local')
+            msg = 'File error, remote file hash differs from local hash'
+            self.stderr.write(msg)
         self.stdout.write('Deleting remote test file')
         backend.delete_remote_file(remote_file_name)
         if os.path.exists(random_file.name):

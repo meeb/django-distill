@@ -70,8 +70,6 @@ setup for a theoretical blogging app would be:
 # replaces the standard django.conf.urls.url, identical syntax
 from django_distill import distill_url
 
-from django.conf.urls import patterns
-
 # views and models from a theoretical blogging app
 from blog.views import PostIndex, PostView, PostYear
 from blog.models import Post
@@ -95,7 +93,7 @@ def get_years():
     return ('2014', '2015')
     # This is really just shorthand for (('2014',), ('2015',))
 
-urlpatterns = patterns('blog',
+urlpatterns = (
     # e.g. / the blog index
     distill_url(r'^$',
                 PostIndex.as_view(),

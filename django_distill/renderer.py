@@ -3,6 +3,7 @@
 import os
 import sys
 import types
+import errno
 from shutil import copy2
 
 from django.utils import (six, translation)
@@ -152,9 +153,13 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
                 os.makedirs(dirname)
             with open(full_path, 'w') as f:
                 f.write(content)
-        except IsADirectoryError:
-            raise DistillError('Output path: {} is a directory! Try adding' \
-                'a "distill_file" arg to your distill_url()'.format(full_path))
+        except IOError as e:
+            if e.errno = errno.EISDIR:
+                err = ('Output path: {} is a directory! Try adding a '
+                       '"distill_file" arg to your distill_url()')
+                raise DistillError(err.format(full_path))
+            else:
+                raise
         mimes[full_path] = mime.split(';')[0].strip()
     static_url = settings.STATIC_URL
     static_url = static_url[1:] if static_url.startswith('/') else static_url

@@ -60,7 +60,7 @@ class DistillRender(object):
             return list(v)
         else:
             err = 'Distill function returned an invalid type: {}'
-            raise DistillError(err.format(t))
+            raise DistillError(err.format(type(v)))
 
     def generate_uri(self, view_name, param_set):
         t = type(param_set)

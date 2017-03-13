@@ -63,14 +63,13 @@ class DistillRender(object):
             raise DistillError(err.format(type(v)))
 
     def generate_uri(self, view_name, param_set):
-        t = type(param_set)
-        if t in (list, tuple):
+        if isinstance(param_set, (list, tuple)):
             uri = reverse(view_name, args=param_set)
-        elif t == dict:
+        elif isinstance(param_set, dict):
             uri = reverse(view_name, kwargs=param_set)
         else:
             err = 'Distill function returned an invalid type: {}'
-            raise DistillError(err.format(t))
+            raise DistillError(err.format(type(param_set)))
         return uri
 
     def render_view(self, uri, param_set, args):
@@ -79,7 +78,7 @@ class DistillRender(object):
         view_regex, view_func = args[0], args[1]
         request_factory = RequestFactory()
         request = request_factory.get(uri)
-        if type(param_set) == dict:
+        if isinstance(param_set, dict):
             a, k = (), param_set
         else:
             a, k = param_set, {}

@@ -54,9 +54,9 @@ class DistillRender(object):
             raise DistillError('Failed to call distill function: {}'.format(e))
         if not v:
             return (None,)
-        elif isinstance(t, (list, tuple)):
+        elif isinstance(v, (list, tuple)):
             return v
-        elif isinstance(t, types.GeneratorType):
+        elif isinstance(v, types.GeneratorType):
             return list(v)
         else:
             err = 'Distill function returned an invalid type: {}'

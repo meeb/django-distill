@@ -4,7 +4,7 @@
 from django_distill.distill import distill_url
 
 
-__version__ = 0.6
+__version__ = 0.7
 
 
 # eof

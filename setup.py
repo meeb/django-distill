@@ -3,7 +3,10 @@
 import os
 import sys
 from setuptools import (setup, find_packages)
-from django_distill import __version__ as version
+
+
+version = 0.7
+
 
 setup(
     name='django-distill',

@@ -42,6 +42,12 @@ class DistillRender(object):
                     param_set = param_set,
                 uri = self.generate_uri(view_name, param_set)
                 render = self.render_view(uri, param_set, a)
+                # auto detect URIs ending with a slash, rewrite them to "/index.html"
+                if file_name is None and uri.endswith("/"):
+                    if uri.startswith("/"):
+                        uri = uri[1:]
+                    yield uri, uri + "index.html", render
+                    continue
                 yield uri, file_name, render
 
     def _is_str(self, s):

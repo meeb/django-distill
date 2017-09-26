@@ -46,6 +46,8 @@ class AmazonS3Backend(BackendBase):
         except CertificateError as e:
             # There's a well known bug in boto with buckets that contain a dot like
             # 'my.bucket.com': https://github.com/boto/boto/issues/2836
+            if calling_format:
+                raise e
             self.authenticate(calling_format=OrdinaryCallingFormat())
 
 

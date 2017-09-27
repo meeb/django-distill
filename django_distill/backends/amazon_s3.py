@@ -9,16 +9,17 @@ try:
     from boto.s3.connection import S3Connection, OrdinaryCallingFormat
     from boto.s3.key import Key
 except ImportError:
-    l = 'django_distill.backends.amazon_s3'
-    m = 'boto'
-    sys.stdout.write('{} backend requires {}:\n'.format(l, m))
-    sys.stdout.write('$ pip install {}\n\n'.format(m))
+    name = 'django_distill.backends.amazon_s3'
+    pipm = 'boto'
+    sys.stdout.write('{} backend requires {}:\n'.format(name, pipm))
+    sys.stdout.write('$ pip install {}\n\n'.format(pipm))
     raise
 
 
 from django_distill.errors import DistillPublishError
 from django_distill.backends import BackendBase
 from ssl import CertificateError
+
 
 class AmazonS3Backend(BackendBase):
     '''
@@ -38,18 +39,17 @@ class AmazonS3Backend(BackendBase):
         access_key_id = self.account_username()
         secret_access_key = self.options.get('SECRET_ACCESS_KEY', '')
         bucket = self.account_container()
-
+        kwargs = {'calling_format': calling_format} if calling_format else {}
         try:
-            kwargs = {} if calling_format is None else {"calling_format": calling_format}
-            self.d['connection'] = S3Connection(access_key_id, secret_access_key, **kwargs)
+            self.d['connection'] = S3Connection(access_key_id,
+                                                secret_access_key, **kwargs)
             self.d['bucket'] = self.d['connection'].get_bucket(bucket)
         except CertificateError as e:
-            # There's a well known bug in boto with buckets that contain a dot like
-            # 'my.bucket.com': https://github.com/boto/boto/issues/2836
+            # work-around for upstream boto bug for buckets containing dots:
+            # https://github.com/boto/boto/issues/2836
             if calling_format:
                 raise e
             self.authenticate(calling_format=OrdinaryCallingFormat())
-
 
     def list_remote_files(self):
         rtn = set()

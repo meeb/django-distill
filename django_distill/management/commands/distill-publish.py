@@ -102,4 +102,5 @@ class Command(BaseCommand):
         stdout('')
         stdout('Site generation and publishing complete.')
 
+
 # eof

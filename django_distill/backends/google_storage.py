@@ -12,10 +12,10 @@ try:
     from googleapiclient import discovery
     from google.cloud import storage
 except ImportError:
-    l = 'django_distill.backends.google_storage'
-    m = 'google-api-python-client google-cloud-storage'
-    sys.stdout.write('{} backend requires {}:\n'.format(l, m))
-    sys.stdout.write('$ pip install {}\n\n'.format(m))
+    name = 'django_distill.backends.google_storage'
+    pipm = 'google-api-python-client google-cloud-storage'
+    sys.stdout.write('{} backend requires {}:\n'.format(name, pipm))
+    sys.stdout.write('$ pip install {}\n\n'.format(pipm))
     raise
 
 

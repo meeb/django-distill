@@ -62,9 +62,10 @@ supports the new keyword arguments `distill_func` and `distill_file`. The
 `distill_func` argument should be provided with a function or callable class
 that returns an iterable or None. The `distill_file` argument is entirely
 optional and allows you to override the URL that would otherwise be generated
-from the reverse of the URL regex. This allows you to rename URLs like `/` to
-something more sensible for static files like `index.html`. An example distill
-setup for a theoretical blogging app would be:
+from the reverse of the URL regex. This allows you to rename URLs like
+`/example` to any other name like `example.html`. As of v0.8 any URIs ending
+in a slash `/` are automatically modified to end in `/index.html`. An example
+distill setup for a theoretical blogging app would be:
 
 ```python
 # replaces the standard django.conf.urls.url, identical syntax

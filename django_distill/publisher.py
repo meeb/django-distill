@@ -47,4 +47,5 @@ def publish_dir(local_dir, backend, stdout):
         stdout('Deleting remote: {}'.format(f))
         backend.delete_remote_file(f)
 
+
 # eof

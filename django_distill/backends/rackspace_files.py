@@ -8,10 +8,10 @@ import warnings
 try:
     import pyrax
 except ImportError:
-    l = 'django_distill.backends.rackspace_files'
-    m = 'pyrax'
-    sys.stdout.write('{} backend requires {}:\n'.format(l, m))
-    sys.stdout.write('$ pip install {}\n\n'.format(m))
+    name = 'django_distill.backends.rackspace_files'
+    pipm = 'pyrax'
+    sys.stdout.write('{} backend requires {}:\n'.format(name, pipm))
+    sys.stdout.write('$ pip install {}\n\n'.format(pipm))
     raise
 
 
@@ -50,14 +50,15 @@ class RackspaceCloudFilesBackend(BackendBase):
 
     def list_remote_files(self):
         rtn = set()
-        m, l = 100, ''
+        marker, limit = 100, ''
         while True:
-            objects = self.d['container'].get_objects(limit=l, marker=m)
+            objects = self.d['container'].get_objects(limit=limit,
+                                                      marker=marker)
             if not objects:
                 break
-            for o in objects:
-                rtn.add(o.name)
-            m = objects[-1].name
+            for obj in objects:
+                rtn.add(obj.name)
+            marker = objects[-1].name
         return rtn
 
     def delete_remote_file(self, remote_name):

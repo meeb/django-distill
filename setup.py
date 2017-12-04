@@ -5,7 +5,7 @@ import sys
 from setuptools import (setup, find_packages)
 
 
-version = 1.0
+version = 1.1
 
 
 setup(
@@ -18,7 +18,7 @@ setup(
     description=('Static site renderer and publisher for Django.'),
     license='MIT',
     include_package_data=True,
-    install_requires=('django', 'requests'),
+    install_requires=('django', 'requests', 'future'),
     packages=find_packages(),
     classifiers=[
         'Development Status :: 5 - Production/Stable',

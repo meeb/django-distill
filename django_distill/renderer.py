@@ -14,7 +14,7 @@ from django.conf.urls import include as include_urls
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django.test import RequestFactory
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.management import call_command
 
 

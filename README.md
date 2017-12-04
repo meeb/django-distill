@@ -1,7 +1,7 @@
 # django-distill
 
 `django-distill` is a minimal configuration static site generator and publisher
-for Django.
+for Django. Requires at least Django 1.10 or Django 2.0.
 
 `django-distill` extends existing Django sites with the ability to export
 fully functional static sites. It is suitable for sites such as blogs that have

@@ -185,6 +185,13 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
     for file_from, file_to in renderer.copy_static(settings.STATIC_ROOT,
                                                    static_output_dir):
         stdout('Copying static: {} -> {}'.format(file_from, file_to))
+    media_url = settings.MEDIA_URL
+    if media_url:
+        media_url = media_url[1:] if media_url.startswith('/') else media_url
+        media_output_dir = os.path.join(output_dir, media_url)
+        for file_from, file_to in renderer.copy_static(settings.MEDIA_URL,
+                                                       media_output_dir):
+            stdout('Copying media: {} -> {}'.format(file_from, file_to))
     return True
 
 

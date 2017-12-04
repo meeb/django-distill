@@ -69,7 +69,7 @@ class Command(BaseCommand):
                 ans = 'yes'
             else:
                 ans = input('Type \'yes\' to continue, or \'no\' to cancel: ')
-            if ans == 'yes':
+            if ans.lower() == 'yes':
                 stdout('Recreating output directory...')
                 rmtree(output_dir)
                 os.makedirs(output_dir)
@@ -77,7 +77,7 @@ class Command(BaseCommand):
                 raise CommandError('Distilling site cancelled.')
         else:
             ans = input('Does not exist, create it? (YES/no): ')
-            if ans == 'yes':
+            if ans.lower() == 'yes':
                 stdout('Creating directory...')
                 os.makedirs(output_dir)
             else:

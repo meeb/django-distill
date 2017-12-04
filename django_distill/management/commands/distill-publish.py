@@ -82,7 +82,7 @@ class Command(BaseCommand):
                 e = 'Static source directory does not exist, run collectstatic'
                 raise CommandError(e)
             ans = input('Type \'yes\' to continue, or \'no\' to cancel: ')
-            if ans == 'yes':
+            if ans.lower() == 'yes':
                 pass
             else:
                 raise CommandError('Publishing site cancelled.')

@@ -47,7 +47,7 @@ class Command(BaseCommand):
         self.stdout.write('    Engine: {}'.format(publish_engine))
         self.stdout.write('')
         ans = input('Type \'yes\' to continue, or \'no\' to cancel: ')
-        if ans == 'yes':
+        if ans.lower() == 'yes':
             self.stdout.write('')
             self.stdout.write('Testing publishing target...')
         else:

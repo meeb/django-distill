@@ -144,6 +144,10 @@ rendering, this is just a shortcut to save you typing an extra command.
 
 `--force`: Assume 'yes' to all confirmation questions.
 
+**Note**  If any of your views contain a Python error then rendering will fail
+then the stack trace will be printed to the terminal and the rendering command
+will exit with a status code of 1.
+
 # The `distill-publish` command
 
 ```bash
@@ -172,6 +176,10 @@ rendering, this is just a shortcut to save you typing an extra command.
 **Note** that this means if you use `--force` and `--quiet` that the output
 directory will have all files not part of the site export deleted without any
 confirmation.
+
+**Note**  If any of your views contain a Python error then rendering will fail
+then the stack trace will be printed to the terminal and the rendering command
+will exit with a status code of 1.
 
 # The `distill-test-publish` command
 

@@ -53,6 +53,7 @@ urlpatterns = [
 
 ]
 
+
 if settings.HAS_RE_PATH:
     urlpatterns += [
 
@@ -71,6 +72,7 @@ if settings.HAS_RE_PATH:
                         distill_func=test_named_param_func),
 
     ]
+
 
 if settings.HAS_PATH:
     urlpatterns += [

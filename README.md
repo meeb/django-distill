@@ -303,6 +303,15 @@ by `django-distill` are:
 },
 ```
 
+# Tests
+
+There is a minimal test suite, you can run it by cloing this repository,
+installing the required dependancies in `requirements.txt` then execuiting:
+
+```bash
+# ./run-tests.py
+```
+
 
 # Contributing
 

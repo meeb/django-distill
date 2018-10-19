@@ -50,7 +50,7 @@ class BackendBase(object):
                 self.local_files.add(os.path.join(root, f))
 
     def _get_local_file_hash(self, file_path, digest_func=md5, chunk=1048576):
-        # md5 is used by both Amazon S3 and Rackspace Cloud Files
+        # md5 is used by Amazon S3, Rackspace Cloud Files and Google Storage
         if not self._file_exists(file_path):
             return None
         digest = digest_func()
@@ -134,7 +134,8 @@ def get_backend(engine):
             backend = __import__(engine, globals(), locals(),
                                  ['backend_class'])
         except ImportError as e:
-            sys.stderr.write('Failed to import backend engine')
+            err = 'Failed to import backend engine: {} ({})\n'
+            sys.stderr.write(err.format(engine, e))
             raise
     module = getattr(backend, 'backend_class')
     if not module:

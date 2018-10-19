@@ -106,7 +106,7 @@ urlpatterns = (
                  # / is not a valid file name! override it to index.html
                  distill_file='index.html'),
     # e.g. /post/123-some-post-title using named parameters
-    distill_path('^post/<int:blog_id>-<slug:blog_title>',
+    distill_path('post/<int:blog_id>-<slug:blog_title>',
                  PostView.as_view(),
                  name='blog-post',
                  distill_func=get_all_blogposts),

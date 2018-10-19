@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
+from django.conf import settings
 from django.http import HttpResponse
 
 
@@ -50,35 +51,45 @@ urlpatterns = [
                 name='url-named-param',
                 distill_func=test_named_param_func),
 
-    distill_re_path(r'^re_path/$',
+]
+
+if settings.HAS_RE_PATH:
+    urlpatterns += [
+
+        distill_re_path(r'^re_path/$',
+                        test_no_param_view,
+                        name='re_path-no-param',
+                        distill_func=test_no_param_func,
+                        distill_file='test'),
+        distill_re_path(r'^re_path/([\d]+)$',
+                        test_positional_param_view,
+                        name='re_path-positional-param',
+                        distill_func=test_positional_param_func),
+        distill_re_path(r'^re_path/(?P<param>[\w]+)$',
+                        test_named_param_view,
+                        name='re_path-named-param',
+                        distill_func=test_named_param_func),
+
+    ]
+
+if settings.HAS_PATH:
+    urlpatterns += [
+
+        distill_path('path/',
                     test_no_param_view,
-                    name='re_path-no-param',
+                    name='path-no-param',
                     distill_func=test_no_param_func,
                     distill_file='test'),
-    distill_re_path(r'^re_path/([\d]+)$',
+        distill_path('path/<int>',
                     test_positional_param_view,
-                    name='re_path-positional-param',
+                    name='path-positional-param',
                     distill_func=test_positional_param_func),
-    distill_re_path(r'^re_path/(?P<param>[\w]+)$',
+        distill_path('path/<str:param>',
                     test_named_param_view,
-                    name='re_path-named-param',
+                    name='path-named-param',
                     distill_func=test_named_param_func),
 
-    distill_path('path/',
-                 test_no_param_view,
-                 name='path-no-param',
-                 distill_func=test_no_param_func,
-                 distill_file='test'),
-    distill_path('path/<int>',
-                 test_positional_param_view,
-                 name='path-positional-param',
-                 distill_func=test_positional_param_func),
-    distill_path('path/<str:param>',
-                 test_named_param_view,
-                 name='path-named-param',
-                 distill_func=test_named_param_func),
-
-]
+    ]
 
 
 # eof

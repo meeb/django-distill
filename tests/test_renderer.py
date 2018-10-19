@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 
+import sys
+
+
 from django.test import TestCase
+from django.conf import settings
 
 
 from django_distill.distill import urls_to_distill
@@ -21,11 +25,14 @@ class DjangoDistillRendererTestSuite(TestCase):
                 return u
         return False
 
+    def _skip(self, what):
+        sys.stdout.write('Missing {}, skipping test... '.format(what))
+        sys.stdout.flush()
+
     def test_is_str(self):
         self.assertTrue(self.renderer._is_str('a'))
         self.assertFalse(self.renderer._is_str(None))
         self.assertFalse(self.renderer._is_str(1))
-        self.assertFalse(self.renderer._is_str(b'a'))
         self.assertFalse(self.renderer._is_str([]))
         self.assertFalse(self.renderer._is_str(()))
         self.assertFalse(self.renderer._is_str({}))
@@ -88,6 +95,9 @@ class DjangoDistillRendererTestSuite(TestCase):
         self.assertEqual(render.content, b'testtest')
 
     def test_re_path_no_param(self):
+        if not settings.HAS_RE_PATH:
+            self._skip('django.urls.re_path')
+            return
         view = self._get_view('re_path-no-param')
         assert view
         view_func, file_name, view_name, args, kwargs = view
@@ -100,6 +110,9 @@ class DjangoDistillRendererTestSuite(TestCase):
         self.assertEqual(render.content, b'test')
 
     def test_re_path_positional_param(self):
+        if not settings.HAS_RE_PATH:
+            self._skip('django.urls.re_path')
+            return
         view = self._get_view('re_path-positional-param')
         assert view
         view_func, file_name, view_name, args, kwargs = view
@@ -110,6 +123,9 @@ class DjangoDistillRendererTestSuite(TestCase):
         self.assertEqual(render.content, b'test12345')
 
     def test_re_path_named_param(self):
+        if not settings.HAS_RE_PATH:
+            self._skip('django.urls.re_path')
+            return
         view = self._get_view('re_path-named-param')
         assert view
         view_func, file_name, view_name, args, kwargs = view
@@ -120,6 +136,9 @@ class DjangoDistillRendererTestSuite(TestCase):
         self.assertEqual(render.content, b'testtest')
 
     def test_path_no_param(self):
+        if not settings.HAS_PATH:
+            self._skip('django.urls.path')
+            return
         view = self._get_view('path-no-param')
         assert view
         view_func, file_name, view_name, args, kwargs = view
@@ -132,6 +151,9 @@ class DjangoDistillRendererTestSuite(TestCase):
         self.assertEqual(render.content, b'test')
 
     def test_path_positional_param(self):
+        if not settings.HAS_PATH:
+            self._skip('django.urls.path')
+            return
         view = self._get_view('path-positional-param')
         assert view
         view_func, file_name, view_name, args, kwargs = view
@@ -142,6 +164,9 @@ class DjangoDistillRendererTestSuite(TestCase):
         self.assertEqual(render.content, b'test12345')
 
     def test_path_named_param(self):
+        if not settings.HAS_PATH:
+            self._skip('django.urls.path')
+            return
         view = self._get_view('path-named-param')
         assert view
         view_func, file_name, view_name, args, kwargs = view

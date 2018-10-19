@@ -57,7 +57,7 @@ argument.
 # Usage
 
 Assuming you have an existing Django project, edit a `urls.py` to include the
-`distill_url` function which replaces Django's standard `url` function and
+`distill_path` function which replaces Django's standard `path` function and
 supports the new keyword arguments `distill_func` and `distill_file`. The
 `distill_func` argument should be provided with a function or callable class
 that returns an iterable or None. The `distill_file` argument is entirely
@@ -68,15 +68,15 @@ in a slash `/` are automatically modified to end in `/index.html`. An example
 distill setup for a theoretical blogging app would be:
 
 ```python
-# replaces the standard django.conf.urls.url, identical syntax
-from django_distill import distill_url
+# Replaces the standard django.conf.path, identical syntax
+from django_distill import distill_path
 
-# views and models from a theoretical blogging app
+# Views and models from a theoretical blogging app
 from blog.views import PostIndex, PostView, PostYear
 from blog.models import Post
 
 def get_index():
-    # The index URI regex, ^$, contains no parameters, named or otherwise.
+    # The index URI path, '', contains no parameters, named or otherwise.
     # You can simply just return nothing here.
     return None
 
@@ -91,27 +91,47 @@ def get_all_blogposts():
 def get_years():
     # You can also just return an iterable containing static strings if the
     # URL only has one argument and you are using positional URL parameters:
-    return ('2014', '2015')
-    # This is really just shorthand for (('2014',), ('2015',))
+    return (2014, 2015)
+    # This is really just shorthand for ((2014,), (2015,))
 
 urlpatterns = (
     # e.g. / the blog index
-    distill_url(r'^$',
-                PostIndex.as_view(),
-                name='blog-index',
-                distill_func=get_index,
-                # / is not a valid file name! override it to index.html
-                distill_file='index.html'),
+    distill_path('',
+                 PostIndex.as_view(),
+                 name='blog-index',
+                 distill_func=get_index,
+                 # / is not a valid file name! override it to index.html
+                 distill_file='index.html'),
     # e.g. /post/123-some-post-title using named parameters
-    distill_url(r'^post/(?P<blog_id>[\d]+)-(?P<blog_title>[\w]+)$',
-                PostView.as_view(),
-                name='blog-post',
-                distill_func=get_all_blogposts),
+    distill_path('^post/<int:blog_id>-<slug:blog_title>',
+                 PostView.as_view(),
+                 name='blog-post',
+                 distill_func=get_all_blogposts),
     # e.g. /posts-by-year/2015 using positional parameters
-    distill_url(r'^posts-by-year/([\d]{4}))$',
-                PostYear.as_view(),
-                name='blog-year',
-                distill_func=get_years),
+    distill_path('posts-by-year/<int:year>',
+                 PostYear.as_view(),
+                 name='blog-year',
+                 distill_func=get_years),
+)
+```
+
+If you prefer, you can use the `distill_url` or `distill_re_path` functions
+instead. These replace the `django.conf.urls.url` or `django.urls.url` and
+`django.urls.re_path` functions respectively. Their usage is identical to the
+above:
+
+```python
+from django_distill import distill_url, distill_re_path
+
+urlpatterns = (
+    distill_url(r'some/regex'
+                SomeView.as_view(),
+                name='url-view',
+                distill_func=some_func),
+    distill_re_path(r'some/other/regex'
+                SomeOtherView.as_view(),
+                name='url-other-view',
+                distill_func=some_other_func),
 )
 ```
 

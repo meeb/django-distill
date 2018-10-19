@@ -18,6 +18,7 @@ for fast static media updates when pushing changes:
 
 https://github.com/mgrp/django-cachekiller
 
+
 # Installation
 
 Install from pip:
@@ -33,6 +34,7 @@ INSTALLED_APPS += ('django_distill',)
 ```
 
 That's it.
+
 
 # Limitations
 
@@ -53,6 +55,7 @@ media directory defined in `STATIC_ROOT`. This means that you will want to run
 if you have made changes to static media. `django-distill` doesn't chain this
 request by design, however you can enable it with the `--collectstatic`
 argument.
+
 
 # Usage
 
@@ -115,6 +118,11 @@ urlpatterns = (
 )
 ```
 
+Your site will still function identically with the above changes. Internally
+the `distill_func` and `distill_file` parameters are removed and the URL is
+passed back to Django for normal processing. This has no runtime performance
+impact as this happens only once upon starting the application.
+
 If you prefer, you can use the `distill_url` or `distill_re_path` functions
 instead. These replace the `django.conf.urls.url` or `django.urls.url` and
 `django.urls.re_path` functions respectively. Their usage is identical to the
@@ -135,10 +143,12 @@ urlpatterns = (
 )
 ```
 
-Your site will still function identically with the above changes. Internally
-the `distill_func` and `distill_file` parameters are removed and the URL is
-passed back to Django for normal processing. This has no runtime performance
-impact as this happens only once upon starting the application.
+**Note** `django-distill` will track the Django project changes, therefore at
+some point the `distill_url` in the future when Django itself depreciates the
+`django.conf.url` function `distill_url` will cease to work. You can use
+`distill_re_path` as a drop-in replacement. It is advisable to use
+`distill_path` or `distill_re_path` if you're building a site now.
+
 
 # The `distill-local` command
 
@@ -167,6 +177,7 @@ rendering, this is just a shortcut to save you typing an extra command.
 **Note**  If any of your views contain a Python error then rendering will fail
 then the stack trace will be printed to the terminal and the rendering command
 will exit with a status code of 1.
+
 
 # The `distill-publish` command
 
@@ -201,6 +212,7 @@ confirmation.
 then the stack trace will be printed to the terminal and the rendering command
 will exit with a status code of 1.
 
+
 # The `distill-test-publish` command
 
 ```bash
@@ -212,6 +224,7 @@ randomly named file, verify it exists on the `PUBLIC_URL` and then delete it
 again. Use this to check your publishing settings are correct.
 
 `distill-test-publish` has no arguments.
+
 
 # Optional configuration settings
 
@@ -236,6 +249,7 @@ DISTILL_PUBLISH = {
     },
 }
 ```
+
 
 # Publishing targets
 
@@ -288,6 +302,7 @@ by `django-distill` are:
     'BUCKET': '[bucket.name.here]',
 },
 ```
+
 
 # Contributing
 

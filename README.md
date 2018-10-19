@@ -131,14 +131,14 @@ from django_distill import distill_re_path
 
 urlpatterns = (
     distill_re_path(r'some/regex'
-                SomeOtherView.as_view(),
-                name='url-other-view',
-                distill_func=some_other_func),
+                    SomeOtherView.as_view(),
+                    name='url-other-view',
+                    distill_func=some_other_func),
 )
 
 ```
 
-If you are using an older version of Django in the 1.X series you can use the
+If you are using an older version of Django in the 1.x series you can use the
 `distill_url` function instead which replaces the `django.conf.urls.url` or
 `django.urls.url` functions. Its usage is identical to the above:
 
@@ -153,11 +153,12 @@ urlpatterns = (
 )
 ```
 
-**Note** `django-distill` will track the Django project changes, therefore at
-some point the `distill_url` in the future when Django 2.x itself depreciates
-the `django.conf.url` function `distill_url` will cease to work. You can use
-`distill_re_path` as a drop-in replacement. It is advisable to use
-`distill_path` or `distill_re_path` if you're building a new site now.
+**Note** `django-distill` will mirror whatever your installed version of Django
+supports, therefore at some point the `distill_url` function will cease working
+in the future when Django 2.x itself depreciates the `django.conf.urls.url` and
+`django.urls.url` functions. You can use `distill_re_path` as a drop-in
+replacement. It is advisable to use `distill_path` or `distill_re_path` if
+you're building a new site now.
 
 
 # The `distill-local` command

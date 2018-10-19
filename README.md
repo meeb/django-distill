@@ -123,31 +123,41 @@ the `distill_func` and `distill_file` parameters are removed and the URL is
 passed back to Django for normal processing. This has no runtime performance
 impact as this happens only once upon starting the application.
 
-If you prefer, you can use the `distill_url` or `distill_re_path` functions
-instead. These replace the `django.conf.urls.url` or `django.urls.url` and
-`django.urls.re_path` functions respectively. Their usage is identical to the
-above:
+You can use the `distill_re_path` function as well, which replaces the default
+`django.urls.re_path` function. Its usage is identical to the above:
 
 ```python
-from django_distill import distill_url, distill_re_path
+from django_distill import distill_re_path
+
+urlpatterns = (
+    distill_re_path(r'some/regex'
+                SomeOtherView.as_view(),
+                name='url-other-view',
+                distill_func=some_other_func),
+)
+
+```
+
+If you are using an older version of Django in the 1.X series you can use the
+`distill_url` function instead which replaces the `django.conf.urls.url` or
+`django.urls.url` functions. Its usage is identical to the above:
+
+```python
+from django_distill import distill_url
 
 urlpatterns = (
     distill_url(r'some/regex'
                 SomeView.as_view(),
                 name='url-view',
                 distill_func=some_func),
-    distill_re_path(r'some/other/regex'
-                SomeOtherView.as_view(),
-                name='url-other-view',
-                distill_func=some_other_func),
 )
 ```
 
 **Note** `django-distill` will track the Django project changes, therefore at
-some point the `distill_url` in the future when Django itself depreciates the
-`django.conf.url` function `distill_url` will cease to work. You can use
+some point the `distill_url` in the future when Django 2.x itself depreciates
+the `django.conf.url` function `distill_url` will cease to work. You can use
 `distill_re_path` as a drop-in replacement. It is advisable to use
-`distill_path` or `distill_re_path` if you're building a site now.
+`distill_path` or `distill_re_path` if you're building a new site now.
 
 
 # The `distill-local` command

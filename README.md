@@ -18,6 +18,12 @@ for fast static media updates when pushing changes:
 
 https://github.com/mgrp/django-cachekiller
 
+There is a complete example site that creates a static blog and uses
+`django-distill` with `django-cachekiller` via continuous deployment on Netlify
+available here:
+
+https://github.com/mgrp/django-distill-example
+
 
 # Installation
 

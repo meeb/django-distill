@@ -11,7 +11,7 @@ from shutil import copy2
 from future.utils import raise_from
 
 
-from django.utils import (six, translation)
+from django.utils import translation
 from django.conf import settings
 from django.conf.urls import include as include_urls
 from django.http import HttpResponse
@@ -54,7 +54,7 @@ class DistillRender(object):
                 yield uri, file_name, render
 
     def _is_str(self, s):
-        return isinstance(s, six.string_types)
+        return isinstance(s, str)
 
     def get_uri_values(self, func):
         try:

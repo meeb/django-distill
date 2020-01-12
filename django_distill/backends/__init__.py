@@ -9,8 +9,7 @@ from binascii import hexlify
 
 
 import requests
-from django.utils.six.moves.urllib.parse import (urlsplit, urlunsplit)
-
+from urllib.parse import urlsplit, urlunsplit
 
 from django_distill.errors import DistillPublishError
 from django_distill.renderer import filter_dirs

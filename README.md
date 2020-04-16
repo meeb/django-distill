@@ -16,13 +16,13 @@ rather than the entire site.
 For static files on CDNs we use the following 'cache buster' library to allow
 for fast static media updates when pushing changes:
 
-https://github.com/mgrp/django-cachekiller
+https://github.com/meeb/django-cachekiller
 
 There is a complete example site that creates a static blog and uses
 `django-distill` with `django-cachekiller` via continuous deployment on Netlify
 available here:
 
-https://github.com/mgrp/django-distill-example
+https://github.com/meeb/django-distill-example
 
 
 # Installation

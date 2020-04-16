@@ -1,7 +1,11 @@
 # django-distill
 
 `django-distill` is a minimal configuration static site generator and publisher
-for Django. Requires at least Django 1.10 or Django 2.0.
+for Django. Most Django versions are supported, however up to date versions are
+advised including the 3.x releases. `django-distill` as of the 1.7 release only
+supports Python 3. Python 2 support has been dropped. If you require Python 2
+support please pin `django-distill` to version 1.6 in your requirements.txt or
+Pipfile.
 
 `django-distill` extends existing Django sites with the ability to export
 fully functional static sites. It is suitable for sites such as blogs that have
@@ -13,8 +17,8 @@ custom renderers or other more verbose code. You can also use existing fully
 dynamic sites and just generate static pages for a small subsection of pages
 rather than the entire site.
 
-For static files on CDNs we use the following 'cache buster' library to allow
-for fast static media updates when pushing changes:
+For static files on CDNs you can use the following 'cache buster' library to
+allow for fast static media updates when pushing changes:
 
 https://github.com/meeb/django-cachekiller
 
@@ -36,7 +40,10 @@ $ pip install django-distill
 Add `django_distill` to your `INSTALLED_APPS` in your `settings.py`:
 
 ```python
-INSTALLED_APPS += ('django_distill',)
+INSTALLED_APPS = [
+    # ... other apps here ...
+    'django_distill',
+]
 ```
 
 That's it.

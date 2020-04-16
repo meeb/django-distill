@@ -92,7 +92,7 @@ class DistillRender(object):
             response = view_func(request, *a, **k)
         except Exception as err:
             e = 'Failed to render view "{}": {}'.format(uri, err)
-            raise DistillError(e) from  err
+            raise DistillError(e) from err
         if self._is_str(response):
             response = HttpResponse(response)
         elif isinstance(response, TemplateResponse):

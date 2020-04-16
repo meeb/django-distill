@@ -8,9 +8,6 @@ import errno
 from shutil import copy2
 
 
-from future.utils import raise_from
-
-
 from django.utils import translation
 from django.conf import settings
 from django.conf.urls import include as include_urls
@@ -95,7 +92,7 @@ class DistillRender(object):
             response = view_func(request, *a, **k)
         except Exception as err:
             e = 'Failed to render view: {}'.format(err)
-            raise_from(DistillError(e), err)
+            raise DistillError(e) from  err
         if self._is_str(response):
             response = HttpResponse(response)
         elif isinstance(response, TemplateResponse):

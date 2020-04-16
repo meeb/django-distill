@@ -19,9 +19,9 @@ with open('requirements.txt', 'rt') as f:
 setup(
     name = 'django-distill',
     version = str(version),
-    url = 'https://github.com/mgrp/django-distill',
-    author = 'the m group, https://m.pr/',
-    author_email = 'hi@m.pr',
+    url = 'https://github.com/meeb/django-distill',
+    author = 'https://github.com/meeb',
+    author_email = 'meeb@meeb.org',
     description = 'Static site renderer and publisher for Django.',
     long_description = long_description,
     long_description_content_type = 'text/markdown',

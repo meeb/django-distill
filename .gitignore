@@ -58,3 +58,6 @@ target/
 
 # IDE
 .vscode
+
+# Pipenv lockfile
+Pipfile.lock

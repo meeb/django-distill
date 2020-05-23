@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-__version__ = 1.7
+__version__ = 1.8
 
 
 from django import __version__ as django_version

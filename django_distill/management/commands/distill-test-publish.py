@@ -1,15 +1,8 @@
-# -*- coding: utf-8 -*-
-
-
 import os
 from binascii import hexlify
 from tempfile import NamedTemporaryFile
-
-
 from django.conf import settings
 from django.core.management.base import (BaseCommand, CommandError)
-
-
 from django_distill.backends import get_backend
 
 
@@ -81,6 +74,3 @@ class Command(BaseCommand):
             os.unlink(random_file.name)
         self.stdout.write('')
         self.stdout.write('Backend testing complete.')
-
-
-# eof

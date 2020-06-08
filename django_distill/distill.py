@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
-
-from django_distill.errors import (DistillError, DistillWarning)
+from django_distill.errors import DistillError, DistillWarning
 
 
 urls_to_distill = []
@@ -54,6 +51,3 @@ try:
         return _distill_url(re_path, *a, **k)
 except ImportError:
     pass
-
-
-# eof

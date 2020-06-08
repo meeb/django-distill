@@ -1,10 +1,5 @@
-# -*- coding: utf-8 -*-
-
-
 from django.conf import settings
 from django.http import HttpResponse
-
-
 from django_distill import distill_url, distill_path, distill_re_path
 
 
@@ -92,6 +87,3 @@ if settings.HAS_PATH:
                     distill_func=test_named_param_func),
 
     ]
-
-
-# eof

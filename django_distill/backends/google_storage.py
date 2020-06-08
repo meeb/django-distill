@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import os
 import sys
 import warnings
@@ -74,6 +71,3 @@ class GoogleCloudStorageBackend(BackendBase):
 
 
 backend_class = GoogleCloudStorageBackend
-
-
-# eof

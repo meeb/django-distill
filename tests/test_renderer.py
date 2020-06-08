@@ -1,13 +1,6 @@
-# -*- coding: utf-8 -*-
-
-
 import sys
-
-
 from django.test import TestCase
 from django.conf import settings
-
-
 from django_distill.distill import urls_to_distill
 from django_distill.renderer import DistillRender
 from django_distill.errors import DistillError
@@ -175,6 +168,3 @@ class DjangoDistillRendererTestSuite(TestCase):
         self.assertEqual(uri, '/path/test')
         render = self.renderer.render_view(uri, param_set, args)
         self.assertEqual(render.content, b'testtest')
-
-
-# eof

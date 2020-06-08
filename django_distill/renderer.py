@@ -1,13 +1,8 @@
-# -*- coding: utf-8 -*-
-
-
 import os
 import sys
 import types
 import errno
 from shutil import copy2
-
-
 from django.utils import translation
 from django.conf import settings
 from django.conf.urls import include as include_urls
@@ -16,9 +11,7 @@ from django.template.response import TemplateResponse
 from django.test import RequestFactory
 from django.urls import reverse
 from django.core.management import call_command
-
-
-from django_distill.errors import (DistillError, DistillWarning)
+from django_distill.errors import DistillError, DistillWarning
 
 
 class DistillRender(object):
@@ -189,6 +182,3 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
                                                        media_output_dir):
             stdout('Copying media: {} -> {}'.format(file_from, file_to))
     return True
-
-
-# eof

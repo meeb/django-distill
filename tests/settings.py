@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import os
 
 
@@ -38,6 +35,3 @@ DATABASES = {
 INSTALLED_APPS = [
     'tests',
 ]
-
-
-# eof

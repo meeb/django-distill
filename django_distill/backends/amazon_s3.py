@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import sys
 import warnings
 
@@ -78,6 +75,3 @@ class AmazonS3Backend(BackendBase):
 
 
 backend_class = AmazonS3Backend
-
-
-# eof

@@ -1,18 +1,8 @@
-# -*- coding: utf-8 -*-
-
-
 import os
 import sys
 from shutil import rmtree
-
-
-from future.utils import raise_with_traceback
-
-
 from django.core.management.base import (BaseCommand, CommandError)
 from django.conf import settings
-
-
 from django_distill.distill import urls_to_distill
 from django_distill.renderer import (run_collectstatic, render_to_dir)
 from django_distill.errors import DistillError
@@ -91,9 +81,6 @@ class Command(BaseCommand):
         try:
             render_to_dir(output_dir, urls_to_distill, stdout)
         except DistillError as err:
-            raise raise_with_traceback(CommandError(str(err)))
+            raise CommandError(str(err)) from err
         stdout('')
         stdout('Site generation complete.')
-
-
-# eof

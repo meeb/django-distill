@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import sys
 import warnings
 
@@ -87,6 +84,3 @@ class RackspaceCloudFilesBackend(BackendBase):
 
 
 backend_class = RackspaceCloudFilesBackend
-
-
-# eof

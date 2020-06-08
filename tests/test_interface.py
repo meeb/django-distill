@@ -1,10 +1,5 @@
-# -*- coding: utf-8 -*-
-
-
 from django.test import TestCase
 from django.conf import settings
-
-
 import django_distill
 
 
@@ -19,6 +14,3 @@ class DjangoDistillInterfaceTestSuite(TestCase):
         if settings.HAS_PATH:
             assert hasattr(django_distill, 'distill_path')
             assert callable(django_distill.distill_path)
-
-
-# eof

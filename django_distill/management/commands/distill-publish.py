@@ -1,18 +1,8 @@
-# -*- coding: utf-8 -*-
-
-
 import os
 from tempfile import mkdtemp
 from shutil import rmtree
-
-
-from future.utils import raise_with_traceback
-
-
 from django.conf import settings
 from django.core.management.base import (BaseCommand, CommandError)
-
-
 from django_distill.backends import get_backend
 from django_distill.distill import urls_to_distill
 from django_distill.renderer import (run_collectstatic, render_to_dir)
@@ -96,7 +86,7 @@ class Command(BaseCommand):
             try:
                 render_to_dir(output_dir, urls_to_distill, stdout)
             except DistillError as err:
-                raise raise_with_traceback(CommandError(str(err)))
+                raise CommandError(str(err)) from err
             stdout('')
             stdout('Publishing site')
             backend.index_local_files()
@@ -107,6 +97,3 @@ class Command(BaseCommand):
                 rmtree(output_dir)
         stdout('')
         stdout('Site generation and publishing complete.')
-
-
-# eof

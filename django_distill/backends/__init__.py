@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
-
-
 import os
 import sys
 import warnings
 from hashlib import md5
 from binascii import hexlify
-
-
 import requests
 from urllib.parse import urlsplit, urlunsplit
-
 from django_distill.errors import DistillPublishError
 from django_distill.renderer import filter_dirs
 
@@ -140,6 +134,3 @@ def get_backend(engine):
     if not module:
         raise ImportError('Backend engine has no backend_class attribute')
     return module
-
-
-# eof

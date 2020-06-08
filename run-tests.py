@@ -1,13 +1,12 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 
 import os
 import sys
-
 import django
 from django.conf import settings
 from django.test.utils import get_runner
+
 
 if __name__ == '__main__':
     os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
@@ -16,6 +15,3 @@ if __name__ == '__main__':
     test_runner = TestRunner(verbosity=2)
     failures = test_runner.run_tests(['tests'])
     sys.exit(bool(failures))
-
-
-# eof

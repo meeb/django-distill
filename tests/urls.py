@@ -3,17 +3,17 @@ from django.http import HttpResponse
 from django_distill import distill_url, distill_path, distill_re_path
 
 
-def test_no_param_view(reqest):
+def test_no_param_view(request):
     return HttpResponse(b'test',
                         content_type='application/octet-stream')
 
 
-def test_positional_param_view(reqest, param):
+def test_positional_param_view(request, param):
     return HttpResponse(b'test' + param.encode(),
                         content_type='application/octet-stream')
 
 
-def test_named_param_view(reqest, param=None):
+def test_named_param_view(request, param=None):
     return HttpResponse(b'test' + param.encode(),
                         content_type='application/octet-stream')
 

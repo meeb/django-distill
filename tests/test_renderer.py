@@ -128,6 +128,21 @@ class DjangoDistillRendererTestSuite(TestCase):
         render = self.renderer.render_view(uri, param_set, args)
         self.assertEqual(render.content, b'testtest')
 
+    def test_re_broken(self):
+        if not settings.HAS_RE_PATH:
+            self._skip('django.urls.re_path')
+            return
+        view = self._get_view('re_path-broken')
+        assert view
+        view_func, file_name, view_name, args, kwargs = view
+        param_set = self.renderer.get_uri_values(view_func)[0]
+        if not param_set:
+            param_set = ()
+        uri = self.renderer.generate_uri(view_name, param_set)
+        self.assertEqual(uri, '/re_path/broken')
+        with self.assertRaises(DistillError):
+            self.renderer.render_view(uri, param_set, args)
+
     def test_path_no_param(self):
         if not settings.HAS_PATH:
             self._skip('django.urls.path')
@@ -168,3 +183,18 @@ class DjangoDistillRendererTestSuite(TestCase):
         self.assertEqual(uri, '/path/test')
         render = self.renderer.render_view(uri, param_set, args)
         self.assertEqual(render.content, b'testtest')
+
+    def test_path_broken(self):
+        if not settings.HAS_PATH:
+            self._skip('django.urls.path')
+            return
+        view = self._get_view('path-broken')
+        assert view
+        view_func, file_name, view_name, args, kwargs = view
+        param_set = self.renderer.get_uri_values(view_func)[0]
+        if not param_set:
+            param_set = ()
+        uri = self.renderer.generate_uri(view_name, param_set)
+        self.assertEqual(uri, '/path/broken')
+        with self.assertRaises(DistillError):
+            self.renderer.render_view(uri, param_set, args)

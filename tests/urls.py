@@ -18,6 +18,11 @@ def test_named_param_view(request, param=None):
                         content_type='application/octet-stream')
 
 
+def test_broken_view(request):
+    # Trigger a normal Python exception when rendering
+    a = 1 / 0
+
+
 def test_no_param_func():
     return None
 
@@ -45,7 +50,6 @@ urlpatterns = [
                 test_named_param_view,
                 name='url-named-param',
                 distill_func=test_named_param_func),
-
 ]
 
 
@@ -65,6 +69,10 @@ if settings.HAS_RE_PATH:
                         test_named_param_view,
                         name='re_path-named-param',
                         distill_func=test_named_param_func),
+        distill_re_path(r'^re_path/broken$',
+                        test_broken_view,
+                        name='re_path-broken',
+                        distill_func=test_no_param_func),
 
     ]
 
@@ -85,5 +93,9 @@ if settings.HAS_PATH:
                     test_named_param_view,
                     name='path-named-param',
                     distill_func=test_named_param_func),
+        distill_path('path/broken',
+                    test_broken_view,
+                    name='path-broken',
+                    distill_func=test_no_param_func),
 
     ]

@@ -1,8 +1,10 @@
+import os
 import sys
+import tempfile
 from django.test import TestCase
 from django.conf import settings
 from django_distill.distill import urls_to_distill
-from django_distill.renderer import DistillRender
+from django_distill.renderer import DistillRender, render_to_dir
 from django_distill.errors import DistillError
 
 
@@ -198,3 +200,25 @@ class DjangoDistillRendererTestSuite(TestCase):
         self.assertEqual(uri, '/path/broken')
         with self.assertRaises(DistillError):
             self.renderer.render_view(uri, param_set, args)
+
+    def test_render_paths(self):
+        def _blackhole(_):
+            pass
+        expected_files = (
+            ('test',),
+            ('url', '12345'),
+            ('url', 'test'),
+            ('re_path', '12345'),
+            ('re_path', 'test'),
+        )
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            with self.assertRaises(DistillError):
+                render_to_dir(tmpdirname, urls_to_distill, _blackhole)
+            written_files = []
+            for (root, dirs, files) in os.walk(tmpdirname):
+                for f in files:
+                    filepath = os.path.join(root, f)
+                    written_files.append(filepath)
+            for expected_file in expected_files:
+                filepath = os.path.join(tmpdirname, *expected_file)
+                self.assertIn(filepath, written_files)

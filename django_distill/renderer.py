@@ -146,9 +146,10 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
             full_path = os.path.join(output_dir, file_name)
         else:
             local_uri = page_uri
-            if page_uri.startswith(os.sep):
+            if page_uri.startswith('/'):
                 page_uri = page_uri[1:]
-            full_path = os.path.join(output_dir, page_uri)
+            page_path = page_uri.replace('/', os.sep)
+            full_path = os.path.join(output_dir, page_path)
         content = http_response.content
         mime = http_response.get('Content-Type')
         renamed = ' (renamed from "{}")'.format(page_uri) if file_name else ''

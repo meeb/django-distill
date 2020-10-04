@@ -2,6 +2,7 @@ import os
 import sys
 import types
 import errno
+import warnings
 from shutil import copy2
 from django.utils import translation
 from django.conf import settings
@@ -12,6 +13,50 @@ from django.test import RequestFactory
 from django.urls import reverse
 from django.core.management import call_command
 from django_distill.errors import DistillError, DistillWarning
+
+
+class DummyInterface:
+    '''
+        Implements a dummy interface which raises a warning if any attributes or
+        methods are accessed. This is used to replace specific non-implemented features,
+        like sessions, which may be in end users site code but has no relevance for
+        a static site and can be ignored. As this may be a non-obvious breaking change
+        to a users site display a descriptive warning when rendering.
+    '''
+
+    _err = ('{}.{}({}, {}) called. This is a dummy interface. The {} feature of Django '
+            'is not supported by distill. This request will do nothing and has no '
+            'effect when rendering a static site. If this request is a requirement for '
+            'the function of your site when it is not being rendered you can ignore '
+            'this warning.')
+
+    def __init__(self, name):
+        self._name = name
+
+    def __getattribute__(self, attr, *args, **kwargs):
+        if attr.startswith('_'):
+            return object.__getattribute__(self, attr)
+        def _dummy_func(*args, **kwargs):
+            warnings.warn(self._err.format(self._name, attr, args, kwargs, self._name),
+                          RuntimeWarning)
+            return lambda x: x
+        return _dummy_func
+
+    def __getitem__(self, key):
+        warnings.warn(self._err.format(self._name, '__getitem__', key, {}, self._name),
+                      RuntimeWarning)
+
+    def __setitem__(self, key, value):
+        warnings.warn(self._err.format(self._name, '__setitem__', (key, value), {},
+                      self._name), RuntimeWarning)
+
+    def __delitem__(self, key):
+        warnings.warn(self._err.format(self._name, '__delitem__', key, {}, self._name),
+                      RuntimeWarning)
+
+    def __contains__(self, key):
+        warnings.warn(self._err.format(self._name, '__contains__', key, {}, self._name),
+                      RuntimeWarning)
 
 
 class DistillRender(object):
@@ -77,6 +122,7 @@ class DistillRender(object):
         view_regex, view_func = args[0], args[1]
         request_factory = RequestFactory()
         request = request_factory.get(uri)
+        setattr(request, 'session', DummyInterface('request.session'))
         if isinstance(param_set, dict):
             a, k = (), param_set
         else:

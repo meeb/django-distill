@@ -4,8 +4,7 @@ from django_distill import distill_url, distill_path, distill_re_path
 
 
 def test_no_param_view(request):
-    return HttpResponse(b'test',
-                        content_type='application/octet-stream')
+    return HttpResponse(b'test', content_type='application/octet-stream')
 
 
 def test_positional_param_view(request, param):
@@ -16,6 +15,11 @@ def test_positional_param_view(request, param):
 def test_named_param_view(request, param=None):
     return HttpResponse(b'test' + param.encode(),
                         content_type='application/octet-stream')
+
+
+def test_session_view(request):
+    request.session['test'] = 'test'
+    return HttpResponse(b'test', content_type='application/octet-stream')
 
 
 def test_broken_view(request):
@@ -73,6 +77,10 @@ if settings.HAS_RE_PATH:
                         test_broken_view,
                         name='re_path-broken',
                         distill_func=test_no_param_func),
+        distill_re_path(r'^re_path/ignore-sessions$',
+                        test_session_view,
+                        name='re_path-ignore-sessions',
+                        distill_func=test_no_param_func),
 
     ]
 
@@ -96,6 +104,10 @@ if settings.HAS_PATH:
         distill_path('path/broken',
                     test_broken_view,
                     name='path-broken',
+                    distill_func=test_no_param_func),
+        distill_path('path/ignore-sessions',
+                    test_session_view,
+                    name='path-ignore-sessions',
                     distill_func=test_no_param_func),
 
     ]

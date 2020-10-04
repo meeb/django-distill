@@ -1,6 +1,7 @@
 import os
 import sys
 import tempfile
+import warnings
 from django.test import TestCase
 from django.conf import settings
 from django_distill.distill import urls_to_distill
@@ -222,3 +223,36 @@ class DjangoDistillRendererTestSuite(TestCase):
             for expected_file in expected_files:
                 filepath = os.path.join(tmpdirname, *expected_file)
                 self.assertIn(filepath, written_files)
+
+    def test_sessions_are_ignored(self):
+        if settings.HAS_PATH:
+            view = self._get_view('path-ignore-sessions')
+            assert view
+            view_func, file_name, view_name, args, kwargs = view
+            param_set = self.renderer.get_uri_values(view_func)[0]
+            if not param_set:
+                param_set = ()
+            uri = self.renderer.generate_uri(view_name, param_set)
+            self.assertEqual(uri, '/path/ignore-sessions')
+            with warnings.catch_warnings(record=True) as w:
+                render = self.renderer.render_view(uri, param_set, args)
+                self.assertEqual(len(w), 1)
+                caught_warning = w[0]
+                self.assertEqual(caught_warning.category, RuntimeWarning)
+            self.assertEqual(render.content, b'test')
+        uri = self.renderer.generate_uri(view_name, param_set)
+        if settings.HAS_RE_PATH:
+            view = self._get_view('re_path-ignore-sessions')
+            assert view
+            view_func, file_name, view_name, args, kwargs = view
+            param_set = self.renderer.get_uri_values(view_func)[0]
+            if not param_set:
+                param_set = ()
+            uri = self.renderer.generate_uri(view_name, param_set)
+            self.assertEqual(uri, '/re_path/ignore-sessions')
+            with warnings.catch_warnings(record=True) as w:
+                render = self.renderer.render_view(uri, param_set, args)
+                self.assertEqual(len(w), 1)
+                caught_warning = w[0]
+                self.assertEqual(caught_warning.category, RuntimeWarning)
+            self.assertEqual(render.content, b'test')

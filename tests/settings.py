@@ -24,6 +24,9 @@ SECRET_KEY = 'test'
 ROOT_URLCONF = 'tests.urls'
 
 
+MIDDLEWARE = ['django.contrib.sessions.middleware.SessionMiddleware']
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

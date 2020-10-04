@@ -3,7 +3,7 @@ import sys
 from setuptools import setup, find_packages
 
 
-version = 2.0
+version = 2.1
 
 
 with open('README.md', 'rt') as f:
@@ -34,8 +34,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',

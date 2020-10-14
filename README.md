@@ -298,7 +298,7 @@ by `django-distill` are:
 ```
 
 **django_distill.backends.amazon_s3**: Publish to an Amazon S3 bucket. Requires
-  the Python library `boto` (`$ pip install boto`). The bucket must already
+  the Python library `boto3` (`$ pip install boto3`). The bucket must already
   exist (use the AWS control panel). Options:
 
 ```python

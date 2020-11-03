@@ -196,6 +196,7 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
                 page_uri = page_uri[1:]
             page_path = page_uri.replace('/', os.sep)
             full_path = os.path.join(output_dir, page_path)
+        http_response.render()
         content = http_response.content
         mime = http_response.get('Content-Type')
         renamed = ' (renamed from "{}")'.format(page_uri) if file_name else ''

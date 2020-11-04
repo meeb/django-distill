@@ -8,7 +8,7 @@ from django.utils import translation
 from django.conf import settings
 from django.conf.urls import include as include_urls
 from django.http import HttpResponse
-from django.template.response import TemplateResponse
+from django.template.response import Response
 from django.test import RequestFactory
 from django.urls import reverse
 from django.core.management import call_command
@@ -134,7 +134,7 @@ class DistillRender(object):
             raise DistillError(e) from err
         if self._is_str(response):
             response = HttpResponse(response)
-        elif isinstance(response, TemplateResponse):
+        elif isinstance(response, Response):
             response.render()
         if response.status_code != 200:
             err = 'View returned a non-200 status code: {}'
@@ -196,7 +196,6 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
                 page_uri = page_uri[1:]
             page_path = page_uri.replace('/', os.sep)
             full_path = os.path.join(output_dir, page_path)
-        http_response.render()
         content = http_response.content
         mime = http_response.get('Content-Type')
         renamed = ' (renamed from "{}")'.format(page_uri) if file_name else ''

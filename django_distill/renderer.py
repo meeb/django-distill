@@ -8,7 +8,7 @@ from django.utils import translation
 from django.conf import settings
 from django.conf.urls import include as include_urls
 from django.http import HttpResponse
-from django.template.response import TemplateResponse
+from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory
 from django.urls import reverse
 from django.core.management import call_command
@@ -134,7 +134,7 @@ class DistillRender(object):
             raise DistillError(e) from err
         if self._is_str(response):
             response = HttpResponse(response)
-        elif isinstance(response, TemplateResponse):
+        elif isinstance(response, SimpleTemplateResponse):
             response.render()
         if response.status_code != 200:
             err = 'View returned a non-200 status code: {}'

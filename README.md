@@ -282,21 +282,6 @@ backends just like how you can use MySQL, SQLite, PostgreSQL etc. with
 Django by changing the backend database engine. Currently the engines supported
 by `django-distill` are:
 
-**django_distill.backends.rackspace_files**: Publish to a Rackspace Cloud Files
-  container. Requires the Python library `pyrax` (`$ pip install pyrax`). The
-  container must already exist (use the Rackspace Cloud control panel). Options:
-
-```python
-'some-rackspace-container': {
-    'ENGINE': 'django_distill.backends.rackspace_files',
-    'PUBLIC_URL': 'http://.../',
-    'USERNAME': '...',
-    'API_KEY': '...',
-    'REGION': '...',
-    'CONTAINER': '...',
-},
-```
-
 **django_distill.backends.amazon_s3**: Publish to an Amazon S3 bucket. Requires
   the Python library `boto3` (`$ pip install boto3`). The bucket must already
   exist (use the AWS control panel). Options:

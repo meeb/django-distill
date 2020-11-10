@@ -108,11 +108,7 @@ class DistillRender(object):
 
     def generate_uri(self, view_name, param_set):
         if isinstance(param_set, (list, tuple)):
-            if view_name == 'test_url_in_namespace':
-                view_name = 'test:test_url_in_namespace'
-                uri = reverse(view_name, args=param_set, current_app='test_namespace')
-            else:
-                uri = reverse(view_name, args=param_set)
+            uri = reverse(view_name, args=param_set)
         elif isinstance(param_set, dict):
             uri = reverse(view_name, kwargs=param_set)
         else:

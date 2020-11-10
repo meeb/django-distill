@@ -198,6 +198,9 @@ rendering, this is just a shortcut to save you typing an extra command.
 
 `--force`: Assume 'yes' to all confirmation questions.
 
+`--exclude-staticfiles`: Do not copy any static files at all, only render output from
+Django views.
+
 **Note**  If any of your views contain a Python error then rendering will fail
 then the stack trace will be printed to the terminal and the rendering command
 will exit with a status code of 1.
@@ -227,6 +230,9 @@ rendering, this is just a shortcut to save you typing an extra command.
 `--quiet`: Disable all output other than asking confirmation questions.
 
 `--force`: Assume 'yes' to all confirmation questions.
+
+`--exclude-staticfiles`: Do not copy any static files at all, only render output from
+Django views.
 
 **Note** that this means if you use `--force` and `--quiet` that the output
 directory will have all files not part of the site export deleted without any

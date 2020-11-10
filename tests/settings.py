@@ -1,4 +1,7 @@
-import os
+from pathlib import Path
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 try:
@@ -15,9 +18,6 @@ except ImportError:
     HAS_RE_PATH = False
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
 SECRET_KEY = 'test'
 
 
@@ -30,7 +30,7 @@ MIDDLEWARE = ['django.contrib.sessions.middleware.SessionMiddleware']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join('BASE_DIR' , 'test.sqlite3'),
+        'NAME': BASE_DIR / 'test.sqlite3',
     }
 }
 
@@ -38,3 +38,9 @@ DATABASES = {
 INSTALLED_APPS = [
     'tests',
 ]
+
+
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'tests' / 'static'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'tests' / 'media'

@@ -162,6 +162,23 @@ def copy_static(dir_from, dir_to):
             yield from_path, to_path
 
 
+def copy_static_and_media_files(output_dir, stdout):
+    static_url = str(settings.STATIC_URL)
+    static_root = str(settings.STATIC_ROOT)
+    static_url = static_url[1:] if static_url.startswith('/') else static_url
+    static_output_dir = os.path.join(output_dir, static_url)
+    for file_from, file_to in copy_static(static_root, static_output_dir):
+        stdout('Copying static: {} -> {}'.format(file_from, file_to))
+    media_url = str(settings.MEDIA_URL)
+    media_root = str(settings.MEDIA_ROOT)
+    if media_root:
+        media_url = media_url[1:] if media_url.startswith('/') else media_url
+        media_output_dir = os.path.join(output_dir, media_url)
+        for file_from, file_to in copy_static(media_root, media_output_dir):
+            stdout('Copying media: {} -> {}'.format(file_from, file_to))
+    return True
+
+
 def run_collectstatic(stdout):
     stdout('Distill is running collectstatic...')
     call_command('collectstatic')
@@ -197,7 +214,6 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
                 page_uri = page_uri[1:]
             page_path = page_uri.replace('/', os.sep)
             full_path = os.path.join(output_dir, page_path)
-        http_response.render()
         content = http_response.content
         mime = http_response.get('Content-Type')
         renamed = ' (renamed from "{}")'.format(page_uri) if file_name else ''
@@ -217,19 +233,4 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
             else:
                 raise
         mimes[full_path] = mime.split(';')[0].strip()
-    return True
-
-
-def copy_static_and_media_files(output_dir, stdout):
-    static_url = settings.STATIC_URL
-    static_url = static_url[1:] if static_url.startswith('/') else static_url
-    static_output_dir = os.path.join(output_dir, static_url)
-    for file_from, file_to in copy_static(settings.STATIC_ROOT, static_output_dir):
-        stdout('Copying static: {} -> {}'.format(file_from, file_to))
-    media_url = settings.MEDIA_URL
-    if settings.MEDIA_ROOT:
-        media_url = media_url[1:] if media_url.startswith('/') else media_url
-        media_output_dir = os.path.join(output_dir, media_url)
-        for file_from, file_to in copy_static(settings.MEDIA_ROOT, media_output_dir):
-            stdout('Copying media: {} -> {}'.format(file_from, file_to))
     return True

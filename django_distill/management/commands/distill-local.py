@@ -4,7 +4,8 @@ from shutil import rmtree
 from django.core.management.base import (BaseCommand, CommandError)
 from django.conf import settings
 from django_distill.distill import urls_to_distill
-from django_distill.renderer import (run_collectstatic, render_to_dir, copy_static_and_media_files)
+from django_distill.renderer import (run_collectstatic, render_to_dir,
+                                     copy_static_and_media_files)
 from django_distill.errors import DistillError
 
 
@@ -24,7 +25,8 @@ class Command(BaseCommand):
                             action='store_true')
         parser.add_argument('--quiet', dest='quiet', action='store_true')
         parser.add_argument('--force', dest='force', action='store_true')
-        parser.add_argument('--exclude-staticfiles', dest='exclude_staticfiles', action='store_true')
+        parser.add_argument('--exclude-staticfiles', dest='exclude_staticfiles',
+                            action='store_true')
 
     def _quiet(self, *args, **kwargs):
         pass
@@ -82,9 +84,9 @@ class Command(BaseCommand):
         stdout('Generating static site into directory: {}'.format(output_dir))
         try:
             render_to_dir(output_dir, urls_to_distill, stdout)
+            if not exclude_staticfiles:
+                copy_static_and_media_files(output_dir, stdout)
         except DistillError as err:
             raise CommandError(str(err)) from err
-        if not exclude_staticfiles:
-            copy_static_and_media_files(output_dir, stdout)
         stdout('')
         stdout('Site generation complete.')

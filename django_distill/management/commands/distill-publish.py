@@ -25,6 +25,8 @@ class Command(BaseCommand):
                             action='store_true')
         parser.add_argument('--quiet', dest='quiet', action='store_true')
         parser.add_argument('--force', dest='force', action='store_true')
+        parser.add_argument('--exclude-staticfiles', dest='exclude_staticfiles',
+                    action='store_true')
 
     def _quiet(self, *args, **kwargs):
         pass
@@ -44,6 +46,7 @@ class Command(BaseCommand):
             e = 'Publish target {} has no ENGINE'.format(publish_target_name)
             raise CommandError(e)
         collectstatic = options.get('collectstatic')
+        exclude_staticfiles = options.get('exclude_staticfiles')
         quiet = options.get('quiet')
         force = options.get('force')
         if quiet:
@@ -85,6 +88,8 @@ class Command(BaseCommand):
             stdout(msg.format(output_dir))
             try:
                 render_to_dir(output_dir, urls_to_distill, stdout)
+                if not exclude_staticfiles:
+                    copy_static_and_media_files(output_dir, stdout)
             except DistillError as err:
                 raise CommandError(str(err)) from err
             stdout('')

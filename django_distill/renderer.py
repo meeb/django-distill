@@ -141,24 +141,25 @@ class DistillRender(object):
             raise DistillError(err.format(response.status_code))
         return response
 
-    def copy_static(self, dir_from, dir_to):
-        # we need to ignore some static dirs such as 'admin' so this is a
-        # little more complex than a straight shutil.copytree()
-        if not dir_from.endswith(os.sep):
-            dir_from = dir_from + os.sep
-        if not dir_to.endswith(os.sep):
-            dir_to = dir_to + os.sep
-        for root, dirs, files in os.walk(dir_from):
-            dirs[:] = filter_dirs(dirs)
-            for f in files:
-                from_path = os.path.join(root, f)
-                base_path = from_path[len(dir_from):]
-                to_path = os.path.join(dir_to, base_path)
-                to_path_dir = os.path.dirname(to_path)
-                if not os.path.isdir(to_path_dir):
-                    os.makedirs(to_path_dir)
-                copy2(from_path, to_path)
-                yield from_path, to_path
+
+def copy_static(dir_from, dir_to):
+    # we need to ignore some static dirs such as 'admin' so this is a
+    # little more complex than a straight shutil.copytree()
+    if not dir_from.endswith(os.sep):
+        dir_from = dir_from + os.sep
+    if not dir_to.endswith(os.sep):
+        dir_to = dir_to + os.sep
+    for root, dirs, files in os.walk(dir_from):
+        dirs[:] = filter_dirs(dirs)
+        for f in files:
+            from_path = os.path.join(root, f)
+            base_path = from_path[len(dir_from):]
+            to_path = os.path.join(dir_to, base_path)
+            to_path_dir = os.path.dirname(to_path)
+            if not os.path.isdir(to_path_dir):
+                os.makedirs(to_path_dir)
+            copy2(from_path, to_path)
+            yield from_path, to_path
 
 
 def run_collectstatic(stdout):
@@ -196,6 +197,7 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
                 page_uri = page_uri[1:]
             page_path = page_uri.replace('/', os.sep)
             full_path = os.path.join(output_dir, page_path)
+        http_response.render()
         content = http_response.content
         mime = http_response.get('Content-Type')
         renamed = ' (renamed from "{}")'.format(page_uri) if file_name else ''
@@ -215,17 +217,19 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
             else:
                 raise
         mimes[full_path] = mime.split(';')[0].strip()
+    return True
+
+
+def copy_static_and_media_files(output_dir, stdout):
     static_url = settings.STATIC_URL
     static_url = static_url[1:] if static_url.startswith('/') else static_url
     static_output_dir = os.path.join(output_dir, static_url)
-    for file_from, file_to in renderer.copy_static(settings.STATIC_ROOT,
-                                                   static_output_dir):
+    for file_from, file_to in copy_static(settings.STATIC_ROOT, static_output_dir):
         stdout('Copying static: {} -> {}'.format(file_from, file_to))
     media_url = settings.MEDIA_URL
     if settings.MEDIA_ROOT:
         media_url = media_url[1:] if media_url.startswith('/') else media_url
         media_output_dir = os.path.join(output_dir, media_url)
-        for file_from, file_to in renderer.copy_static(settings.MEDIA_ROOT,
-                                                       media_output_dir):
+        for file_from, file_to in copy_static(settings.MEDIA_ROOT, media_output_dir):
             stdout('Copying media: {} -> {}'.format(file_from, file_to))
     return True

@@ -10,7 +10,7 @@ from django.conf.urls import include as include_urls
 from django.http import HttpResponse
 from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory
-from django.urls import reverse
+from django.urls import reverse, get_resolver, get_urlconf
 from django.core.management import call_command
 from django_distill.errors import DistillError, DistillWarning
 
@@ -68,6 +68,14 @@ class DistillRender(object):
     def __init__(self, output_dir, urls_to_distill):
         self.output_dir = output_dir
         self.urls_to_distill = urls_to_distill
+        # Create a map of view name to namespace name
+        url_resolver = get_resolver(get_urlconf())
+        self.view_name_to_namespace = {}
+        for namespace, (path, resolver) in url_resolver.namespace_dict.items():
+            #print(dir(resolver))
+            #print(resolver.urlconf_module)
+            for namespace_view in resolver.url_patterns:
+                self.view_name_to_namespace[namespace_view.name] = namespace
         # activate the default translation
         translation.activate(settings.LANGUAGE_CODE)
 
@@ -108,7 +116,11 @@ class DistillRender(object):
 
     def generate_uri(self, view_name, param_set):
         if isinstance(param_set, (list, tuple)):
-            uri = reverse(view_name, args=param_set)
+            if view_name == 'test_url_in_namespace':
+                view_name = 'test:test_url_in_namespace'
+                uri = reverse(view_name, args=param_set, current_app='test_namespace')
+            else:
+                uri = reverse(view_name, args=param_set)
         elif isinstance(param_set, dict):
             uri = reverse(view_name, kwargs=param_set)
         else:

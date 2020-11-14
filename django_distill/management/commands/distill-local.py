@@ -68,7 +68,10 @@ class Command(BaseCommand):
             else:
                 raise CommandError('Distilling site cancelled.')
         else:
-            ans = input('Does not exist, create it? (YES/no): ')
+            if force:
+                ans = 'yes'
+            else:
+                ans = input('Does not exist, create it? (YES/no): ')
             if ans.lower() == 'yes':
                 stdout('Creating directory...')
                 os.makedirs(output_dir)

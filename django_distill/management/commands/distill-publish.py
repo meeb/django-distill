@@ -6,7 +6,8 @@ from django.core.management.base import (BaseCommand, CommandError)
 from django_distill.backends import get_backend
 from django_distill.distill import urls_to_distill
 from django_distill.errors import DistillError
-from django_distill.renderer import (run_collectstatic, render_to_dir, copy_static_and_media_files)
+from django_distill.renderer import (run_collectstatic, render_to_dir,
+                                     copy_static_and_media_files)
 from django_distill.publisher import publish_dir
 
 

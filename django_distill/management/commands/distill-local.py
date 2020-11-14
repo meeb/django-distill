@@ -9,12 +9,6 @@ from django_distill.renderer import (run_collectstatic, render_to_dir,
 from django_distill.errors import DistillError
 
 
-try:
-    input = raw_input
-except NameError:
-    pass
-
-
 class Command(BaseCommand):
 
     help = 'Generates a static local site using distill'

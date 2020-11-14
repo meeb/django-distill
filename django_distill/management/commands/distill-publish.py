@@ -11,12 +11,6 @@ from django_distill.renderer import (run_collectstatic, render_to_dir,
 from django_distill.publisher import publish_dir
 
 
-try:
-    input = raw_input
-except NameError:
-    pass
-
-
 class Command(BaseCommand):
 
     help = 'Distills a site into a temporary local directory then publishes it'

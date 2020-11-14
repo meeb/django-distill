@@ -24,7 +24,7 @@ def iter_resolved_urls(url_patterns, namespace_path=[]):
     url_patterns_resolved = []
     for entry in url_patterns:
         if hasattr(entry, 'url_patterns'):
-            if hasattr(entry, 'namespace'):
+            if getattr(entry, 'namespace', None) is not None:
                 url_patterns_resolved += iter_resolved_urls(
                     entry.url_patterns, namespace_path + [entry.namespace])
             else:

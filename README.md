@@ -5,7 +5,7 @@ for Django. Most Django versions are supported, however up to date versions are
 advised including the 3.x releases. `django-distill` as of the 1.7 release only
 supports Python 3. Python 2 support has been dropped. If you require Python 2
 support please pin `django-distill` to version 1.6 in your requirements.txt or
-Pipfile.
+Pipfile. Python 3.6 or above is advised.
 
 `django-distill` extends existing Django sites with the ability to export
 fully functional static sites. It is suitable for sites such as blogs that have

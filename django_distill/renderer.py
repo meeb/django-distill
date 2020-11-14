@@ -11,8 +11,40 @@ from django.http import HttpResponse
 from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from django.core.management import call_command
 from django_distill.errors import DistillError, DistillWarning
+
+
+namespace_map = {}
+urlconf = __import__(settings.ROOT_URLCONF, {}, {}, [''])
+
+
+def iter_resolved_urls(url_patterns, namespace_path=[]):
+    url_patterns_resolved = []
+    for entry in url_patterns:
+        if hasattr(entry, 'url_patterns'):
+            if hasattr(entry, 'namespace'):
+                url_patterns_resolved += iter_resolved_urls(
+                    entry.url_patterns, namespace_path + [entry.namespace])
+            else:
+                url_patterns_resolved += iter_resolved_urls(
+                    entry.url_patterns, namespace_path)
+        else:
+            url_patterns_resolved.append((namespace_path, entry))
+    return url_patterns_resolved
+
+
+for (namespaces, url) in iter_resolved_urls(urlconf.urlpatterns):
+    if namespaces:
+        nspath = ':'.join(namespaces)
+        if url in namespace_map:
+            raise DistillError(f'Ambiguous namespace for URL "{url}" in namespace '
+                               f'"{nspath}", Distill does not support the same Django '
+                                'app being include()ed more than once in the same '
+                                'project')
+        else:
+            namespace_map[url] = nspath
 
 
 class DummyInterface:
@@ -72,13 +104,13 @@ class DistillRender(object):
         translation.activate(settings.LANGUAGE_CODE)
 
     def render(self):
-        for distill_func, file_name, view_name, a, k in self.urls_to_distill:
+        for url, distill_func, file_name, view_name, a, k in self.urls_to_distill:
             for param_set in self.get_uri_values(distill_func):
                 if not param_set:
                     param_set = ()
                 elif self._is_str(param_set):
                     param_set = param_set,
-                uri = self.generate_uri(view_name, param_set)
+                uri = self.generate_uri(url, view_name, param_set)
                 render = self.render_view(uri, param_set, a)
                 # rewrite URIs ending with a slash to ../index.html
                 if file_name is None and uri.endswith('/'):
@@ -106,11 +138,19 @@ class DistillRender(object):
             err = 'Distill function returned an invalid type: {}'
             raise DistillError(err.format(type(v)))
 
-    def generate_uri(self, view_name, param_set):
+    def generate_uri(self, url, view_name, param_set):
+        namespace = namespace_map.get(url, '')
+        view_name_ns = namespace + ':' + view_name if namespace else view_name
         if isinstance(param_set, (list, tuple)):
-            uri = reverse(view_name, args=param_set)
+            try:
+                uri = reverse(view_name, args=param_set)
+            except NoReverseMatch:
+                uri = reverse(view_name_ns, args=param_set)
         elif isinstance(param_set, dict):
-            uri = reverse(view_name, kwargs=param_set)
+            try:
+                uri = reverse(view_name, kwargs=param_set)
+            except NoReverseMatch:
+                uri = reverse(view_name_ns, args=param_set)
         else:
             err = 'Distill function returned an invalid type: {}'
             raise DistillError(err.format(type(param_set)))

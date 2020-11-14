@@ -17,7 +17,7 @@ class DjangoDistillRendererTestSuite(TestCase):
 
     def _get_view(self, name):
         for u in urls_to_distill:
-            if u[2] == name:
+            if u[3] == name:
                 return u
         return False
 
@@ -61,11 +61,11 @@ class DjangoDistillRendererTestSuite(TestCase):
     def test_url_no_param(self):
         view = self._get_view('url-no-param')
         assert view
-        view_func, file_name, view_name, args, kwargs = view
+        view_url, view_func, file_name, view_name, args, kwargs = view
         param_set = self.renderer.get_uri_values(view_func)[0]
         if not param_set:
             param_set = ()
-        uri = self.renderer.generate_uri(view_name, param_set)
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
         self.assertEqual(uri, '/url/')
         render = self.renderer.render_view(uri, param_set, args)
         self.assertEqual(render.content, b'test')
@@ -73,9 +73,9 @@ class DjangoDistillRendererTestSuite(TestCase):
     def test_url_positional_param(self):
         view = self._get_view('url-positional-param')
         assert view
-        view_func, file_name, view_name, args, kwargs = view
+        view_url, view_func, file_name, view_name, args, kwargs = view
         param_set = self.renderer.get_uri_values(view_func)
-        uri = self.renderer.generate_uri(view_name, param_set)
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
         self.assertEqual(uri, '/url/12345')
         render = self.renderer.render_view(uri, param_set, args)
         self.assertEqual(render.content, b'test12345')
@@ -83,9 +83,9 @@ class DjangoDistillRendererTestSuite(TestCase):
     def test_url_named_param(self):
         view = self._get_view('url-named-param')
         assert view
-        view_func, file_name, view_name, args, kwargs = view
+        view_url, view_func, file_name, view_name, args, kwargs = view
         param_set = self.renderer.get_uri_values(view_func)[0]
-        uri = self.renderer.generate_uri(view_name, param_set)
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
         self.assertEqual(uri, '/url/test')
         render = self.renderer.render_view(uri, param_set, args)
         self.assertEqual(render.content, b'testtest')
@@ -96,11 +96,11 @@ class DjangoDistillRendererTestSuite(TestCase):
             return
         view = self._get_view('re_path-no-param')
         assert view
-        view_func, file_name, view_name, args, kwargs = view
+        view_url, view_func, file_name, view_name, args, kwargs = view
         param_set = self.renderer.get_uri_values(view_func)[0]
         if not param_set:
             param_set = ()
-        uri = self.renderer.generate_uri(view_name, param_set)
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
         self.assertEqual(uri, '/re_path/')
         render = self.renderer.render_view(uri, param_set, args)
         self.assertEqual(render.content, b'test')
@@ -111,9 +111,9 @@ class DjangoDistillRendererTestSuite(TestCase):
             return
         view = self._get_view('re_path-positional-param')
         assert view
-        view_func, file_name, view_name, args, kwargs = view
+        view_url, view_func, file_name, view_name, args, kwargs = view
         param_set = self.renderer.get_uri_values(view_func)
-        uri = self.renderer.generate_uri(view_name, param_set)
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
         self.assertEqual(uri, '/re_path/12345')
         render = self.renderer.render_view(uri, param_set, args)
         self.assertEqual(render.content, b'test12345')
@@ -124,9 +124,9 @@ class DjangoDistillRendererTestSuite(TestCase):
             return
         view = self._get_view('re_path-named-param')
         assert view
-        view_func, file_name, view_name, args, kwargs = view
+        view_url, view_func, file_name, view_name, args, kwargs = view
         param_set = self.renderer.get_uri_values(view_func)[0]
-        uri = self.renderer.generate_uri(view_name, param_set)
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
         self.assertEqual(uri, '/re_path/test')
         render = self.renderer.render_view(uri, param_set, args)
         self.assertEqual(render.content, b'testtest')
@@ -137,11 +137,11 @@ class DjangoDistillRendererTestSuite(TestCase):
             return
         view = self._get_view('re_path-broken')
         assert view
-        view_func, file_name, view_name, args, kwargs = view
+        view_url, view_func, file_name, view_name, args, kwargs = view
         param_set = self.renderer.get_uri_values(view_func)[0]
         if not param_set:
             param_set = ()
-        uri = self.renderer.generate_uri(view_name, param_set)
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
         self.assertEqual(uri, '/re_path/broken')
         with self.assertRaises(DistillError):
             self.renderer.render_view(uri, param_set, args)
@@ -152,11 +152,11 @@ class DjangoDistillRendererTestSuite(TestCase):
             return
         view = self._get_view('path-no-param')
         assert view
-        view_func, file_name, view_name, args, kwargs = view
+        view_url, view_func, file_name, view_name, args, kwargs = view
         param_set = self.renderer.get_uri_values(view_func)[0]
         if not param_set:
             param_set = ()
-        uri = self.renderer.generate_uri(view_name, param_set)
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
         self.assertEqual(uri, '/path/')
         render = self.renderer.render_view(uri, param_set, args)
         self.assertEqual(render.content, b'test')
@@ -167,9 +167,9 @@ class DjangoDistillRendererTestSuite(TestCase):
             return
         view = self._get_view('path-positional-param')
         assert view
-        view_func, file_name, view_name, args, kwargs = view
+        view_url, view_func, file_name, view_name, args, kwargs = view
         param_set = self.renderer.get_uri_values(view_func)
-        uri = self.renderer.generate_uri(view_name, param_set)
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
         self.assertEqual(uri, '/path/12345')
         render = self.renderer.render_view(uri, param_set, args)
         self.assertEqual(render.content, b'test12345')
@@ -180,9 +180,9 @@ class DjangoDistillRendererTestSuite(TestCase):
             return
         view = self._get_view('path-named-param')
         assert view
-        view_func, file_name, view_name, args, kwargs = view
+        view_url, view_func, file_name, view_name, args, kwargs = view
         param_set = self.renderer.get_uri_values(view_func)[0]
-        uri = self.renderer.generate_uri(view_name, param_set)
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
         self.assertEqual(uri, '/path/test')
         render = self.renderer.render_view(uri, param_set, args)
         self.assertEqual(render.content, b'testtest')
@@ -193,11 +193,11 @@ class DjangoDistillRendererTestSuite(TestCase):
             return
         view = self._get_view('path-broken')
         assert view
-        view_func, file_name, view_name, args, kwargs = view
+        view_url, view_func, file_name, view_name, args, kwargs = view
         param_set = self.renderer.get_uri_values(view_func)[0]
         if not param_set:
             param_set = ()
-        uri = self.renderer.generate_uri(view_name, param_set)
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
         self.assertEqual(uri, '/path/broken')
         with self.assertRaises(DistillError):
             self.renderer.render_view(uri, param_set, args)
@@ -228,11 +228,11 @@ class DjangoDistillRendererTestSuite(TestCase):
         if settings.HAS_PATH:
             view = self._get_view('path-ignore-sessions')
             assert view
-            view_func, file_name, view_name, args, kwargs = view
+            view_url,  view_func, file_name, view_name, args, kwargs = view
             param_set = self.renderer.get_uri_values(view_func)[0]
             if not param_set:
                 param_set = ()
-            uri = self.renderer.generate_uri(view_name, param_set)
+            uri = self.renderer.generate_uri(view_url, view_name, param_set)
             self.assertEqual(uri, '/path/ignore-sessions')
             with warnings.catch_warnings(record=True) as w:
                 render = self.renderer.render_view(uri, param_set, args)
@@ -240,15 +240,15 @@ class DjangoDistillRendererTestSuite(TestCase):
                 caught_warning = w[0]
                 self.assertEqual(caught_warning.category, RuntimeWarning)
             self.assertEqual(render.content, b'test')
-        uri = self.renderer.generate_uri(view_name, param_set)
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
         if settings.HAS_RE_PATH:
             view = self._get_view('re_path-ignore-sessions')
             assert view
-            view_func, file_name, view_name, args, kwargs = view
+            view_url, iew_func, file_name, view_name, args, kwargs = view
             param_set = self.renderer.get_uri_values(view_func)[0]
             if not param_set:
                 param_set = ()
-            uri = self.renderer.generate_uri(view_name, param_set)
+            uri = self.renderer.generate_uri(view_url, view_name, param_set)
             self.assertEqual(uri, '/re_path/ignore-sessions')
             with warnings.catch_warnings(record=True) as w:
                 render = self.renderer.render_view(uri, param_set, args)

@@ -55,11 +55,8 @@ urlpatterns = [
         test_named_param_view,
         name='url-named-param',
         distill_func=test_named_param_func),
-    # TODO: fix namespace inclusions
-    #path('path/namespace1',
-    #    include('tests.namespaced_urls', namespace='test_namespace1')),
-    #path('path/namespace2',
-    #    include('tests.namespaced_urls', namespace='test_namespace2')),
+    path('path/namespace1/',
+        include('tests.namespaced_urls', namespace='test_namespace')),
 
 ]
 

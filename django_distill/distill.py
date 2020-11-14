@@ -17,11 +17,13 @@ def _distill_url(func, *a, **k):
         if not callable(distill_func):
             err = 'Distill function not callable: {}'
             raise DistillError(err.format(distill_func))
-        urls_to_distill.append((distill_func, distill_file, name, a, k))
+        url = func(*a, **k)
+        urls_to_distill.append((url, distill_func, distill_file, name, a, k))
     else:
         e = 'URL registered with distill_url but no distill function supplied'
         raise DistillWarning(e)
-    return func(*a, **k)
+        url = func(*a, **k)
+    return url
 
 
 try:

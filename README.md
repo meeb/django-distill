@@ -2,8 +2,8 @@
 
 `django-distill` is a minimal configuration static site generator and publisher
 for Django. Most Django versions are supported, however up to date versions are
-advised including the 3.x releases. `django-distill` as of the 1.7 release only
-supports Python 3. Python 2 support has been dropped. If you require Python 2
+advised including the Django 3.x releases. `django-distill` as of the 1.7 release
+only supports Python 3. Python 2 support has been dropped. If you require Python 2
 support please pin `django-distill` to version 1.6 in your requirements.txt or
 Pipfile. Python 3.6 or above is advised.
 
@@ -16,10 +16,11 @@ content.
 iterable functions to yield the parameters for whatever pages you want to save
 as static HTML. These static files can be automatically uploaded to a bucket-style
 remote container such as Amazon S3 or Googe Cloud Files, or, written to a local
-directory as a fully working local copy of your project. The site generation, or
-distillation process, can be easily integrated into CI/CD workflows to auto deploy
-static sites on commit. `django-distill` can be defined as an extension to Django
-to make Django projects compatible with "Jamstack"-style site architecture.
+directory as a fully working local static version of your project. The site
+generation, or distillation process, can be easily integrated into CI/CD workflows
+to auto-deploy static sites on commit. `django-distill` can be defined as an
+extension to Django to make Django projects compatible with "Jamstack"-style site
+architecture.
 
 `django-distill` plugs directly into the existing Django framework without the
 need to write custom renderers or other more verbose code. You can also integrate

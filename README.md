@@ -12,10 +12,19 @@ fully functional static sites. It is suitable for sites such as blogs that have
 a mostly static front end but you still want to use a CMS to manage the
 content.
 
-It plugs directly into the existing Django framework without the need to write
-custom renderers or other more verbose code. You can also use existing fully
-dynamic sites and just generate static pages for a small subsection of pages
-rather than the entire site.
+`django-distill` iterates over URLs in your Django project using easy to write
+iterable functions to yield the parameters for whatever pages you want to save
+as static HTML. These static files can be automatically uploaded to a bucket-style
+remote container such as Amazon S3 or Googe Cloud Files, or, written to a local
+directory as a fully working local copy of your project. The site generation, or
+distillation process, can be easily integrated into CI/CD workflows to auto deploy
+static sites on commit. `django-distill` can be defined as an extension to Django
+to make Django projects compatible with "Jamstack"-style site architecture.
+
+`django-distill` plugs directly into the existing Django framework without the
+need to write custom renderers or other more verbose code. You can also integrate
+`django-distill` with existing dynamic sites and just generate static pages for
+a small subsection of pages rather than the entire site.
 
 For static files on CDNs you can use the following 'cache buster' library to
 allow for fast static media updates when pushing changes:

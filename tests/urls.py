@@ -57,6 +57,8 @@ urlpatterns = [
         distill_func=test_named_param_func),
     path('path/namespace1/',
         include('tests.namespaced_urls', namespace='test_namespace')),
+    path('path/no-namespace/',
+        include('tests.no_namespaced_urls')),
 
 ]
 

@@ -5,14 +5,10 @@ from django.conf import settings
 from django.core.management.base import (BaseCommand, CommandError)
 from django_distill.backends import get_backend
 from django_distill.distill import urls_to_distill
-from django_distill.renderer import (run_collectstatic, render_to_dir)
+from django_distill.errors import DistillError
+from django_distill.renderer import (run_collectstatic, render_to_dir,
+                                     copy_static_and_media_files)
 from django_distill.publisher import publish_dir
-
-
-try:
-    input = raw_input
-except NameError:
-    pass
 
 
 class Command(BaseCommand):
@@ -25,6 +21,8 @@ class Command(BaseCommand):
                             action='store_true')
         parser.add_argument('--quiet', dest='quiet', action='store_true')
         parser.add_argument('--force', dest='force', action='store_true')
+        parser.add_argument('--exclude-staticfiles', dest='exclude_staticfiles',
+                    action='store_true')
 
     def _quiet(self, *args, **kwargs):
         pass
@@ -44,6 +42,7 @@ class Command(BaseCommand):
             e = 'Publish target {} has no ENGINE'.format(publish_target_name)
             raise CommandError(e)
         collectstatic = options.get('collectstatic')
+        exclude_staticfiles = options.get('exclude_staticfiles')
         quiet = options.get('quiet')
         force = options.get('force')
         if quiet:
@@ -85,6 +84,8 @@ class Command(BaseCommand):
             stdout(msg.format(output_dir))
             try:
                 render_to_dir(output_dir, urls_to_distill, stdout)
+                if not exclude_staticfiles:
+                    copy_static_and_media_files(output_dir, stdout)
             except DistillError as err:
                 raise CommandError(str(err)) from err
             stdout('')

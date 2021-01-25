@@ -9,11 +9,43 @@ from django.utils import translation
 from django.conf import settings
 from django.conf.urls import include as include_urls
 from django.http import HttpResponse
-from django.template.response import TemplateResponse
+from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from django.core.management import call_command
 from django_distill.errors import DistillError, DistillWarning
+
+
+namespace_map = {}
+urlconf = __import__(settings.ROOT_URLCONF, {}, {}, [''])
+
+
+def iter_resolved_urls(url_patterns, namespace_path=[]):
+    url_patterns_resolved = []
+    for entry in url_patterns:
+        if hasattr(entry, 'url_patterns'):
+            if getattr(entry, 'namespace', None) is not None:
+                url_patterns_resolved += iter_resolved_urls(
+                    entry.url_patterns, namespace_path + [entry.namespace])
+            else:
+                url_patterns_resolved += iter_resolved_urls(
+                    entry.url_patterns, namespace_path)
+        else:
+            url_patterns_resolved.append((namespace_path, entry))
+    return url_patterns_resolved
+
+
+for (namespaces, url) in iter_resolved_urls(urlconf.urlpatterns):
+    if namespaces:
+        nspath = ':'.join(namespaces)
+        if url in namespace_map:
+            raise DistillError(f'Ambiguous namespace for URL "{url}" in namespace '
+                               f'"{nspath}", Distill does not support the same Django '
+                                'app being include()ed more than once in the same '
+                                'project')
+        else:
+            namespace_map[url] = nspath
 
 
 class DummyInterface:
@@ -73,13 +105,13 @@ class DistillRender(object):
         translation.activate(settings.LANGUAGE_CODE)
 
     def render(self):
-        for distill_func, file_name, view_name, a, k in self.urls_to_distill:
+        for url, distill_func, file_name, view_name, a, k in self.urls_to_distill:
             for param_set in self.get_uri_values(distill_func, view_name):
                 if not param_set:
                     param_set = ()
                 elif self._is_str(param_set):
                     param_set = param_set,
-                uri = self.generate_uri(view_name, param_set)
+                uri = self.generate_uri(url, view_name, param_set)
                 render = self.render_view(uri, param_set, a)
                 # rewrite URIs ending with a slash to ../index.html
                 if file_name is None and uri.endswith('/'):
@@ -111,11 +143,19 @@ class DistillRender(object):
             err = 'Distill function returned an invalid type: {}'
             raise DistillError(err.format(type(v)))
 
-    def generate_uri(self, view_name, param_set):
+    def generate_uri(self, url, view_name, param_set):
+        namespace = namespace_map.get(url, '')
+        view_name_ns = namespace + ':' + view_name if namespace else view_name
         if isinstance(param_set, (list, tuple)):
-            uri = reverse(view_name, args=param_set)
+            try:
+                uri = reverse(view_name, args=param_set)
+            except NoReverseMatch:
+                uri = reverse(view_name_ns, args=param_set)
         elif isinstance(param_set, dict):
-            uri = reverse(view_name, kwargs=param_set)
+            try:
+                uri = reverse(view_name, kwargs=param_set)
+            except NoReverseMatch:
+                uri = reverse(view_name_ns, args=param_set)
         else:
             err = 'Distill function returned an invalid type: {}'
             raise DistillError(err.format(type(param_set)))
@@ -139,31 +179,49 @@ class DistillRender(object):
             raise DistillError(e) from err
         if self._is_str(response):
             response = HttpResponse(response)
-        elif isinstance(response, TemplateResponse):
+        elif isinstance(response, SimpleTemplateResponse):
             response.render()
         if response.status_code != 200:
             err = 'View returned a non-200 status code: {}'
             raise DistillError(err.format(response.status_code))
         return response
 
-    def copy_static(self, dir_from, dir_to):
-        # we need to ignore some static dirs such as 'admin' so this is a
-        # little more complex than a straight shutil.copytree()
-        if not dir_from.endswith(os.sep):
-            dir_from = dir_from + os.sep
-        if not dir_to.endswith(os.sep):
-            dir_to = dir_to + os.sep
-        for root, dirs, files in os.walk(dir_from):
-            dirs[:] = filter_dirs(dirs)
-            for f in files:
-                from_path = os.path.join(root, f)
-                base_path = from_path[len(dir_from):]
-                to_path = os.path.join(dir_to, base_path)
-                to_path_dir = os.path.dirname(to_path)
-                if not os.path.isdir(to_path_dir):
-                    os.makedirs(to_path_dir)
-                copy2(from_path, to_path)
-                yield from_path, to_path
+
+def copy_static(dir_from, dir_to):
+    # we need to ignore some static dirs such as 'admin' so this is a
+    # little more complex than a straight shutil.copytree()
+    if not dir_from.endswith(os.sep):
+        dir_from = dir_from + os.sep
+    if not dir_to.endswith(os.sep):
+        dir_to = dir_to + os.sep
+    for root, dirs, files in os.walk(dir_from):
+        dirs[:] = filter_dirs(dirs)
+        for f in files:
+            from_path = os.path.join(root, f)
+            base_path = from_path[len(dir_from):]
+            to_path = os.path.join(dir_to, base_path)
+            to_path_dir = os.path.dirname(to_path)
+            if not os.path.isdir(to_path_dir):
+                os.makedirs(to_path_dir)
+            copy2(from_path, to_path)
+            yield from_path, to_path
+
+
+def copy_static_and_media_files(output_dir, stdout):
+    static_url = str(settings.STATIC_URL)
+    static_root = str(settings.STATIC_ROOT)
+    static_url = static_url[1:] if static_url.startswith('/') else static_url
+    static_output_dir = os.path.join(output_dir, static_url)
+    for file_from, file_to in copy_static(static_root, static_output_dir):
+        stdout('Copying static: {} -> {}'.format(file_from, file_to))
+    media_url = str(settings.MEDIA_URL)
+    media_root = str(settings.MEDIA_ROOT)
+    if media_root:
+        media_url = media_url[1:] if media_url.startswith('/') else media_url
+        media_output_dir = os.path.join(output_dir, media_url)
+        for file_from, file_to in copy_static(media_root, media_output_dir):
+            stdout('Copying media: {} -> {}'.format(file_from, file_to))
+    return True
 
 
 def run_collectstatic(stdout):
@@ -201,7 +259,6 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
                 page_uri = page_uri[1:]
             page_path = page_uri.replace('/', os.sep)
             full_path = os.path.join(output_dir, page_path)
-        http_response.render()
         content = http_response.content
         mime = http_response.get('Content-Type')
         renamed = ' (renamed from "{}")'.format(page_uri) if file_name else ''
@@ -221,17 +278,4 @@ def render_to_dir(output_dir, urls_to_distill, stdout):
             else:
                 raise
         mimes[full_path] = mime.split(';')[0].strip()
-    static_url = settings.STATIC_URL
-    static_url = static_url[1:] if static_url.startswith('/') else static_url
-    static_output_dir = os.path.join(output_dir, static_url)
-    for file_from, file_to in renderer.copy_static(settings.STATIC_ROOT,
-                                                   static_output_dir):
-        stdout('Copying static: {} -> {}'.format(file_from, file_to))
-    media_url = settings.MEDIA_URL
-    if settings.MEDIA_ROOT:
-        media_url = media_url[1:] if media_url.startswith('/') else media_url
-        media_output_dir = os.path.join(output_dir, media_url)
-        for file_from, file_to in renderer.copy_static(settings.MEDIA_ROOT,
-                                                       media_output_dir):
-            stdout('Copying media: {} -> {}'.format(file_from, file_to))
     return True

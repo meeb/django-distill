@@ -3,7 +3,7 @@ import sys
 from setuptools import setup, find_packages
 
 
-version = 2.1
+version = 2.4
 
 
 with open('README.md', 'rt') as f:
@@ -35,8 +35,6 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Topic :: Internet :: WWW/HTTP',

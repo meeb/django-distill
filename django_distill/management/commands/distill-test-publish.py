@@ -6,12 +6,6 @@ from django.core.management.base import (BaseCommand, CommandError)
 from django_distill.backends import get_backend
 
 
-try:
-    input = raw_input
-except NameError:
-    pass
-
-
 class Command(BaseCommand):
 
     help = 'Tests a distill publishing target'

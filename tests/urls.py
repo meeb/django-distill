@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponse
+from django.urls import include, path
 from django_distill import distill_url, distill_path, distill_re_path
 
 
@@ -42,18 +43,23 @@ def test_named_param_func():
 urlpatterns = [
 
     distill_url(r'^url/$',
-                test_no_param_view,
-                name='url-no-param',
-                distill_func=test_no_param_func,
-                distill_file='test'),
+        test_no_param_view,
+        name='url-no-param',
+        distill_func=test_no_param_func,
+        distill_file='test'),
     distill_url(r'^url/([\d]+)$',
-                test_positional_param_view,
-                name='url-positional-param',
-                distill_func=test_positional_param_func),
+        test_positional_param_view,
+        name='url-positional-param',
+        distill_func=test_positional_param_func),
     distill_url(r'^url/(?P<param>[\w]+)$',
-                test_named_param_view,
-                name='url-named-param',
-                distill_func=test_named_param_func),
+        test_named_param_view,
+        name='url-named-param',
+        distill_func=test_named_param_func),
+    path('path/namespace1/',
+        include('tests.namespaced_urls', namespace='test_namespace')),
+    path('path/no-namespace/',
+        include('tests.no_namespaced_urls')),
+
 ]
 
 
@@ -61,26 +67,26 @@ if settings.HAS_RE_PATH:
     urlpatterns += [
 
         distill_re_path(r'^re_path/$',
-                        test_no_param_view,
-                        name='re_path-no-param',
-                        distill_func=test_no_param_func,
-                        distill_file='test'),
+            test_no_param_view,
+            name='re_path-no-param',
+            distill_func=test_no_param_func,
+            distill_file='test'),
         distill_re_path(r'^re_path/([\d]+)$',
-                        test_positional_param_view,
-                        name='re_path-positional-param',
-                        distill_func=test_positional_param_func),
+            test_positional_param_view,
+            name='re_path-positional-param',
+            distill_func=test_positional_param_func),
         distill_re_path(r'^re_path/(?P<param>[\w]+)$',
-                        test_named_param_view,
-                        name='re_path-named-param',
-                        distill_func=test_named_param_func),
+            test_named_param_view,
+            name='re_path-named-param',
+            distill_func=test_named_param_func),
         distill_re_path(r'^re_path/broken$',
-                        test_broken_view,
-                        name='re_path-broken',
-                        distill_func=test_no_param_func),
+            test_broken_view,
+            name='re_path-broken',
+            distill_func=test_no_param_func),
         distill_re_path(r'^re_path/ignore-sessions$',
-                        test_session_view,
-                        name='re_path-ignore-sessions',
-                        distill_func=test_no_param_func),
+            test_session_view,
+            name='re_path-ignore-sessions',
+            distill_func=test_no_param_func),
 
     ]
 
@@ -89,25 +95,25 @@ if settings.HAS_PATH:
     urlpatterns += [
 
         distill_path('path/',
-                    test_no_param_view,
-                    name='path-no-param',
-                    distill_func=test_no_param_func,
-                    distill_file='test'),
+            test_no_param_view,
+            name='path-no-param',
+            distill_func=test_no_param_func,
+            distill_file='test'),
         distill_path('path/<int>',
-                    test_positional_param_view,
-                    name='path-positional-param',
-                    distill_func=test_positional_param_func),
+            test_positional_param_view,
+            name='path-positional-param',
+            distill_func=test_positional_param_func),
         distill_path('path/<str:param>',
-                    test_named_param_view,
-                    name='path-named-param',
-                    distill_func=test_named_param_func),
+            test_named_param_view,
+            name='path-named-param',
+            distill_func=test_named_param_func),
         distill_path('path/broken',
-                    test_broken_view,
-                    name='path-broken',
-                    distill_func=test_no_param_func),
+            test_broken_view,
+            name='path-broken',
+            distill_func=test_no_param_func),
         distill_path('path/ignore-sessions',
-                    test_session_view,
-                    name='path-ignore-sessions',
-                    distill_func=test_no_param_func),
+            test_session_view,
+            name='path-ignore-sessions',
+            distill_func=test_no_param_func),
 
     ]

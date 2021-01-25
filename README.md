@@ -2,20 +2,30 @@
 
 `django-distill` is a minimal configuration static site generator and publisher
 for Django. Most Django versions are supported, however up to date versions are
-advised including the 3.x releases. `django-distill` as of the 1.7 release only
-supports Python 3. Python 2 support has been dropped. If you require Python 2
+advised including the Django 3.x releases. `django-distill` as of the 1.7 release
+only supports Python 3. Python 2 support has been dropped. If you require Python 2
 support please pin `django-distill` to version 1.6 in your requirements.txt or
-Pipfile.
+Pipfile. Python 3.6 or above is advised.
 
 `django-distill` extends existing Django sites with the ability to export
 fully functional static sites. It is suitable for sites such as blogs that have
 a mostly static front end but you still want to use a CMS to manage the
 content.
 
-It plugs directly into the existing Django framework without the need to write
-custom renderers or other more verbose code. You can also use existing fully
-dynamic sites and just generate static pages for a small subsection of pages
-rather than the entire site.
+`django-distill` iterates over URLs in your Django project using easy to write
+iterable functions to yield the parameters for whatever pages you want to save
+as static HTML. These static files can be automatically uploaded to a bucket-style
+remote container such as Amazon S3 or Googe Cloud Files, or, written to a local
+directory as a fully working local static version of your project. The site
+generation, or distillation process, can be easily integrated into CI/CD workflows
+to auto-deploy static sites on commit. `django-distill` can be defined as an
+extension to Django to make Django projects compatible with "Jamstack"-style site
+architecture.
+
+`django-distill` plugs directly into the existing Django framework without the
+need to write custom renderers or other more verbose code. You can also integrate
+`django-distill` with existing dynamic sites and just generate static pages for
+a small subsection of pages rather than the entire site.
 
 For static files on CDNs you can use the following 'cache buster' library to
 allow for fast static media updates when pushing changes:
@@ -198,6 +208,9 @@ rendering, this is just a shortcut to save you typing an extra command.
 
 `--force`: Assume 'yes' to all confirmation questions.
 
+`--exclude-staticfiles`: Do not copy any static files at all, only render output from
+Django views.
+
 **Note**  If any of your views contain a Python error then rendering will fail
 then the stack trace will be printed to the terminal and the rendering command
 will exit with a status code of 1.
@@ -227,6 +240,9 @@ rendering, this is just a shortcut to save you typing an extra command.
 `--quiet`: Disable all output other than asking confirmation questions.
 
 `--force`: Assume 'yes' to all confirmation questions.
+
+`--exclude-staticfiles`: Do not copy any static files at all, only render output from
+Django views.
 
 **Note** that this means if you use `--force` and `--quiet` that the output
 directory will have all files not part of the site export deleted without any
@@ -281,21 +297,6 @@ You can automatically publish sites to various supported remote targets through
 backends just like how you can use MySQL, SQLite, PostgreSQL etc. with
 Django by changing the backend database engine. Currently the engines supported
 by `django-distill` are:
-
-**django_distill.backends.rackspace_files**: Publish to a Rackspace Cloud Files
-  container. Requires the Python library `pyrax` (`$ pip install pyrax`). The
-  container must already exist (use the Rackspace Cloud control panel). Options:
-
-```python
-'some-rackspace-container': {
-    'ENGINE': 'django_distill.backends.rackspace_files',
-    'PUBLIC_URL': 'http://.../',
-    'USERNAME': '...',
-    'API_KEY': '...',
-    'REGION': '...',
-    'CONTAINER': '...',
-},
-```
 
 **django_distill.backends.amazon_s3**: Publish to an Amazon S3 bucket. Requires
   the Python library `boto3` (`$ pip install boto3`). The bucket must already

@@ -104,14 +104,18 @@ class DistillRender(object):
         translation.activate(settings.LANGUAGE_CODE)
 
     def render(self):
-        for url, distill_func, file_name, view_name, a, k in self.urls_to_distill:
+        for url, distill_func, file_name, view_name, ignore_errors, a, k in self.urls_to_distill:
             for param_set in self.get_uri_values(distill_func):
                 if not param_set:
                     param_set = ()
                 elif self._is_str(param_set):
                     param_set = param_set,
                 uri = self.generate_uri(url, view_name, param_set)
-                render = self.render_view(uri, param_set, a)
+                try:
+                    render = self.render_view(uri, param_set, a)
+                except DistillError:
+                    if not ignore_errors:
+                        raise
                 # rewrite URIs ending with a slash to ../index.html
                 if file_name is None and uri.endswith('/'):
                     if uri.startswith('/'):

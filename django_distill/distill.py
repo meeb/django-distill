@@ -7,7 +7,7 @@ urls_to_distill = []
 def _distill_url(func, *a, **k):
     distill_func = k.get('distill_func')
     distill_file = k.get('distill_file')
-    ignore_errors = k.pop('ignore_errors') or False
+    ignore_errors = k.pop('ignore_errors', None) or False
     if distill_file:
         del k['distill_file']
     if distill_func:

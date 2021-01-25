@@ -229,7 +229,7 @@ class DjangoDistillRendererTestSuite(TestCase):
             view = self._get_view('path-ignore-sessions')
             assert view
             view_url,  view_func, file_name, view_name, args, kwargs = view
-            param_set = self.renderer.get_uri_values(view_func)[0]
+            param_set = self.renderer.get_uri_values(view_func, view_name)[0]
             if not param_set:
                 param_set = ()
             uri = self.renderer.generate_uri(view_url, view_name, param_set)

@@ -116,6 +116,8 @@ class DistillRender(object):
                 except DistillError:
                     if not ignore_errors:
                         raise
+                    else:
+                        continue
                 # rewrite URIs ending with a slash to ../index.html
                 if file_name is None and uri.endswith('/'):
                     if uri.startswith('/'):

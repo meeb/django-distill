@@ -28,6 +28,12 @@ def test_broken_view(request):
     a = 1 / 0
 
 
+def test_http404_view(request):
+    response = HttpResponse(b'404', content_type='application/octet-stream')
+    response.status_code = 404
+    return response
+
+
 def test_no_param_func():
     return None
 
@@ -87,6 +93,11 @@ if settings.HAS_RE_PATH:
             test_session_view,
             name='re_path-ignore-sessions',
             distill_func=test_no_param_func),
+        distill_re_path(r'^re_path/404$',
+            test_http404_view,
+            name='re_path-404',
+            distill_status_codes=(404,),
+            distill_func=test_no_param_func),
 
     ]
 
@@ -114,6 +125,11 @@ if settings.HAS_PATH:
         distill_path('path/ignore-sessions',
             test_session_view,
             name='path-ignore-sessions',
+            distill_func=test_no_param_func),
+        distill_path('path/404',
+            test_http404_view,
+            name='path-404',
+            distill_status_codes=(404,),
             distill_func=test_no_param_func),
 
     ]

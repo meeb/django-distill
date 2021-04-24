@@ -105,14 +105,14 @@ class DistillRender(object):
         translation.activate(settings.LANGUAGE_CODE)
 
     def render(self):
-        for url, distill_func, file_name, view_name, a, k in self.urls_to_distill:
+        for url, distill_func, file_name, status_codes, view_name, a, k in self.urls_to_distill:
             for param_set in self.get_uri_values(distill_func, view_name):
                 if not param_set:
                     param_set = ()
                 elif self._is_str(param_set):
                     param_set = param_set,
                 uri = self.generate_uri(url, view_name, param_set)
-                render = self.render_view(uri, param_set, a)
+                render = self.render_view(uri, status_codes, param_set, a)
                 # rewrite URIs ending with a slash to ../index.html
                 if file_name is None and uri.endswith('/'):
                     if uri.startswith('/'):
@@ -161,9 +161,16 @@ class DistillRender(object):
             raise DistillError(err.format(type(param_set)))
         return uri
 
-    def render_view(self, uri, param_set, args):
+    def render_view(self, uri, status_codes, param_set, args):
         if len(args) < 2:
             raise DistillError('Invalid view arguments')
+        # Default status_codes to (200,) if they are invalid or not set
+        if not isinstance(status_codes, (tuple, list)):
+            status_codes = (200,)
+        for status_code in status_codes:
+            if not isinstance(status_code, int):
+                status_codes = (200,)
+                break
         view_regex, view_func = args[0], args[1]
         request_factory = RequestFactory()
         request = request_factory.get(uri)
@@ -181,9 +188,9 @@ class DistillRender(object):
             response = HttpResponse(response)
         elif isinstance(response, SimpleTemplateResponse):
             response.render()
-        if response.status_code != 200:
-            err = 'View returned a non-200 status code: {}'
-            raise DistillError(err.format(response.status_code))
+        if response.status_code not in status_codes:
+            err = 'View returned an invalid status code: {} (expected one of {})'
+            raise DistillError(err.format(response.status_code, status_codes))
         return response
 
 

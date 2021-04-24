@@ -7,8 +7,13 @@ urls_to_distill = []
 def _distill_url(func, *a, **k):
     distill_func = k.get('distill_func')
     distill_file = k.get('distill_file')
+    distill_status_codes = k.get('distill_status_codes')
     if distill_file:
         del k['distill_file']
+    if distill_status_codes:
+        del k['distill_status_codes']
+    else:
+        distill_status_codes = (200,)
     if distill_func:
         del k['distill_func']
         name = k.get('name')
@@ -18,7 +23,8 @@ def _distill_url(func, *a, **k):
             err = 'Distill function not callable: {}'
             raise DistillError(err.format(distill_func))
         url = func(*a, **k)
-        urls_to_distill.append((url, distill_func, distill_file, name, a, k))
+        urls_to_distill.append((url, distill_func, distill_file, distill_status_codes,
+                                name, a, k))
     else:
         e = 'URL registered with distill_url but no distill function supplied'
         raise DistillWarning(e)

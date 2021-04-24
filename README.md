@@ -176,12 +176,37 @@ urlpatterns = (
 )
 ```
 
-**Note** `django-distill` will mirror whatever your installed version of Django
-supports, therefore at some point the `distill_url` function will cease working
-in the future when Django 2.x itself depreciates the `django.conf.urls.url` and
-`django.urls.url` functions. You can use `distill_re_path` as a drop-in
-replacement. It is advisable to use `distill_path` or `distill_re_path` if
-you're building a new site now.
+### Non-standard status codes
+
+All views rendered by `django-distill` into static pages must return an HTTP 200 status
+code. If for any reason you need to render a view which does not return an HTTP 200
+status code, for example you also want to statically generate a 404 page which has a
+view which (correctly) returns an HTTP 404 status code you can use the
+`distill_status_codes` optional argument to a view. For example:
+
+```python
+from django_distill import distill_url
+
+urlpatterns = (
+    distill_url(r'some/regex'
+                SomeView.as_view(),
+                name='url-view',
+                distill_status_codes=(200, 404),
+                distill_func=some_func),
+)
+```
+
+The optional `distill_status_codes` argument accepts a tuple of status codes as integers
+which are permitted for the view to return without raising an error. By default this is
+set to `(200,)` but you can override it if you need to for your site.
+
+### Tracking Django's URL function support
+
+`django-distill` will mirror whatever your installed version of Django supports,
+therefore at some point the `distill_url` function will cease working in the future
+when Django 2.x itself depreciates the `django.conf.urls.url` and `django.urls.url`
+functions. You can use `distill_re_path` as a drop-in replacement. It is advisable to
+use `distill_path` or `distill_re_path` if you're building a new site now.
 
 
 # The `distill-local` command

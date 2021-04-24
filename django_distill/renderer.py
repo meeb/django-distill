@@ -127,7 +127,7 @@ class DistillRender(object):
     def get_uri_values(self, func, view_name):
         fullargspec = inspect.getfullargspec(func)
         try:
-            if "view_name" in fullargspec.args:
+            if 'view_name' in fullargspec.args:
                 v = func(view_name)
             else:
                 v = func()

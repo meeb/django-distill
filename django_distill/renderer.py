@@ -226,10 +226,12 @@ def run_collectstatic(stdout):
     stdout('collectstatic complete, continuing...')
 
 
-_ignore_dirs = ('admin', 'grappelli')
-
-
 def filter_dirs(dirs):
+    DISTILL_SKIP_ADMIN_DIRS = bool(getattr(settings, 'DISTILL_SKIP_ADMIN_DIRS', True))
+    if DISTILL_SKIP_ADMIN_DIRS:
+        _ignore_dirs = ('admin', 'grappelli')
+    else:
+        _ignore_dirs = ()
     return [d for d in dirs if d not in _ignore_dirs]
 
 

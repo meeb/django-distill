@@ -1,5 +1,6 @@
 import os
 import sys
+import inspect
 import types
 import errno
 import warnings
@@ -105,7 +106,7 @@ class DistillRender(object):
 
     def render(self):
         for url, distill_func, file_name, view_name, a, k in self.urls_to_distill:
-            for param_set in self.get_uri_values(distill_func):
+            for param_set in self.get_uri_values(distill_func, view_name):
                 if not param_set:
                     param_set = ()
                 elif self._is_str(param_set):
@@ -123,9 +124,13 @@ class DistillRender(object):
     def _is_str(self, s):
         return isinstance(s, str)
 
-    def get_uri_values(self, func):
+    def get_uri_values(self, func, view_name):
+        fullargspec = inspect.getfullargspec(func)
         try:
-            v = func()
+            if "view_name" in fullargspec.args:
+                v = func(view_name)
+            else:
+                v = func()
         except Exception as e:
             raise DistillError('Failed to call distill function: {}'.format(e))
         if not v:

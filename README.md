@@ -297,7 +297,7 @@ DISTILL_SKIP_ADMIN_DIRS = True
 ```
 
 Set `DISTILL_SKIP_ADMIN_DIRS` to `False` if you want `django-distill` to also copy over
-static files in the 'static/admin` directory. Usually, these are not required or
+static files in the `static/admin` directory. Usually, these are not required or
 desired for statically generated sites. The default behaviour is to skip static admin
 files.
 

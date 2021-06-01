@@ -71,7 +71,7 @@ class GoogleCloudStorageBackend(BackendBase):
 
     def remote_path(self, local_name):
         truncated_path = super().remote_path(local_name)
-        # Replace \ for /, Google Clould Files API docs state they handle both \ and /
+        # Replace \ for /, Google Cloud Files API docs state they handle both \ and /
         # as directory separators but really make sure we're only using / in blob names
         return truncated_path.replace('\\', '/')
 

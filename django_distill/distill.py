@@ -6,6 +6,10 @@ urls_to_distill = []
 
 def _distill_url(func, *a, **k):
     distill_func = k.get('distill_func')
+    if distill_func:
+        del k['distill_func']
+    else:
+        distill_func = lambda: None
     distill_file = k.get('distill_file')
     distill_status_codes = k.get('distill_status_codes')
     if distill_file:
@@ -14,21 +18,15 @@ def _distill_url(func, *a, **k):
         del k['distill_status_codes']
     else:
         distill_status_codes = (200,)
-    if distill_func:
-        del k['distill_func']
-        name = k.get('name')
-        if not name:
-            raise DistillError('Distill function provided with no name')
-        if not callable(distill_func):
-            err = 'Distill function not callable: {}'
-            raise DistillError(err.format(distill_func))
-        url = func(*a, **k)
-        urls_to_distill.append((url, distill_func, distill_file, distill_status_codes,
-                                name, a, k))
-    else:
-        e = 'URL registered with distill_url but no distill function supplied'
-        raise DistillWarning(e)
-        url = func(*a, **k)
+    name = k.get('name')
+    if not name:
+        raise DistillError('Distill function provided with no name')
+    if not callable(distill_func):
+        err = 'Distill function not callable: {}'
+        raise DistillError(err.format(distill_func))
+    url = func(*a, **k)
+    urls_to_distill.append((url, distill_func, distill_file, distill_status_codes,
+                            name, a, k))
     return url
 
 

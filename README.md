@@ -125,6 +125,8 @@ urlpatterns = (
     distill_path('',
                  PostIndex.as_view(),
                  name='blog-index',
+                 # Note that for paths which have no paramters
+                 # distill_func is optional
                  distill_func=get_index,
                  # / is not a valid file name! override it to index.html
                  distill_file='index.html'),
@@ -145,6 +147,11 @@ Your site will still function identically with the above changes. Internally
 the `distill_func` and `distill_file` parameters are removed and the URL is
 passed back to Django for normal processing. This has no runtime performance
 impact as this happens only once upon starting the application.
+
+If your path has no URI paramters, such as `/` or `/some-static-url` you do
+not have to specify the `distill_func` paramter if you don't want to. As for
+paths with no paramters the `distill_func` always returns `None` this has is
+set as the default behaviour for `distill_func`s.
 
 You can use the `distill_re_path` function as well, which replaces the default
 `django.urls.re_path` function. Its usage is identical to the above:

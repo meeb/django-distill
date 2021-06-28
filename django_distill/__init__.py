@@ -1,4 +1,4 @@
-__version__ = 2.7
+__version__ = 2.8
 
 
 from django import __version__ as django_version

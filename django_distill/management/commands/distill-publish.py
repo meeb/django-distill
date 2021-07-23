@@ -73,7 +73,10 @@ class Command(BaseCommand):
             if not os.path.isdir(settings.STATIC_ROOT):
                 e = 'Static source directory does not exist, run collectstatic'
                 raise CommandError(e)
-            ans = input('Type \'yes\' to continue, or \'no\' to cancel: ')
+            if force:
+                ans = 'yes'
+            else:
+                ans = input('Type \'yes\' to continue, or \'no\' to cancel: ')
             if ans.lower() == 'yes':
                 pass
             else:

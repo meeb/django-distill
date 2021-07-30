@@ -155,7 +155,7 @@ class DistillRender(object):
             try:
                 uri = reverse(view_name, kwargs=param_set)
             except NoReverseMatch:
-                uri = reverse(view_name_ns, args=param_set)
+                uri = reverse(view_name_ns, kwargs=param_set)
         else:
             err = 'Distill function returned an invalid type: {}'
             raise DistillError(err.format(type(param_set)))

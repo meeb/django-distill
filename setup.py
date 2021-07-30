@@ -3,7 +3,7 @@ import sys
 from setuptools import setup, find_packages
 
 
-version = 2.8
+version = '2.8.1'
 
 
 with open('README.md', 'rt') as f:
@@ -16,7 +16,7 @@ with open('requirements.txt', 'rt') as f:
 
 setup(
     name = 'django-distill',
-    version = str(version),
+    version = version,
     url = 'https://github.com/meeb/django-distill',
     author = 'https://github.com/meeb',
     author_email = 'meeb@meeb.org',
@@ -42,6 +42,6 @@ setup(
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    keywords = ('django', 'distill', 'static', 's3', 'rackspace',
-                'google cloud storage'),
+    keywords = ['django', 'distill', 'static', 's3', 'rackspace',
+                'google cloud storage'],
 )

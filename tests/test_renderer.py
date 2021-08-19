@@ -4,6 +4,8 @@ import tempfile
 import warnings
 from django.test import TestCase
 from django.conf import settings
+from django.contrib.flatpages.models import FlatPage
+from django.apps import apps as django_apps
 from django_distill.distill import urls_to_distill
 from django_distill.renderer import DistillRender, render_to_dir
 from django_distill.errors import DistillError
@@ -14,6 +16,23 @@ class DjangoDistillRendererTestSuite(TestCase):
     def setUp(self):
         output_dir = None
         self.renderer = DistillRender(output_dir, urls_to_distill)
+        # Create a few test flatpages
+        Site = django_apps.get_model('sites.Site')
+        current_site = Site.objects.get_current()
+        page1 = FlatPage()
+        page1.url = '/flat/page1.html'
+        page1.title = 'flatpage1'
+        page1.content = 'flatpage1'
+        page1.template_name = 'flatpage.html'
+        page1.save()
+        page1.sites.add(current_site)
+        page2 = FlatPage()
+        page2.url = '/flat/page2.html'
+        page2.title = 'flatpage2'
+        page2.content = 'flatpage2'
+        page2.template_name = 'flatpage.html'
+        page2.save()
+        page2.sites.add(current_site)
 
     def _get_view(self, name):
         for u in urls_to_distill:
@@ -283,3 +302,33 @@ class DjangoDistillRendererTestSuite(TestCase):
             render = self.renderer.render_view(uri, status_codes, param_set, args)
             self.assertEqual(render.content, b'404')
             self.assertEqual(render.status_code, 404)
+
+    def test_flatpages(self):
+        if settings.HAS_PATH:
+            view = self._get_view('path-flatpage')
+            assert view
+            view_url, view_func, file_name, status_codes, view_name, args, kwargs = view
+            param_set = self.renderer.get_uri_values(view_func, view_name)
+            for param in param_set:
+                page_url = param['url']
+                uri = self.renderer.generate_uri(view_url, view_name, param)
+                self.assertEqual(uri, f'/path/flatpage{page_url}')
+                render = self.renderer.render_view(uri, status_codes, param, args)
+                flatpage = FlatPage.objects.get(url=page_url)
+                expected = f'<title>{flatpage.title}</title><body>{flatpage.content}</body>\n'
+                self.assertEqual(render.content, expected.encode())
+                self.assertEqual(render.status_code, 200)
+        if settings.HAS_RE_PATH:
+            view = self._get_view('re_path-flatpage')
+            assert view
+            view_url, view_func, file_name, status_codes, view_name, args, kwargs = view
+            param_set = self.renderer.get_uri_values(view_func, view_name)
+            for param in param_set:
+                page_url = param['url']
+                uri = self.renderer.generate_uri(view_url, view_name, param)
+                self.assertEqual(uri, f'/re_path/flatpage{page_url}')
+                render = self.renderer.render_view(uri, status_codes, param, args)
+                flatpage = FlatPage.objects.get(url=page_url)
+                expected = f'<title>{flatpage.title}</title><body>{flatpage.content}</body>\n'
+                self.assertEqual(render.content, expected.encode())
+                self.assertEqual(render.status_code, 200)

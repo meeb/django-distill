@@ -36,8 +36,21 @@ DATABASES = {
 
 
 INSTALLED_APPS = [
+    'django.contrib.sites',
+    'django.contrib.flatpages',
     'tests',
 ]
+
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'tests' / 'templates'],
+    },
+]
+
+
+SITE_ID = 1
 
 
 STATIC_URL = '/static/'

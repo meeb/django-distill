@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import include, path
+from django.contrib.flatpages.views import flatpage as flatpage_view
+from django.apps import apps as django_apps
 from django_distill import distill_url, distill_path, distill_re_path
 
 
@@ -44,6 +46,14 @@ def test_positional_param_func():
 
 def test_named_param_func():
     return [{'param': 'test'}]
+
+
+def test_flatpages_func():
+    Site = django_apps.get_model('sites.Site')
+    current_site = Site.objects.get_current()
+    flatpages = current_site.flatpage_set.filter(registration_required=False)
+    for flatpage in flatpages:
+        yield {'url': flatpage.url}
 
 
 urlpatterns = [
@@ -106,6 +116,10 @@ if settings.HAS_RE_PATH:
             name='re_path-404',
             distill_status_codes=(404,),
             distill_func=test_no_param_func),
+        distill_re_path(r'^re_path/flatpage(?P<url>.+)$',
+            flatpage_view,
+            name='re_path-flatpage',
+            distill_func=test_flatpages_func),
 
     ]
 
@@ -143,5 +157,9 @@ if settings.HAS_PATH:
             name='path-404',
             distill_status_codes=(404,),
             distill_func=test_no_param_func),
+        distill_path('path/flatpage<path:url>',
+            flatpage_view,
+            name='path-flatpage',
+            distill_func=test_flatpages_func),
 
     ]

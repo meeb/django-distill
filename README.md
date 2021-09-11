@@ -380,7 +380,7 @@ by `django-distill` are:
 ```python
 'some-microsoft-storage-account': {
     'ENGINE': 'django_distill.backends.microsoft_azure_storage',
-    'PUBLIC_URL': 'https://[storage-accounnt-name].z8.web.core.windows.net/',
+    'PUBLIC_URL': 'https://[storage-account-name]...windows.net/',
     'CONNECTION_STRING': '...',
 },
 ```

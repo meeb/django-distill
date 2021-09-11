@@ -42,6 +42,8 @@ setup(
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    keywords = ['django', 'distill', 'static', 's3', 'rackspace',
-                'google cloud storage'],
+    keywords = ['django', 'distill', 'static', 'website', 'jamstack', 's3',
+                'amazon s3', 'aws', 'amazon', 'google', 'microsoft',
+                'google cloud', 'google cloud storage', 'azure',
+                'azure storage', 'azure blob storage'],
 )

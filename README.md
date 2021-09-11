@@ -371,6 +371,25 @@ by `django-distill` are:
 },
 ```
 
+**django_distill.backends.microsoft_azure_storage**: Publish to a Microsoft
+  Azure Blob Storage container. Requires the Python library
+  `azure-storage-blob` (`$ pip install azure-storage-blob`). The storage
+  account must already exist and be set up to host a public static website
+  (use the Microsoft Azure control panel). Options:
+
+```python
+'some-microsoft-storage-account': {
+    'ENGINE': 'django_distill.backends.microsoft_azure_storage',
+    'PUBLIC_URL': 'https://[storage-accounnt-name].z8.web.core.windows.net/',
+    'CONNECTION_STRING': '...',
+},
+```
+
+Note that each Azure storage account supports one static website using the
+magic container `$web` which is where `django-distill` will attempt to
+publish your site.
+
+
 # Tests
 
 There is a minimal test suite, you can run it by cloing this repository,

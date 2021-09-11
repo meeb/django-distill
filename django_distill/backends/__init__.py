@@ -1,6 +1,7 @@
 import os
 import sys
 import warnings
+import mimetypes
 from hashlib import md5
 from binascii import hexlify
 import requests
@@ -59,6 +60,8 @@ class BackendBase(object):
         # CDN cache buster
         url += '?' + hexlify(os.urandom(16)).decode('utf-8')
         request = requests.get(url, stream=True)
+        if request.status_code == 404:
+            return False
         digest = digest_func()
         for block in request.iter_content(chunk_size=chunk):
             if block:
@@ -67,6 +70,12 @@ class BackendBase(object):
 
     def _file_exists(self, file_path):
         return os.path.isfile(file_path)
+
+    def local_file_mimetype(self, local_name):
+        try:
+            return mimetypes.guess_type(local_name)[0]
+        except Exception:
+            return 'application/octet-stream'
 
     def remote_url(self, local_name):
         if local_name[:len(self.source_dir)] != self.source_dir:
@@ -91,6 +100,9 @@ class BackendBase(object):
         local_hash = self._get_local_file_hash(local_name)
         remote_hash = self._get_url_hash(url)
         return local_hash == remote_hash
+
+    def final_checks(self):
+        pass
 
     def remote_path(self, local_name):
         return local_name[len(self.source_dir):]

@@ -61,6 +61,8 @@ class Command(BaseCommand):
         else:
             msg = 'File error, remote file hash differs from local hash'
             self.stderr.write(msg)
+        self.stdout.write('Final checks')
+        backend.final_checks()
         self.stdout.write('Deleting remote test file')
         backend.delete_remote_file(remote_file_name)
         if os.path.exists(random_file.name):

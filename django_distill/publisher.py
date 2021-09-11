@@ -39,6 +39,9 @@ def publish_dir(local_dir, backend, stdout):
         if not backend.check_file(f, url):
             err = 'Remote file {} failed hash check'
             raise DistillPublishError(err.format(url))
+    # Call any final checks that may be needed by the backend
+    stdout('Final checks')
+    backend.final_checks()
     # delete any orphan files
     for f in to_delete:
         stdout('Deleting remote: {}'.format(f))

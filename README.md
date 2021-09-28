@@ -254,7 +254,7 @@ will exit with a status code of 1.
 $ ./manage.py distill-publish [optional destination here]
 ```
 
-If you have configured at least once publishing destination (see below) you can
+If you have configured at least one publishing destination (see below) you can
 use the `distill-publish` command to publish the site to a remote location.
 
 This will perform a full synchronisation, removing any remote files that are no

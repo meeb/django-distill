@@ -65,7 +65,7 @@ That's it.
 `GET` requests that return an `HTTP 200` status code are supported.
 
 It is assumed you are using URI parameters such as `/blog/123-abc` and not
-querystring parameters such as `/blog?post_id=123&title=abc`. Querystring
+querystring parameters such as `/blog?post_id=123&title=abc`. Query string
 parameters do not make sense for static page generation for obvious reasons.
 
 Additionally With one-off static pages dynamic internationalisation won't work

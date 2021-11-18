@@ -70,7 +70,7 @@ class Command(BaseCommand):
             stdout('')
             if collectstatic:
                 run_collectstatic(stdout)
-            if not os.path.isdir(settings.STATIC_ROOT):
+            if not exclude_staticfiles and not os.path.isdir(settings.STATIC_ROOT):
                 e = 'Static source directory does not exist, run collectstatic'
                 raise CommandError(e)
             if force:

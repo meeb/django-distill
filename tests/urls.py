@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.urls import include, path
 from django.contrib.flatpages.views import flatpage as flatpage_view
 from django.apps import apps as django_apps
-from django_distill import distill_url, distill_path, distill_re_path
+from django_distill import distill_path, distill_re_path
 
 
 def test_no_param_view(request):
@@ -58,23 +58,6 @@ def test_flatpages_func():
 
 urlpatterns = [
 
-    distill_url(r'^url/$',
-        test_no_param_view,
-        name='url-no-param',
-        distill_func=test_no_param_func,
-        distill_file='test'),
-    distill_url(r'^url-no-func/$',
-        test_no_param_view,
-        name='url-no-param-no-func',
-        distill_file='test'),
-    distill_url(r'^url/([\d]+)$',
-        test_positional_param_view,
-        name='url-positional-param',
-        distill_func=test_positional_param_func),
-    distill_url(r'^url/(?P<param>[\w]+)$',
-        test_named_param_view,
-        name='url-named-param',
-        distill_func=test_named_param_func),
     path('path/namespace1/',
         include('tests.namespaced_urls', namespace='test_namespace')),
     path('path/no-namespace/',

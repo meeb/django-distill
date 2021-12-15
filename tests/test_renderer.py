@@ -77,38 +77,6 @@ class DjangoDistillRendererTestSuite(TestCase):
             with self.assertRaises(DistillError):
                 self.renderer.get_uri_values(lambda: invalid, None)
 
-    def test_url_no_param(self):
-        view = self._get_view('url-no-param')
-        assert view
-        view_url, view_func, file_name, status_codes, view_name, args, kwargs = view
-        param_set = self.renderer.get_uri_values(view_func, view_name)[0]
-        if not param_set:
-            param_set = ()
-        uri = self.renderer.generate_uri(view_url, view_name, param_set)
-        self.assertEqual(uri, '/url/')
-        render = self.renderer.render_view(uri, status_codes, param_set, args)
-        self.assertEqual(render.content, b'test')
-
-    def test_url_positional_param(self):
-        view = self._get_view('url-positional-param')
-        assert view
-        view_url, view_func, file_name, status_codes, view_name, args, kwargs = view
-        param_set = self.renderer.get_uri_values(view_func, view_name)
-        uri = self.renderer.generate_uri(view_url, view_name, param_set)
-        self.assertEqual(uri, '/url/12345')
-        render = self.renderer.render_view(uri, status_codes, param_set, args)
-        self.assertEqual(render.content, b'test12345')
-
-    def test_url_named_param(self):
-        view = self._get_view('url-named-param')
-        assert view
-        view_url, view_func, file_name, status_codes, view_name, args, kwargs = view
-        param_set = self.renderer.get_uri_values(view_func, view_name)[0]
-        uri = self.renderer.generate_uri(view_url, view_name, param_set)
-        self.assertEqual(uri, '/url/test')
-        render = self.renderer.render_view(uri, status_codes, param_set, args)
-        self.assertEqual(render.content, b'testtest')
-
     def test_re_path_no_param(self):
         if not settings.HAS_RE_PATH:
             self._skip('django.urls.re_path')
@@ -226,8 +194,6 @@ class DjangoDistillRendererTestSuite(TestCase):
             pass
         expected_files = (
             ('test',),
-            ('url', '12345'),
-            ('url', 'test'),
             ('re_path', '12345'),
             ('re_path', 'test'),
         )

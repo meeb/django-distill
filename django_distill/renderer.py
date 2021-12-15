@@ -233,7 +233,7 @@ def copy_static_and_media_files(output_dir, stdout):
 
 def run_collectstatic(stdout):
     stdout('Distill is running collectstatic...')
-    call_command('collectstatic')
+    call_command('collectstatic', '--noinput')
     stdout('')
     stdout('collectstatic complete, continuing...')
 

@@ -8,6 +8,3 @@ verify_ssl = true
 [packages]
 requests = "*"
 Django = "*"
-
-[requires]
-python_version = "3"

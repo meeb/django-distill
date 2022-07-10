@@ -1,9 +1,6 @@
 # django-distill
 
-`django-distill` now has a website (which is built using `django-distill`, source
-repo available at  
-[:link: meeb/django-distill-site](https://github.com/meeb/django-distill-site)).
-Read more at:
+`django-distill` now has a website. Read more at:
 
 ## :link: https://django-distill.com/
 

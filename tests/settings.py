@@ -38,6 +38,7 @@ DATABASES = {
 INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.flatpages',
+    'django.contrib.sessions',
     'tests',
 ]
 

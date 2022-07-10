@@ -10,7 +10,10 @@ from django.conf import settings
 from django.conf.urls import include as include_urls
 from django.http import HttpResponse
 from django.template.response import SimpleTemplateResponse
+from django.utils.module_loading import import_string
+from django.utils.deprecation import MiddlewareMixin
 from django.test import RequestFactory
+from django.test.client import ClientHandler
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.core.management import call_command
@@ -48,48 +51,94 @@ for (namespaces, url) in iter_resolved_urls(urlconf.urlpatterns):
             namespace_map[url] = nspath
 
 
-class DummyInterface:
+class DistillHandler(ClientHandler):
     '''
-        Implements a dummy interface which raises a warning if any attributes or
-        methods are accessed. This is used to replace specific non-implemented features,
-        like sessions, which may be in end users site code but has no relevance for
-        a static site and can be ignored. As this may be a non-obvious breaking change
-        to a users site display a descriptive warning when rendering.
+        Overload ClientHandler's resolve_request(...) to return the already known
+        and pre-resolved view method. Also overwrite any session handling middleware
+        with the dummy session handler.
     '''
 
-    _err = ('{}.{}({}, {}) called. This is a dummy interface. The {} feature of Django '
-            'is not supported by distill. This request will do nothing and has no '
-            'effect when rendering a static site. If this request is a requirement for '
-            'the function of your site when it is not being rendered you can ignore '
-            'this warning.')
+    def __init__(self, *a, **k):
+        self.view_func = lambda x: x
+        self.view_args = ()
+        self.view_kwargs = {}
+        k['enforce_csrf_checks'] = False
+        super().__init__(*a, *k)
 
-    def __init__(self, name):
-        self._name = name
+    def set_view(self, view_func, view_args, view_kwargs):
+        self.view_func = view_func
+        self.view_args = view_args
+        self.view_kwargs = view_kwargs 
 
-    def __getattribute__(self, attr, *args, **kwargs):
-        if attr.startswith('_'):
-            return object.__getattribute__(self, attr)
-        def _dummy_func(*args, **kwargs):
-            warnings.warn(self._err.format(self._name, attr, args, kwargs, self._name),
-                          RuntimeWarning)
-            return lambda x: x
-        return _dummy_func
+    def resolve_request(self, request):
+        return self.view_func, self.view_args, self.view_kwargs
 
-    def __getitem__(self, key):
-        warnings.warn(self._err.format(self._name, '__getitem__', key, {}, self._name),
-                      RuntimeWarning)
 
-    def __setitem__(self, key, value):
-        warnings.warn(self._err.format(self._name, '__setitem__', (key, value), {},
-                      self._name), RuntimeWarning)
-
-    def __delitem__(self, key):
-        warnings.warn(self._err.format(self._name, '__delitem__', key, {}, self._name),
-                      RuntimeWarning)
-
-    def __contains__(self, key):
-        warnings.warn(self._err.format(self._name, '__contains__', key, {}, self._name),
-                      RuntimeWarning)
+    def load_middleware(self, is_async=False):
+        '''
+            Replaces the standard BaseHandler.load_middleware(). This method is
+            identical apart from not trapping all exceptions. We actually want the
+            real Python exceptions to be raised here.
+        '''
+        self._view_middleware = []
+        self._template_response_middleware = []
+        self._exception_middleware = []
+        get_response = self._get_response_async if is_async else self._get_response
+        handler = get_response
+        handler_is_async = is_async
+        for middleware_path in reversed(settings.MIDDLEWARE):
+            middleware = import_string(middleware_path)
+            middleware_can_sync = getattr(middleware, 'sync_capable', True)
+            middleware_can_async = getattr(middleware, 'async_capable', False)
+            if not middleware_can_sync and not middleware_can_async:
+                raise RuntimeError(
+                    'Middleware %s must have at least one of '
+                    'sync_capable/async_capable set to True.' % middleware_path
+                )
+            elif not handler_is_async and middleware_can_sync:
+                middleware_is_async = False
+            else:
+                middleware_is_async = middleware_can_async
+            try:
+                # Adapt handler, if needed.
+                adapted_handler = self.adapt_method_mode(
+                    middleware_is_async,
+                    handler,
+                    handler_is_async,
+                    debug=settings.DEBUG,
+                    name='middleware %s' % middleware_path,
+                )
+                mw_instance = middleware(adapted_handler)
+            except MiddlewareNotUsed as exc:
+                if settings.DEBUG:
+                    if str(exc):
+                        logger.debug('MiddlewareNotUsed(%r): %s', middleware_path, exc)
+                    else:
+                        logger.debug('MiddlewareNotUsed: %r', middleware_path)
+                continue
+            else:
+                handler = adapted_handler
+            if mw_instance is None:
+                raise ImproperlyConfigured(
+                    'Middleware factory %s returned None.' % middleware_path
+                )
+            if hasattr(mw_instance, 'process_view'):
+                self._view_middleware.insert(
+                    0,
+                    self.adapt_method_mode(is_async, mw_instance.process_view),
+                )
+            if hasattr(mw_instance, 'process_template_response'):
+                self._template_response_middleware.append(
+                    self.adapt_method_mode(
+                        is_async, mw_instance.process_template_response
+                    ),
+                )
+            if hasattr(mw_instance, 'process_exception'):
+                self._exception_middleware.append(
+                    self.adapt_method_mode(False, mw_instance.process_exception),
+                )
+        self._middleware_chain = self.adapt_method_mode(is_async, mw_instance,
+                                                        middleware_is_async)
 
 
 class DistillRender(object):
@@ -174,20 +223,19 @@ class DistillRender(object):
         view_regex, view_func = args[0], args[1]
         request_factory = RequestFactory()
         request = request_factory.get(uri)
-        setattr(request, 'session', DummyInterface('request.session'))
+        handler = DistillHandler()
+        handler.load_middleware()
         if isinstance(param_set, dict):
             a, k = (), param_set
         else:
             a, k = param_set, {}
         try:
-            response = view_func(request, *a, **k)
+            handler.set_view(view_func, a, k)
+            #setattr(request, 'session', DummyInterface('request.session'))
+            response = handler.get_response(request)
         except Exception as err:
             e = 'Failed to render view "{}": {}'.format(uri, err)
             raise DistillError(e) from err
-        if self._is_str(response):
-            response = HttpResponse(response)
-        elif isinstance(response, SimpleTemplateResponse):
-            response.render()
         if response.status_code not in status_codes:
             err = 'View returned an invalid status code: {} (expected one of {})'
             raise DistillError(err.format(response.status_code, status_codes))

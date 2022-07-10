@@ -219,11 +219,7 @@ class DjangoDistillRendererTestSuite(TestCase):
                 param_set = ()
             uri = self.renderer.generate_uri(view_url, view_name, param_set)
             self.assertEqual(uri, '/path/ignore-sessions')
-            with warnings.catch_warnings(record=True) as w:
-                render = self.renderer.render_view(uri, status_codes, param_set, args)
-                self.assertEqual(len(w), 1)
-                caught_warning = w[0]
-                self.assertEqual(caught_warning.category, RuntimeWarning)
+            render = self.renderer.render_view(uri, status_codes, param_set, args)
             self.assertEqual(render.content, b'test')
         uri = self.renderer.generate_uri(view_url, view_name, param_set)
         if settings.HAS_RE_PATH:
@@ -235,11 +231,7 @@ class DjangoDistillRendererTestSuite(TestCase):
                 param_set = ()
             uri = self.renderer.generate_uri(view_url, view_name, param_set)
             self.assertEqual(uri, '/re_path/ignore-sessions')
-            with warnings.catch_warnings(record=True) as w:
-                render = self.renderer.render_view(uri, status_codes, param_set, args)
-                self.assertEqual(len(w), 1)
-                caught_warning = w[0]
-                self.assertEqual(caught_warning.category, RuntimeWarning)
+            render = self.renderer.render_view(uri, status_codes, param_set, args)
             self.assertEqual(render.content, b'test')
 
     def test_custom_status_codes(self):

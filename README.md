@@ -2,7 +2,7 @@
 
 `django-distill` now has a website (which is built using `django-distill`, source
 repo available at
-[:octocat:meeb/django-distill-site](https://github.com/meeb/django-distill-site)).
+[:link: meeb/django-distill-site](https://github.com/meeb/django-distill-site)).
 Read more at:
 
 ## :link: https://django-distill.com/
@@ -37,13 +37,13 @@ a small subsection of pages rather than the entire site.
 For static files on CDNs you can use the following 'cache buster' library to
 allow for fast static media updates when pushing changes:
 
-[:octocat:meeb/django-cachekiller](https://github.com/meeb/django-cachekiller)
+[:link: meeb/django-cachekiller](https://github.com/meeb/django-cachekiller)
 
 There is a complete example site that creates a static blog and uses
 `django-distill` with `django-cachekiller` via continuous deployment on Netlify
 available here:
 
-[:octocat:meeb/django-distill-example](https://github.com/meeb/django-distill-example)
+[:link: meeb/django-distill-example](https://github.com/meeb/django-distill-example)
 
 
 # Installation

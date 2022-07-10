@@ -73,7 +73,6 @@ class DistillHandler(ClientHandler):
     def resolve_request(self, request):
         return self.view_func, self.view_args, self.view_kwargs
 
-
     def load_middleware(self, is_async=False):
         '''
             Replaces the standard BaseHandler.load_middleware(). This method is
@@ -137,8 +136,10 @@ class DistillHandler(ClientHandler):
                 self._exception_middleware.append(
                     self.adapt_method_mode(False, mw_instance.process_exception),
                 )
-        self._middleware_chain = self.adapt_method_mode(is_async, mw_instance,
-                                                        middleware_is_async)
+            handler = mw_instance
+            handler_is_async = middleware_is_async
+        handler = self.adapt_method_mode(is_async, handler, handler_is_async)
+        self._middleware_chain = handler
 
 
 class DistillRender(object):
@@ -152,6 +153,8 @@ class DistillRender(object):
         self.urls_to_distill = urls_to_distill
         # activate the default translation
         translation.activate(settings.LANGUAGE_CODE)
+        # set allowed hosts to '*', static rendering shouldn't care about the hostname
+        settings.ALLOWED_HOSTS = ['*']
 
     def render(self):
         for url, distill_func, file_name, status_codes, view_name, a, k in self.urls_to_distill:
@@ -231,7 +234,6 @@ class DistillRender(object):
             a, k = param_set, {}
         try:
             handler.set_view(view_func, a, k)
-            #setattr(request, 'session', DummyInterface('request.session'))
             response = handler.get_response(request)
         except Exception as err:
             e = 'Failed to render view "{}": {}'.format(uri, err)

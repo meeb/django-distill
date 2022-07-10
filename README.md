@@ -1,5 +1,9 @@
 # django-distill
 
+`django-distill` now has a website. Read more at:
+
+## :link: https://django-distill.com/
+
 `django-distill` is a minimal configuration static site generator and publisher
 for Django. Most Django versions are supported, however up to date versions are
 advised including the Django 3.x releases. `django-distill` as of the 1.7 release

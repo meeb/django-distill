@@ -14,7 +14,7 @@ from django.utils.module_loading import import_string
 from django.utils.deprecation import MiddlewareMixin
 from django.test import RequestFactory
 from django.test.client import ClientHandler
-from django.urls import reverse
+from django.urls import reverse, ResolverMatch
 from django.urls.exceptions import NoReverseMatch
 from django.core.management import call_command
 from django_distill.errors import DistillError, DistillWarning
@@ -60,18 +60,26 @@ class DistillHandler(ClientHandler):
 
     def __init__(self, *a, **k):
         self.view_func = lambda x: x
+        self.view_uri_args = ()
+        self.view_uri_kwargs = {}
         self.view_args = ()
-        self.view_kwargs = {}
         k['enforce_csrf_checks'] = False
         super().__init__(*a, *k)
 
-    def set_view(self, view_func, view_args, view_kwargs):
+    def set_view(self, view_func, view_uri_args, view_uri_kwargs, view_args):
         self.view_func = view_func
+        self.view_uri_args = view_uri_args
+        self.view_uri_kwargs = view_uri_kwargs
         self.view_args = view_args
-        self.view_kwargs = view_kwargs 
 
     def resolve_request(self, request):
-        return self.view_func, self.view_args, self.view_kwargs
+        for arg in self.view_args:
+            self.view_uri_kwargs.update(**arg)
+        return ResolverMatch(
+            self.view_func,
+            self.view_uri_args,
+            self.view_uri_kwargs,
+        )
 
     def load_middleware(self, is_async=False):
         '''
@@ -224,6 +232,7 @@ class DistillRender(object):
                 status_codes = (200,)
                 break
         view_regex, view_func = args[0], args[1]
+        view_args = args[2:] if len(args) > 2 else ()
         request_factory = RequestFactory()
         request = request_factory.get(uri)
         handler = DistillHandler()
@@ -233,7 +242,7 @@ class DistillRender(object):
         else:
             a, k = param_set, {}
         try:
-            handler.set_view(view_func, a, k)
+            handler.set_view(view_func, a, k, view_args)
             response = handler.get_response(request)
         except Exception as err:
             e = 'Failed to render view "{}": {}'.format(uri, err)

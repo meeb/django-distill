@@ -261,7 +261,7 @@ class DjangoDistillRendererTestSuite(TestCase):
             self.assertEqual(render.content, b'404')
             self.assertEqual(render.status_code, 404)
 
-    def test_flatpages(self):
+    def test_contrib_flatpages(self):
         if settings.HAS_PATH:
             view = self._get_view('path-flatpage')
             assert view
@@ -290,3 +290,22 @@ class DjangoDistillRendererTestSuite(TestCase):
                 expected = f'<title>{flatpage.title}</title><body>{flatpage.content}</body>\n'
                 self.assertEqual(render.content, expected.encode())
                 self.assertEqual(render.status_code, 200)
+
+    def test_contrib_sitemaps(self):
+        view = self._get_view('path-sitemap')
+        assert view
+        view_url, view_func, file_name, status_codes, view_name, args, kwargs = view
+        param_set = ()
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
+        self.assertEqual(uri, '/path/test-sitemap')
+        render = self.renderer.render_view(uri, status_codes, param_set, args)
+        expected_content = (
+            b'<?xml version="1.0" encoding="UTF-8"?>\n'
+            b'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
+            b'xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+            b'<url><loc>http://example.com/path/test-sitemap</loc>'
+            b'<changefreq>daily</changefreq>'
+            b'<priority>0.5</priority></url>\n</urlset>\n'
+        )
+        self.assertEqual(render.content, expected_content)
+        self.assertEqual(render.status_code, 200)

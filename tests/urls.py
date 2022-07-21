@@ -1,9 +1,30 @@
+from datetime import timedelta
 from django.conf import settings
 from django.http import HttpResponse
-from django.urls import include, path
+from django.urls import include, path, reverse
+from django.utils import timezone
 from django.contrib.flatpages.views import flatpage as flatpage_view
+from django.contrib.sitemaps import Sitemap
+from django.contrib.sitemaps.views import sitemap
 from django.apps import apps as django_apps
 from django_distill import distill_path, distill_re_path
+
+
+class TestStaticViewSitemap(Sitemap):
+
+    priority = 0.5
+    changefreq = 'daily'
+
+    def items(self):
+        return ['path-sitemap']
+
+    def location(self, item):
+        return reverse(item)
+
+
+sitemap_dict = {
+    'static': TestStaticViewSitemap,
+}
 
 
 def test_no_param_view(request):
@@ -144,5 +165,10 @@ if settings.HAS_PATH:
             flatpage_view,
             name='path-flatpage',
             distill_func=test_flatpages_func),
+        distill_path('path/test-sitemap',
+            sitemap,
+            {'sitemaps': sitemap_dict},
+            name='path-sitemap'
+        )
 
     ]

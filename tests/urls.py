@@ -32,11 +32,15 @@ def test_no_param_view(request):
 
 
 def test_positional_param_view(request, param):
+    if not isinstance(param, str):
+        param = str(param)
     return HttpResponse(b'test' + param.encode(),
                         content_type='application/octet-stream')
 
 
 def test_named_param_view(request, param=None):
+    if not isinstance(param, str):
+        param = str(param)
     return HttpResponse(b'test' + param.encode(),
                         content_type='application/octet-stream')
 

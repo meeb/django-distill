@@ -156,15 +156,33 @@ class DistillRender(object):
         distill_url() and then copies over all static media.
     '''
 
-    def __init__(self, output_dir, urls_to_distill):
-        self.output_dir = output_dir
+    def __init__(self, urls_to_distill):
         self.urls_to_distill = urls_to_distill
         # activate the default translation
         translation.activate(settings.LANGUAGE_CODE)
         # set allowed hosts to '*', static rendering shouldn't care about the hostname
         settings.ALLOWED_HOSTS = ['*']
 
-    def render(self):
+    def render_file(self, view_name, status_codes, view_args, view_kwargs):
+        view_details = []
+        for params in self.urls_to_distill:
+            if view_name == params[4]:
+                view_details = params
+                break
+        if not view_details:
+            raise DistillError(f'No view exists with the name: {view_name}')
+        url, distill_func, file_name, status_codes, view_name, a, k = view_details
+        if view_kwargs:
+            uri = self.generate_uri(url, view_name, view_kwargs)
+            args = view_kwargs
+        else:
+            uri = self.generate_uri(url, view_name, view_args)
+            args = view_args
+        render = self.render_view(uri, status_codes, args, a)
+        file_name = self._get_filename(file_name, uri)
+        return uri, file_name, render
+    
+    def render_all_urls(self):
         for url, distill_func, file_name, status_codes, view_name, a, k in self.urls_to_distill:
             for param_set in self.get_uri_values(distill_func, view_name):
                 if not param_set:
@@ -173,13 +191,28 @@ class DistillRender(object):
                     param_set = param_set,
                 uri = self.generate_uri(url, view_name, param_set)
                 render = self.render_view(uri, status_codes, param_set, a)
-                # rewrite URIs ending with a slash to ../index.html
-                if file_name is None and uri.endswith('/'):
-                    if uri.startswith('/'):
-                        uri = uri[1:]
-                    yield uri, uri + 'index.html', render
-                    continue
+                file_name = self._get_filename(file_name, uri)
                 yield uri, file_name, render
+
+    def render(self, view_name=None, status_codes=None, view_args=None, view_kwargs=None):
+        if view_name:
+            if not status_codes:
+                status_codes = (200,)
+            if not view_args:
+                view_args = ()
+            if not view_kwargs:
+                view_kwargs = {}
+            return self.render_file(view_name, status_codes, view_args, view_kwargs)
+        else:
+            return self.render_all_urls()
+
+    def _get_filename(self, file_name, uri):
+        if file_name is None and uri.endswith('/'):
+            # rewrite URIs ending with a slash to ../index.html
+            if uri.startswith('/'):
+                uri = uri[1:]
+            return uri + 'index.html'
+        return file_name
 
     def _is_str(self, s):
         return isinstance(s, str)
@@ -306,44 +339,71 @@ def filter_dirs(dirs):
     return [d for d in dirs if d not in _ignore_dirs]
 
 
-def load_urls(stdout):
-    stdout('Loading site URLs')
+def load_urls(stdout=None):
+    if stdout:
+        stdout('Loading site URLs')
     site_urls = getattr(settings, 'ROOT_URLCONF')
     if site_urls:
         include_urls(site_urls)
 
 
-def render_to_dir(output_dir, urls_to_distill, stdout):
-    mimes = {}
-    load_urls(stdout)
-    renderer = DistillRender(output_dir, urls_to_distill)
-    for page_uri, file_name, http_response in renderer.render():
-        if file_name:
-            local_uri = file_name
-            full_path = os.path.join(output_dir, file_name)
+def get_filepath(output_dir, file_name, page_uri):
+    if file_name:
+        local_uri = file_name
+        full_path = os.path.join(output_dir, file_name)
+    else:
+        local_uri = page_uri
+        if page_uri.startswith('/'):
+            page_uri = page_uri[1:]
+        page_path = page_uri.replace('/', os.sep)
+        full_path = os.path.join(output_dir, page_path)
+    return full_path, local_uri
+
+
+def write_file(full_path, content):
+    try:
+        dirname = os.path.dirname(full_path)
+        if not os.path.isdir(dirname):
+            os.makedirs(dirname)
+        with open(full_path, 'wb') as f:
+            f.write(content)
+    except IOError as e:
+        if e.errno == errno.EISDIR:
+            err = ('Output path: {} is a directory! Try adding a '
+                    '"distill_file" arg to your distill_url()')
+            raise DistillError(err.format(full_path))
         else:
-            local_uri = page_uri
-            if page_uri.startswith('/'):
-                page_uri = page_uri[1:]
-            page_path = page_uri.replace('/', os.sep)
-            full_path = os.path.join(output_dir, page_path)
+            raise
+
+
+def render_to_dir(output_dir, urls_to_distill, stdout):
+    load_urls(stdout)
+    renderer = DistillRender(urls_to_distill)
+    for page_uri, file_name, http_response in renderer.render():
+        full_path, local_uri = get_filepath(output_dir, file_name, page_uri)
         content = http_response.content
         mime = http_response.get('Content-Type')
         renamed = ' (renamed from "{}")'.format(page_uri) if file_name else ''
         msg = 'Rendering page: {} -> {} ["{}", {} bytes] {}'
         stdout(msg.format(local_uri, full_path, mime, len(content), renamed))
-        try:
-            dirname = os.path.dirname(full_path)
-            if not os.path.isdir(dirname):
-                os.makedirs(dirname)
-            with open(full_path, 'wb') as f:
-                f.write(content)
-        except IOError as e:
-            if e.errno == errno.EISDIR:
-                err = ('Output path: {} is a directory! Try adding a '
-                       '"distill_file" arg to your distill_url()')
-                raise DistillError(err.format(full_path))
-            else:
-                raise
-        mimes[full_path] = mime.split(';')[0].strip()
+        write_file(full_path, content)
+    return True
+
+
+def render_single_file(output_dir, view_name, *args, **kwargs):
+    from django_distill.distill import urls_to_distill
+    status_codes = None
+    if 'status_codes' in kwargs:
+        status_codes = kwargs['status_codes']
+        del kwargs['status_codes']
+    view_name = str(view_name)
+    if not status_codes:
+        status_codes = (200,)
+    load_urls()
+    renderer = DistillRender(urls_to_distill)
+    page_uri, file_name, http_response = renderer.render(
+        view_name, status_codes, args, kwargs)
+    full_path, local_uri = get_filepath(output_dir, file_name, page_uri)
+    content = http_response.content
+    write_file(full_path, content)
     return True

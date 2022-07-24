@@ -7,15 +7,14 @@ from django.conf import settings
 from django.contrib.flatpages.models import FlatPage
 from django.apps import apps as django_apps
 from django_distill.distill import urls_to_distill
-from django_distill.renderer import DistillRender, render_to_dir
+from django_distill.renderer import DistillRender, render_to_dir, render_single_file
 from django_distill.errors import DistillError
 
 
 class DjangoDistillRendererTestSuite(TestCase):
 
     def setUp(self):
-        output_dir = None
-        self.renderer = DistillRender(output_dir, urls_to_distill)
+        self.renderer = DistillRender(urls_to_distill)
         # Create a few test flatpages
         Site = django_apps.get_model('sites.Site')
         current_site = Site.objects.get_current()
@@ -309,3 +308,20 @@ class DjangoDistillRendererTestSuite(TestCase):
         )
         self.assertEqual(render.content, expected_content)
         self.assertEqual(render.status_code, 200)
+
+    def test_render_single_file(self):
+        expected_files = (
+            ('path', '12345'),
+            ('path', 'test'),
+        )
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            render_single_file(tmpdirname, 'path-positional-param', 12345)
+            render_single_file(tmpdirname, 'path-named-param', param='test')
+            written_files = []
+            for (root, dirs, files) in os.walk(tmpdirname):
+                for f in files:
+                    filepath = os.path.join(root, f)
+                    written_files.append(filepath)
+            for expected_file in expected_files:
+                filepath = os.path.join(tmpdirname, *expected_file)
+                self.assertIn(filepath, written_files)

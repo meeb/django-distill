@@ -338,6 +338,76 @@ desired for statically generated sites. The default behaviour is to skip static 
 files.
 
 
+# Writing single files
+
+As of `django-distill` version `3.0.0` you can use the
+`django_distill.renderer.render_single_file` method to write out a single file
+to disk using `django_distill`. This is useful for writing out single files to disk,
+for example, you have a Django site which has some static files in a directory
+written by `django_distill` but not the whole site. You want to update a static HTML
+file every time a model instance is saved. You can use single file writing with
+signals to achieve this. For example:
+
+```python
+# in models.py
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django_distill.renderer import render_single_file
+
+@receiver(post_save, sender=SomeBlogPostModel)
+def write_blog_post_static_file_post_save(sender, **kwargs):
+    render_single_file(
+        '/path/to/output/directory',
+        'blog-post-view-name',
+        blog_id=sender.pk,
+        blog_slug=sender.slug
+    )
+```
+
+The syntax for `render_single_file` is similar to Django's `url.reverse`. The full
+usage interface is:
+
+```python
+render_single_file(
+    '/path/to/output/directory',
+    'view-name-set-in-urls-py',
+    *view_args,
+    **view_kwargs
+)
+```
+
+For example, if you had a blog post URL defined as:
+
+```python
+    # in urls.py
+    distill_path('post/<int:blog_id>_-_<slug:blog_slug>.html',
+                 PostView.as_view(),
+                 name='blog-post',
+                 distill_func=get_all_blogposts),
+```
+
+Your usage would be:
+
+```python
+render_single_file(
+    '/path/to/output/directory',
+    'blog-post',
+    blog_id=123,
+    blog_slug='blog-title-slug',
+)
+```
+
+which would write out the contents of `/post/123_blog-title-slug.html` into
+`/path/to/output/directory` as the file 
+`/path/to/output/directory/post/123_blog-title-slug.html`. Note any required
+sub-directories (`/path/to/output/directory/post` in this example) will be
+automatically created. All `django-distill` rules apply, such as URLs ending
+in `/` will be saved as `/index.html` to make sense for a physical file on disk.
+
+Also note that `render_single_file` can only be imported and used into an
+initialised Django project.
+
+
 # Publishing targets
 
 You can automatically publish sites to various supported remote targets through

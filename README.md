@@ -344,9 +344,9 @@ As of `django-distill` version `3.0.0` you can use the
 `django_distill.renderer.render_single_file` method to write out a single file
 to disk using `django_distill`. This is useful for writing out single files to disk,
 for example, you have a Django site which has some static files in a directory
-written by `django_distill` but not the whole site. You want to update a static HTML
-file every time a model instance is saved. You can use single file writing with
-signals to achieve this. For example:
+written by `django_distill` but the rest of the site is a normal dynamic Django site.
+You can update a static HTML file every time a model instance is saved. You can
+use single file writing with signals to achieve this. For example:
 
 ```python
 # in models.py
@@ -380,7 +380,7 @@ For example, if you had a blog post URL defined as:
 
 ```python
     # in urls.py
-    distill_path('post/<int:blog_id>_-_<slug:blog_slug>.html',
+    distill_path('post/<int:blog_id>_<slug:blog_slug>.html',
                  PostView.as_view(),
                  name='blog-post',
                  distill_func=get_all_blogposts),
@@ -401,8 +401,9 @@ which would write out the contents of `/post/123_blog-title-slug.html` into
 `/path/to/output/directory` as the file 
 `/path/to/output/directory/post/123_blog-title-slug.html`. Note any required
 sub-directories (`/path/to/output/directory/post` in this example) will be
-automatically created. All `django-distill` rules apply, such as URLs ending
-in `/` will be saved as `/index.html` to make sense for a physical file on disk.
+automatically created if they don't already exist. All `django-distill` rules
+apply, such as URLs ending in `/` will be saved as `/index.html` to make sense
+for a physical file on disk.
 
 Also note that `render_single_file` can only be imported and used into an
 initialised Django project.

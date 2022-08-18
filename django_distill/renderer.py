@@ -183,7 +183,7 @@ class DistillRender(object):
         return uri, file_name, render
     
     def render_all_urls(self):
-        for url, distill_func, file_name, status_codes, view_name, a, k in self.urls_to_distill:
+        for url, distill_func, file_name_base, status_codes, view_name, a, k in self.urls_to_distill:
             for param_set in self.get_uri_values(distill_func, view_name):
                 if not param_set:
                     param_set = ()
@@ -191,7 +191,7 @@ class DistillRender(object):
                     param_set = param_set,
                 uri = self.generate_uri(url, view_name, param_set)
                 render = self.render_view(uri, status_codes, param_set, a)
-                file_name = self._get_filename(file_name, uri)
+                file_name = self._get_filename(file_name_base, uri)
                 yield uri, file_name, render
 
     def render(self, view_name=None, status_codes=None, view_args=None, view_kwargs=None):

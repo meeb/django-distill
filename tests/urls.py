@@ -66,7 +66,7 @@ def test_no_param_func():
 
 
 def test_positional_param_func():
-    return ('12345',)
+    return ('12345', '67890')
 
 
 def test_named_param_func():

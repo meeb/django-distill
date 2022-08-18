@@ -98,11 +98,14 @@ class DjangoDistillRendererTestSuite(TestCase):
         view = self._get_view('re_path-positional-param')
         assert view
         view_url, view_func, file_name, status_codes, view_name, args, kwargs = view
-        param_set = self.renderer.get_uri_values(view_func, view_name)
-        uri = self.renderer.generate_uri(view_url, view_name, param_set)
-        self.assertEqual(uri, '/re_path/12345')
-        render = self.renderer.render_view(uri, status_codes, param_set, args)
-        self.assertEqual(render.content, b'test12345')
+        param_sets = self.renderer.get_uri_values(view_func, view_name)
+        for param_set in param_sets:
+            param_set = (param_set,)
+            first_value = param_set[0]
+            uri = self.renderer.generate_uri(view_url, view_name, param_set)
+            self.assertEqual(uri, f'/re_path/{first_value}')
+            render = self.renderer.render_view(uri, status_codes, param_set, args)
+            self.assertEqual(render.content, b'test' + first_value.encode())
 
     def test_re_path_named_param(self):
         if not settings.HAS_RE_PATH:
@@ -154,11 +157,14 @@ class DjangoDistillRendererTestSuite(TestCase):
         view = self._get_view('path-positional-param')
         assert view
         view_url, view_func, file_name, status_codes, view_name, args, kwargs = view
-        param_set = self.renderer.get_uri_values(view_func, view_name)
-        uri = self.renderer.generate_uri(view_url, view_name, param_set)
-        self.assertEqual(uri, '/path/12345')
-        render = self.renderer.render_view(uri, status_codes, param_set, args)
-        self.assertEqual(render.content, b'test12345')
+        param_sets = self.renderer.get_uri_values(view_func, view_name)
+        for param_set in param_sets:
+            param_set = (param_set,)
+            first_value = param_set[0]
+            uri = self.renderer.generate_uri(view_url, view_name, param_set)
+            self.assertEqual(uri, f'/path/{first_value}')
+            render = self.renderer.render_view(uri, status_codes, param_set, args)
+            self.assertEqual(render.content, b'test' + first_value.encode())
 
     def test_path_named_param(self):
         if not settings.HAS_PATH:

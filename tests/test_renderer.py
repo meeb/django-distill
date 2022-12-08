@@ -204,6 +204,8 @@ class DjangoDistillRendererTestSuite(TestCase):
             ('test',),
             ('re_path', '12345'),
             ('re_path', 'test'),
+            ('re_path', 'x', '12345.html'),
+            ('re_path', 'x', 'test.html'),
         )
         with tempfile.TemporaryDirectory() as tmpdirname:
             with self.assertRaises(DistillError):

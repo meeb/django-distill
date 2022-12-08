@@ -3,7 +3,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from django.test import TestCase
 from django.conf import settings
-import django_distill
 from django_distill.renderer import copy_static_and_media_files
 
 

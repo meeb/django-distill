@@ -1,24 +1,22 @@
-import os
-import sys
-import inspect
-import types
 import errno
-import warnings
+import inspect
+import logging
+import os
+import types
 from shutil import copy2
 from django.utils import translation
 from django.conf import settings
 from django.conf.urls import include as include_urls
-from django.http import HttpResponse
-from django.template.response import SimpleTemplateResponse
+from django.core.exceptions import ImproperlyConfigured, MiddlewareNotUsed
 from django.utils.module_loading import import_string
-from django.utils.deprecation import MiddlewareMixin
 from django.test import RequestFactory
 from django.test.client import ClientHandler
 from django.urls import reverse, ResolverMatch
 from django.urls.exceptions import NoReverseMatch
 from django.core.management import call_command
-from django_distill.errors import DistillError, DistillWarning
+from django_distill.errors import DistillError
 
+logger = logging.getLogger(__name__)
 
 namespace_map = {}
 urlconf = __import__(settings.ROOT_URLCONF, {}, {}, [''])

@@ -7,7 +7,6 @@ def publish_dir(local_dir, backend, stdout):
     stdout('Getting file indexes')
     remote_files = backend.list_remote_files()
     local_files = backend.list_local_files()
-    local_dirs = backend.list_local_dirs()
     to_upload = set()
     to_delete = set()
     local_files_r = set()

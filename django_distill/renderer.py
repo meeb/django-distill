@@ -183,7 +183,7 @@ class DistillRender(object):
     def render_all_urls(self):
         for url, distill_func, file_name_base, status_codes, view_name, a, k in self.urls_to_distill:
             for param_set in self.get_uri_values(distill_func, view_name):
-                if param_set is None:
+                if not param_set:
                     param_set = ()
                 elif self._is_str(param_set):
                     param_set = (param_set,)

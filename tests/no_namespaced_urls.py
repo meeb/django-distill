@@ -1,6 +1,5 @@
 from django.http import HttpResponse
 from django_distill import distill_path
-from django.urls import path, include
 
 
 app_name = 'test'

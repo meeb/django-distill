@@ -1,4 +1,4 @@
-from django_distill.errors import DistillError, DistillWarning
+from django_distill.errors import DistillError
 
 
 urls_to_distill = []

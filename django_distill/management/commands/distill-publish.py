@@ -49,7 +49,6 @@ class Command(BaseCommand):
             stdout = self._quiet
         else:
             stdout = self.stdout.write
-        static_dir = settings.STATIC_ROOT
         static_url = settings.STATIC_URL
         try:
             output_dir = mkdtemp()
@@ -82,7 +81,6 @@ class Command(BaseCommand):
             else:
                 raise CommandError('Publishing site cancelled.')
             self.stdout.write('')
-            static_output_dir = os.path.join(output_dir, static_url[1:])
             msg = 'Generating static site into directory: {}'
             stdout(msg.format(output_dir))
             try:

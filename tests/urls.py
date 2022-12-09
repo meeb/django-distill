@@ -1,8 +1,6 @@
-from datetime import timedelta
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import include, path, reverse
-from django.utils import timezone
 from django.contrib.flatpages.views import flatpage as flatpage_view
 from django.contrib.sitemaps import Sitemap
 from django.contrib.sitemaps.views import sitemap

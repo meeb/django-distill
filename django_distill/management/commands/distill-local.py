@@ -1,5 +1,4 @@
 import os
-import sys
 from shutil import rmtree
 from django.core.management.base import (BaseCommand, CommandError)
 from django.conf import settings

@@ -374,9 +374,18 @@ def write_file(full_path, content):
             raise
 
 
+def get_renderer(urls_to_distill):
+    import_path = getattr(settings, "DISTILL_RENDERER", None)
+    if import_path:
+        render_cls = import_string(import_path)
+    else:
+        render_cls = DistillRender
+    return render_cls(urls_to_distill)
+
+
 def render_to_dir(output_dir, urls_to_distill, stdout):
     load_urls(stdout)
-    renderer = DistillRender(urls_to_distill)
+    renderer = get_renderer(urls_to_distill)
     for page_uri, file_name, http_response in renderer.render():
         full_path, local_uri = get_filepath(output_dir, file_name, page_uri)
         content = http_response.content
@@ -398,7 +407,7 @@ def render_single_file(output_dir, view_name, *args, **kwargs):
     if not status_codes:
         status_codes = (200,)
     load_urls()
-    renderer = DistillRender(urls_to_distill)
+    renderer = get_renderer(urls_to_distill)
     page_uri, file_name, http_response = renderer.render(
         view_name, status_codes, args, kwargs)
     full_path, local_uri = get_filepath(output_dir, file_name, page_uri)

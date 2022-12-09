@@ -1,13 +1,17 @@
 import os
 import sys
 import tempfile
-from django.test import TestCase
+from unittest.mock import patch
+from django.test import TestCase, override_settings
 from django.conf import settings
 from django.contrib.flatpages.models import FlatPage
 from django.apps import apps as django_apps
 from django_distill.distill import urls_to_distill
-from django_distill.renderer import DistillRender, render_to_dir, render_single_file
+from django_distill.renderer import DistillRender, render_to_dir, render_single_file, get_renderer
 from django_distill.errors import DistillError
+
+class CustomRender(DistillRender):
+    pass
 
 
 class DjangoDistillRendererTestSuite(TestCase):
@@ -212,6 +216,29 @@ class DjangoDistillRendererTestSuite(TestCase):
             for expected_file in expected_files:
                 filepath = os.path.join(tmpdirname, *expected_file)
                 self.assertIn(filepath, written_files)
+
+    @patch.object(CustomRender, "render_view", side_effect=CustomRender.render_view, autospec=True)
+    @override_settings(DISTILL_RENDERER="tests.test_renderer.CustomRender")
+    def test_render_paths_custom_renderer(self, render_view_spy):
+        def _blackhole(_):
+            pass
+        expected_files = (
+            ('test',),
+            ('re_path', '12345'),
+            ('re_path', 'test'),
+        )
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            with self.assertRaises(DistillError):
+                render_to_dir(tmpdirname, urls_to_distill, _blackhole)
+            written_files = []
+            for (root, dirs, files) in os.walk(tmpdirname):
+                for f in files:
+                    filepath = os.path.join(root, f)
+                    written_files.append(filepath)
+            for expected_file in expected_files:
+                filepath = os.path.join(tmpdirname, *expected_file)
+                self.assertIn(filepath, written_files)
+        self.assertEqual(render_view_spy.call_count, 9)
 
     def test_sessions_are_ignored(self):
         if settings.HAS_PATH:

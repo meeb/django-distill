@@ -240,7 +240,7 @@ class DjangoDistillRendererTestSuite(TestCase):
             for expected_file in expected_files:
                 filepath = os.path.join(tmpdirname, *expected_file)
                 self.assertIn(filepath, written_files)
-        self.assertEqual(render_view_spy.call_count, 9)
+        self.assertEqual(render_view_spy.call_count, 12)
 
     def test_sessions_are_ignored(self):
         if settings.HAS_PATH:

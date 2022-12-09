@@ -177,7 +177,7 @@ class DistillRender(object):
             uri = self.generate_uri(url, view_name, view_args)
             args = view_args
         render = self.render_view(uri, status_codes, args, a)
-        file_name = self._get_filename(file_name, uri)
+        file_name = self._get_filename(file_name, uri, args)
         return uri, file_name, render
     
     def render_all_urls(self):
@@ -186,10 +186,10 @@ class DistillRender(object):
                 if not param_set:
                     param_set = ()
                 elif self._is_str(param_set):
-                    param_set = param_set,
+                    param_set = (param_set,)
                 uri = self.generate_uri(url, view_name, param_set)
                 render = self.render_view(uri, status_codes, param_set, a)
-                file_name = self._get_filename(file_name_base, uri)
+                file_name = self._get_filename(file_name_base, uri, param_set)
                 yield uri, file_name, render
 
     def render(self, view_name=None, status_codes=None, view_args=None, view_kwargs=None):
@@ -204,13 +204,19 @@ class DistillRender(object):
         else:
             return self.render_all_urls()
 
-    def _get_filename(self, file_name, uri):
-        if file_name is None and uri.endswith('/'):
+    def _get_filename(self, file_name, uri, param_set):
+        if file_name is not None:
+            if isinstance(param_set, dict):
+                return file_name.format(**param_set)
+            else:
+                return file_name.format(*param_set)
+        elif uri.endswith('/'):
             # rewrite URIs ending with a slash to ../index.html
             if uri.startswith('/'):
                 uri = uri[1:]
             return uri + 'index.html'
-        return file_name
+        else:
+            return None
 
     def _is_str(self, s):
         return isinstance(s, str)

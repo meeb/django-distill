@@ -88,14 +88,21 @@ argument.
 
 Assuming you have an existing Django project, edit a `urls.py` to include the
 `distill_path` function which replaces Django's standard `path` function and
-supports the new keyword arguments `distill_func` and `distill_file`. The
-`distill_func` argument should be provided with a function or callable class
-that returns an iterable or None. The `distill_file` argument is entirely
-optional and allows you to override the URL that would otherwise be generated
-from the reverse of the URL regex. This allows you to rename URLs like
-`/example` to any other name like `example.html`. As of v0.8 any URIs ending
-in a slash `/` are automatically modified to end in `/index.html`. An example
-distill setup for a theoretical blogging app would be:
+supports the new keyword arguments `distill_func` and `distill_file`.
+
+The `distill_func` argument should be provided with a function or callable
+class that returns an iterable or `None`.
+
+The `distill_file` argument is entirely optional and allows you to override the
+URL that would otherwise be generated from the reverse of the URL regex. This
+allows you to rename URLs like `/example` to any other name like
+`example.html`. As of v0.8 any URIs ending in a slash `/` are automatically
+modified to end in `/index.html`. You can use format string parameters in the
+`distill_file` to customise the file name, arg values from the URL will be
+substituted in, for example `{}` for positional args or `{param_name}` for
+named args.
+
+An example distill setup for a theoretical blogging app would be:
 
 ```python
 # Replaces the standard django.conf.path, identical syntax
@@ -132,15 +139,19 @@ urlpatterns = (
                  # Note that for paths which have no paramters
                  # distill_func is optional
                  distill_func=get_index,
-                 # / is not a valid file name! override it to index.html
+                 # '' is not a valid file name! override it to index.html
                  distill_file='index.html'),
     # e.g. /post/123-some-post-title using named parameters
     distill_path('post/<int:blog_id>-<slug:blog_title>',
                  PostView.as_view(),
                  name='blog-post',
-                 distill_func=get_all_blogposts),
+                 distill_func=get_all_blogposts,
+                 # url does not end in / nor has any file extension
+                 # distill_file with format params is used here
+                 distill_file="post/{blog_id}-{blog_title}.html"),
     # e.g. /posts-by-year/2015 using positional parameters
-    distill_path('posts-by-year/<int:year>',
+    # url ends in / so file path will have /index.html appended
+    distill_path('posts-by-year/<int:year>/',
                  PostYear.as_view(),
                  name='blog-year',
                  distill_func=get_years),
@@ -153,9 +164,9 @@ passed back to Django for normal processing. This has no runtime performance
 impact as this happens only once upon starting the application.
 
 If your path has no URI paramters, such as `/` or `/some-static-url` you do
-not have to specify the `distill_func` paramter if you don't want to. As for
-paths with no paramters the `distill_func` always returns `None` this has is
-set as the default behaviour for `distill_func`s.
+not have to specify the `distill_func` parameter if you don't want to. As for
+paths with no parameters the `distill_func` always returns `None`, this is set
+as the default behaviour for `distill_func`s.
 
 You can use the `distill_re_path` function as well, which replaces the default
 `django.urls.re_path` function. Its usage is identical to the above:

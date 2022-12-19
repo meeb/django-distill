@@ -142,13 +142,10 @@ urlpatterns = (
                  # '' is not a valid file name! override it to index.html
                  distill_file='index.html'),
     # e.g. /post/123-some-post-title using named parameters
-    distill_path('post/<int:blog_id>-<slug:blog_title>',
+    distill_path('post/<int:blog_id>-<slug:blog_title>.html',
                  PostView.as_view(),
                  name='blog-post',
-                 distill_func=get_all_blogposts,
-                 # url does not end in / nor has any file extension
-                 # distill_file with format params is used here
-                 distill_file="post/{blog_id}-{blog_title}.html"),
+                 distill_func=get_all_blogposts),
     # e.g. /posts-by-year/2015 using positional parameters
     # url ends in / so file path will have /index.html appended
     distill_path('posts-by-year/<int:year>/',
@@ -195,6 +192,25 @@ urlpatterns = (
                 SomeView.as_view(),
                 name='url-view',
                 distill_func=some_func),
+)
+```
+
+### Parameters in file names
+
+You can standard Python string formatting in `distill_file` as well to enable
+you to change the output file path for a file if you wish. Note this does not
+update the URL used by Django so if you use this make sure your `path` pattern
+matches the `distill_file` pattern or your links might not work in Django. An
+example:
+
+```python
+# Override file path with parameters. Values are taken from the URL pattern
+urlpatterns = (
+    distill_path('post/<int:blog_id>-<slug:blog_title>.html',
+                 PostView.as_view(),
+                 name='blog-post',
+                 distill_func=get_all_blogposts,
+                 distill_file="post/{blog_id}-{blog_title}.html"
 )
 ```
 

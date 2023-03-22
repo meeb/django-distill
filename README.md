@@ -425,7 +425,7 @@ render_single_file(
 ```
 
 which would write out the contents of `/post/123_blog-title-slug.html` into
-`/path/to/output/directory` as the file 
+`/path/to/output/directory` as the file
 `/path/to/output/directory/post/123_blog-title-slug.html`. Note any required
 sub-directories (`/path/to/output/directory/post` in this example) will be
 automatically created if they don't already exist. All `django-distill` rules
@@ -444,7 +444,7 @@ Django by changing the backend database engine. Currently the engines supported
 by `django-distill` are:
 
 **django_distill.backends.amazon_s3**: Publish to an Amazon S3 bucket. Requires
-  the Python library `boto3` (`$ pip install boto3`). The bucket must already
+  the Python library `boto3` (`$ pip install django-distill[amazon]`). The bucket must already
   exist (use the AWS control panel). Options:
 
 ```python
@@ -460,7 +460,7 @@ by `django-distill` are:
 **django_distill.backends.google_storage**: Publish to a Google Cloud Storage
   bucket. Requires the Python libraries `google-api-python-client` and
   `google-cloud-storage`
-  (`$ pip install google-api-python-client google-cloud-storage`). The bucket
+  (`$ pip install django-distill[google]`). The bucket
   must already exist and be set up to host a public static website (use the
   Google Cloud control panel). Options:
 
@@ -475,7 +475,7 @@ by `django-distill` are:
 
 **django_distill.backends.microsoft_azure_storage**: Publish to a Microsoft
   Azure Blob Storage container. Requires the Python library
-  `azure-storage-blob` (`$ pip install azure-storage-blob`). The storage
+  `azure-storage-blob` (`$ pip install django-distill[microsoft]`). The storage
   account must already exist and be set up to host a public static website
   (use the Microsoft Azure control panel). Options:
 

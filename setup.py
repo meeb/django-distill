@@ -27,9 +27,9 @@ setup(
     include_package_data = True,
     install_requires = requirements,
     extras_require = {
-        'amazon-s3': ['boto3'],
-        'google-storage': ['google-api-python-client', 'google-cloud-storage'],
-        'microsoft-azure': ['azure-storage-blob'],
+        'amazon': ['boto3'],
+        'google': ['google-api-python-client', 'google-cloud-storage'],
+        'microsoft': ['azure-storage-blob'],
     },
     packages = find_packages(),
     classifiers = [

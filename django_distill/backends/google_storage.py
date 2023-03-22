@@ -12,7 +12,7 @@ except ImportError:
     name = 'django_distill.backends.google_storage'
     pipm = 'google-api-python-client google-cloud-storage'
     sys.stdout.write('{} backend requires {}:\n'.format(name, pipm))
-    sys.stdout.write('$ pip install {}\n\n'.format(pipm))
+    sys.stdout.write('$ pip install .[google-storage]{}\n\n'.format(pipm))
     raise
 
 

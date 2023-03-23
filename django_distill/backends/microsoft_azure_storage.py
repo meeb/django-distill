@@ -13,7 +13,7 @@ except ImportError:
     name = 'django_distill.backends.azure_storage'
     pipm = 'azure-storage-blob'
     sys.stdout.write('{} backend requires {}:\n'.format(name, pipm))
-    sys.stdout.write('$ pip install {}\n\n'.format(pipm))
+    sys.stdout.write('$ pip install .[microsoft]{}\n\n'.format(pipm))
     raise
 
 
@@ -37,7 +37,7 @@ class AzureBlobStorateBackend(BackendBase):
 
     def account_username(self):
         return
-    
+
     def account_container(self):
         return '$web'
 

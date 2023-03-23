@@ -26,6 +26,11 @@ setup(
     license = 'MIT',
     include_package_data = True,
     install_requires = requirements,
+    extras_require = {
+        'amazon': ['boto3'],
+        'google': ['google-api-python-client', 'google-cloud-storage'],
+        'microsoft': ['azure-storage-blob'],
+    },
     packages = find_packages(),
     classifiers = [
         'Development Status :: 5 - Production/Stable',

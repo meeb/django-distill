@@ -182,7 +182,7 @@ class DistillRender(object):
         render = self.render_view(uri, status_codes, args, a, k)
         file_name = self._get_filename(file_name, uri, args)
         return uri, file_name, render
-    
+
     def render_all_urls(self):
         for url, distill_func, file_name_base, status_codes, view_name, a, k in self.urls_to_distill:
             for param_set in self.get_uri_values(distill_func, view_name):
@@ -262,15 +262,15 @@ class DistillRender(object):
         return uri
 
     def render_view(self, uri, status_codes, param_set, args, kwargs={}):
-        view_regex, view_func = None, None
+        view_path, view_func = None, None
         try:
-            view_regex, view_func = args[0], args[1]
+            view_path, view_func = args[0], args[1]
         except IndexError:
             try:
-                view_regex, view_func = kwargs['route'], kwargs['view']
+                view_path, view_func = kwargs['route'], kwargs['view']
             except KeyError:
                 pass
-        if not view_regex or not view_func:
+        if view_path is None or view_func is None:
             raise DistillError(f'Invalid view arguments, args:{args}, kwargs:{kwargs}')
         # Default status_codes to (200,) if they are invalid or not set
         if not isinstance(status_codes, (tuple, list)):

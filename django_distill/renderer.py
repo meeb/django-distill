@@ -18,7 +18,6 @@ from django_distill.errors import DistillError
 
 
 logger = logging.getLogger(__name__)
-namespace_map = {}
 urlconf = get_resolver()
 
 
@@ -37,16 +36,19 @@ def iter_resolved_urls(url_patterns, namespace_path=[]):
     return url_patterns_resolved
 
 
-for (namespaces, url) in iter_resolved_urls(urlconf.url_patterns):
-    if namespaces:
-        nspath = ':'.join(namespaces)
-        if url in namespace_map:
-            raise DistillError(f'Ambiguous namespace for URL "{url}" in namespace '
-                               f'"{nspath}", Distill does not support the same Django '
-                                'app being include()ed more than once in the same '
-                                'project')
-        else:
-            namespace_map[url] = nspath
+def load_namespace_map():
+    namespace_map = {}
+    for (namespaces, url) in iter_resolved_urls(urlconf.url_patterns):
+        if namespaces:
+            nspath = ':'.join(namespaces)
+            if url in namespace_map:
+                raise DistillError(f'Ambiguous namespace for URL "{url}" in namespace '
+                                   f'"{nspath}", Distill does not support the same Django '
+                                   f'app being include()ed more than once in the same '
+                                   f'project')
+            else:
+                namespace_map[url] = nspath
+    return namespace_map
 
 
 class DistillHandler(ClientHandler):
@@ -156,6 +158,7 @@ class DistillRender(object):
 
     def __init__(self, urls_to_distill):
         self.urls_to_distill = urls_to_distill
+        self.namespace_map = load_namespace_map()
         # activate the default translation
         translation.activate(settings.LANGUAGE_CODE)
         # set allowed hosts to '*', static rendering shouldn't care about the hostname
@@ -241,7 +244,7 @@ class DistillRender(object):
             raise DistillError(err.format(type(v)))
 
     def generate_uri(self, url, view_name, param_set):
-        namespace = namespace_map.get(url, '')
+        namespace = self.namespace_map.get(url, '')
         view_name_ns = namespace + ':' + view_name if namespace else view_name
         if isinstance(param_set, (list, tuple)):
             try:

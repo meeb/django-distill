@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django_distill import distill_path
 
 
-app_name = 'test'
+app_name = 'no-namespaced-urls'
 
 
 def test_url_in_no_namespace_view(request):

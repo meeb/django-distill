@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import include, path, reverse
+from django.conf.urls.i18n import i18n_patterns
 from django.contrib.flatpages.views import flatpage as flatpage_view
 from django.contrib.sitemaps import Sitemap
 from django.contrib.sitemaps.views import sitemap
@@ -87,6 +88,11 @@ urlpatterns = [
         include('tests.no_namespaced_urls')),
 
 ]
+
+
+urlpatterns += i18n_patterns(
+    path('path/i18n/', include('tests.i18n_urls')),
+)
 
 
 if settings.HAS_RE_PATH:

@@ -6,6 +6,7 @@ from django.test import TestCase, override_settings
 from django.conf import settings
 from django.contrib.flatpages.models import FlatPage
 from django.apps import apps as django_apps
+from django.utils.translation import activate as activate_lang
 from django_distill.distill import urls_to_distill
 from django_distill.renderer import DistillRender, render_to_dir, render_single_file, get_renderer
 from django_distill.errors import DistillError
@@ -240,7 +241,7 @@ class DjangoDistillRendererTestSuite(TestCase):
             for expected_file in expected_files:
                 filepath = os.path.join(tmpdirname, *expected_file)
                 self.assertIn(filepath, written_files)
-        self.assertEqual(render_view_spy.call_count, 12)
+        self.assertEqual(render_view_spy.call_count, 13)
 
     def test_sessions_are_ignored(self):
         if settings.HAS_PATH:
@@ -359,3 +360,23 @@ class DjangoDistillRendererTestSuite(TestCase):
             for expected_file in expected_files:
                 filepath = os.path.join(tmpdirname, *expected_file)
                 self.assertIn(filepath, written_files)
+
+    def test_i18n(self):
+        if not settings.USE_I18N:
+            self._skip('settings.USE_I18N')
+            return
+        expected = {}
+        for lang_code, lang_name in settings.LANGUAGES:
+            expected[lang_code] = f'/{lang_code}/path/i18n/sub-url-with-i18n-prefix'
+        view = self._get_view('test-url-i18n')
+        assert view
+        view_url, view_func, file_name, status_codes, view_name, args, kwargs = view
+        param_set = self.renderer.get_uri_values(view_func, view_name)[0]
+        if not param_set:
+            param_set = ()
+        for lang_code, path in expected.items():
+            activate_lang(lang_code)
+            uri = self.renderer.generate_uri(view_url, view_name, param_set)
+            self.assertEqual(uri, path)
+            render = self.renderer.render_view(uri, status_codes, param_set, args)
+            self.assertEqual(render.content, b'test')

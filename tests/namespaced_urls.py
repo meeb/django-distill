@@ -3,7 +3,7 @@ from django_distill import distill_path
 from django.urls import path, include
 
 
-app_name = 'test'
+app_name = 'namespaced-urls'
 
 
 def test_url_in_namespace_view(request):

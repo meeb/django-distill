@@ -6,7 +6,7 @@ import types
 from shutil import copy2
 from django.utils import translation
 from django.conf import settings
-from django.conf.urls import include as include_urls
+from django.urls import include as include_urls, get_resolver
 from django.core.exceptions import ImproperlyConfigured, MiddlewareNotUsed
 from django.utils.module_loading import import_string
 from django.test import RequestFactory
@@ -16,10 +16,10 @@ from django.urls.exceptions import NoReverseMatch
 from django.core.management import call_command
 from django_distill.errors import DistillError
 
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 namespace_map = {}
-urlconf = __import__(settings.ROOT_URLCONF, {}, {}, [''])
+urlconf = get_resolver()
 
 
 def iter_resolved_urls(url_patterns, namespace_path=[]):
@@ -37,7 +37,7 @@ def iter_resolved_urls(url_patterns, namespace_path=[]):
     return url_patterns_resolved
 
 
-for (namespaces, url) in iter_resolved_urls(urlconf.urlpatterns):
+for (namespaces, url) in iter_resolved_urls(urlconf.url_patterns):
     if namespaces:
         nspath = ':'.join(namespaces)
         if url in namespace_map:
@@ -346,9 +346,8 @@ def filter_dirs(dirs):
 def load_urls(stdout=None):
     if stdout:
         stdout('Loading site URLs')
-    site_urls = getattr(settings, 'ROOT_URLCONF')
-    if site_urls:
-        include_urls(site_urls)
+    for url in urlconf.url_patterns:
+        include_urls(url)
 
 
 def get_filepath(output_dir, file_name, page_uri):

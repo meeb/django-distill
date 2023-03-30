@@ -179,7 +179,7 @@ class DistillRender(object):
         else:
             uri = self.generate_uri(url, view_name, view_args)
             args = view_args
-        render = self.render_view(uri, status_codes, args, a)
+        render = self.render_view(uri, status_codes, args, a, k)
         file_name = self._get_filename(file_name, uri, args)
         return uri, file_name, render
     
@@ -191,7 +191,7 @@ class DistillRender(object):
                 elif self._is_str(param_set):
                     param_set = (param_set,)
                 uri = self.generate_uri(url, view_name, param_set)
-                render = self.render_view(uri, status_codes, param_set, a)
+                render = self.render_view(uri, status_codes, param_set, a, k)
                 file_name = self._get_filename(file_name_base, uri, param_set)
                 yield uri, file_name, render
 
@@ -261,9 +261,17 @@ class DistillRender(object):
             raise DistillError(err.format(type(param_set)))
         return uri
 
-    def render_view(self, uri, status_codes, param_set, args):
-        if len(args) < 2:
-            raise DistillError('Invalid view arguments')
+    def render_view(self, uri, status_codes, param_set, args, kwargs={}):
+        view_regex, view_func = None, None
+        try:
+            view_regex, view_func = args[0], args[1]
+        except IndexError:
+            try:
+                view_regex, view_func = kwargs['route'], kwargs['view']
+            except KeyError:
+                pass
+        if not view_regex or not view_func:
+            raise DistillError(f'Invalid view arguments, args:{args}, kwargs:{kwargs}')
         # Default status_codes to (200,) if they are invalid or not set
         if not isinstance(status_codes, (tuple, list)):
             status_codes = (200,)
@@ -271,7 +279,6 @@ class DistillRender(object):
             if not isinstance(status_code, int):
                 status_codes = (200,)
                 break
-        view_regex, view_func = args[0], args[1]
         view_args = args[2:] if len(args) > 2 else ()
         request_factory = RequestFactory()
         request = request_factory.get(uri)

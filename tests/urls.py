@@ -197,6 +197,9 @@ if settings.HAS_PATH:
             sitemap,
             {'sitemaps': sitemap_dict},
             name='path-sitemap'
-        )
+        ),
+        distill_path(route='path/kwargs',
+            view=test_no_param_view,
+            name='test-kwargs'),
 
     ]

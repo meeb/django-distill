@@ -380,3 +380,18 @@ class DjangoDistillRendererTestSuite(TestCase):
             self.assertEqual(uri, path)
             render = self.renderer.render_view(uri, status_codes, param_set, args)
             self.assertEqual(render.content, b'test')
+
+    def test_kwargs(self):
+        if not settings.HAS_PATH:
+            self._skip('django.urls.path')
+            return
+        view = self._get_view('test-kwargs')
+        assert view
+        view_url, view_func, file_name, status_codes, view_name, args, kwargs = view
+        param_set = self.renderer.get_uri_values(view_func, view_name)[0]
+        if not param_set:
+            param_set = ()
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
+        self.assertEqual(uri, '/path/kwargs')
+        render = self.renderer.render_view(uri, status_codes, param_set, args, kwargs)
+        self.assertEqual(render.content, b'test')

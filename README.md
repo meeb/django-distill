@@ -307,6 +307,9 @@ rendering, this is just a shortcut to save you typing an extra command.
 `--exclude-staticfiles`: Do not copy any static files at all, only render output from
 Django views.
 
+`--skip-verify`: Do not test if files are correctly uploaded on the server.
+
+
 **Note** that this means if you use `--force` and `--quiet` that the output
 directory will have all files not part of the site export deleted without any
 confirmation.

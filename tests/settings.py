@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.flatpages',
     'django.contrib.sessions',
     'django.contrib.sitemaps',
+    'django.contrib.humanize',
+    'django_distill',
     'tests',
 ]
 

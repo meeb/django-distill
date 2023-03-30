@@ -1,11 +1,13 @@
 import os
 import sys
 import tempfile
+from datetime import datetime, timedelta
 from unittest.mock import patch
 from django.test import TestCase, override_settings
 from django.conf import settings
 from django.contrib.flatpages.models import FlatPage
 from django.apps import apps as django_apps
+from django.utils import timezone
 from django.utils.translation import activate as activate_lang
 from django_distill.distill import urls_to_distill
 from django_distill.renderer import DistillRender, render_to_dir, render_single_file, get_renderer
@@ -395,3 +397,31 @@ class DjangoDistillRendererTestSuite(TestCase):
         self.assertEqual(uri, '/path/kwargs')
         render = self.renderer.render_view(uri, status_codes, param_set, args, kwargs)
         self.assertEqual(render.content, b'test')
+
+    def test_humanize(self):
+        if not settings.HAS_PATH:
+            self._skip('django.urls.path')
+            return
+        view = self._get_view('test-humanize')
+        assert view
+        view_url, view_func, file_name, status_codes, view_name, args, kwargs = view
+        param_set = self.renderer.get_uri_values(view_func, view_name)[0]
+        if not param_set:
+            param_set = ()
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
+        self.assertEqual(uri, '/path/humanize')
+        now = timezone.now()
+        one_hour_ago = now - timedelta(hours=1)
+        nineteen_hours_ago = now - timedelta(hours=19)
+        render = self.renderer.render_view(uri, status_codes, param_set, args, kwargs)
+        content = render.content
+        expected = b'\n'.join([
+            b'',
+            b'<ul>',
+            b'<li>test</li>',
+            b'<li>one hour ago naturaltime: an hour ago</li>',
+            b'<li>nineteen hours ago naturaltime: 19\xc2\xa0hours ago</li>',
+            b'</ul>',
+            b'',
+        ])
+        self.assertEqual(render.content, expected)

@@ -1,7 +1,10 @@
+from datetime import timedelta
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import include, path, reverse
 from django.conf.urls.i18n import i18n_patterns
+from django.shortcuts import render
+from django.utils import timezone
 from django.contrib.flatpages.views import flatpage as flatpage_view
 from django.contrib.sitemaps import Sitemap
 from django.contrib.sitemaps.views import sitemap
@@ -58,6 +61,17 @@ def test_http404_view(request):
     response = HttpResponse(b'404', content_type='application/octet-stream')
     response.status_code = 404
     return response
+
+
+def test_humanize_view(request):
+    now = timezone.now()
+    one_hour_ago = now - timedelta(hours=1)
+    nineteen_hours_ago = now - timedelta(hours=19)
+    return render(request, 'humanize.html', {
+        'now': now,
+        'one_hour_ago': one_hour_ago,
+        'nineteen_hours_ago': nineteen_hours_ago
+    })
 
 
 def test_no_param_func():
@@ -201,5 +215,8 @@ if settings.HAS_PATH:
         distill_path(route='path/kwargs',
             view=test_no_param_view,
             name='test-kwargs'),
+        distill_path('path/humanize',
+            test_humanize_view,
+            name='test-humanize')
 
     ]

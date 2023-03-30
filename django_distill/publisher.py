@@ -42,16 +42,16 @@ def publish_dir(backend, stdout, verify=True, parallel_publish=1, ignore_remote_
 
 def _publish_file(backend, f, verify, stdout):
     remote_f = backend.remote_path(f)
-    stdout('Publishing: {} -> {}'.format(f, remote_f))
+    stdout(f'Publishing: {f} -> {remote_f}')
     backend.upload_file(f, backend.remote_path(f))
     if verify:
         url = backend.remote_url(f)
-        stdout('Verifying: {}'.format(url))
+        stdout(f'Verifying: {url}')
         if not backend.check_file(f, url):
-            err = 'Remote file {} failed hash check'
-            raise DistillPublishError(err.format(url))
+            err = f'Remote file {url} failed hash check'
+            raise DistillPublishError(err)
 
 
 def _delete_file(backend, f, stdout):
-    stdout('Deleting remote: {}'.format(f))
+    stdout(f'Deleting remote: {f}')
     backend.delete_remote_file(f)

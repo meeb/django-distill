@@ -1,7 +1,9 @@
+from concurrent.futures import ThreadPoolExecutor
+
 from django_distill.errors import DistillPublishError
 
 
-def publish_dir(local_dir, backend, stdout, verify=True):
+def publish_dir(local_dir, backend, stdout, verify=True, parallel_publish=1):
     stdout('Authenticating')
     backend.authenticate()
     stdout('Getting file indexes')
@@ -20,29 +22,36 @@ def publish_dir(local_dir, backend, stdout, verify=True):
         else:
             # file is present remotely, check its hash
             if not backend.compare_file(f, remote_f):
-                stdout('File stale (hash different): {}'.format(remote_f))
+                stdout(f'File stale (hash different): {remote_f}')
                 to_upload.add(f)
             else:
-                stdout('File fresh: {}'.format(remote_f))
+                stdout(f'File fresh: {remote_f}')
     # check for remote files to delete
     for f in remote_files:
         if f not in local_files_r:
             to_delete.add(f)
-    # upload any new or changed files
-    for f in to_upload:
-        remote_f = backend.remote_path(f)
-        stdout('Publishing: {} -> {}'.format(f, remote_f))
-        backend.upload_file(f, backend.remote_path(f))
-        if verify:
-            url = backend.remote_url(f)
-            stdout('Verifying: {}'.format(url))
-            if not backend.check_file(f, url):
-                err = 'Remote file {} failed hash check'
-                raise DistillPublishError(err.format(url))
-    # Call any final checks that may be needed by the backend
-    stdout('Final checks')
-    backend.final_checks()
-    # delete any orphan files
-    for f in to_delete:
-        stdout('Deleting remote: {}'.format(f))
-        backend.delete_remote_file(f)
+    with ThreadPoolExecutor(max_workers=parallel_publish) as executor:
+        # upload any new or changed files
+        executor.map(lambda f: _publish_file(backend, f, verify, stdout), to_upload)
+        # Call any final checks that may be needed by the backend
+        stdout('Final checks')
+        backend.final_checks()
+        # delete any orphan files
+        executor.map(lambda f: _delete_file(backend, f, stdout), to_delete)
+
+
+def _publish_file(backend, f, verify, stdout):
+    remote_f = backend.remote_path(f)
+    stdout('Publishing: {} -> {}'.format(f, remote_f))
+    backend.upload_file(f, backend.remote_path(f))
+    if verify:
+        url = backend.remote_url(f)
+        stdout('Verifying: {}'.format(url))
+        if not backend.check_file(f, url):
+            err = 'Remote file {} failed hash check'
+            raise DistillPublishError(err.format(url))
+
+
+def _delete_file(backend, f, stdout):
+    stdout('Deleting remote: {}'.format(f))
+    backend.delete_remote_file(f)

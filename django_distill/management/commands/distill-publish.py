@@ -24,6 +24,7 @@ class Command(BaseCommand):
         parser.add_argument('--exclude-staticfiles', dest='exclude_staticfiles',
                     action='store_true')
         parser.add_argument('--skip-verify', dest='skip_verify', action='store_true')
+        parser.add_argument('--parallel-publish', dest='parallel_publish', type=int, default=1)
 
     def _quiet(self, *args, **kwargs):
         pass
@@ -45,6 +46,7 @@ class Command(BaseCommand):
         collectstatic = options.get('collectstatic')
         exclude_staticfiles = options.get('exclude_staticfiles')
         skip_verify = options.get('skip_verify', False)
+        parallel_publish = options.get('parallel_publish')
         quiet = options.get('quiet')
         force = options.get('force')
         if quiet:
@@ -94,7 +96,7 @@ class Command(BaseCommand):
             stdout('')
             stdout('Publishing site')
             backend.index_local_files()
-            publish_dir(output_dir, backend, stdout, not skip_verify)
+            publish_dir(output_dir, backend, stdout, not skip_verify, parallel_publish)
         finally:
             if os.path.exists(output_dir):
                 stdout('Deleting temporary directory.')

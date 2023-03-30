@@ -3,11 +3,11 @@ from concurrent.futures import ThreadPoolExecutor
 from django_distill.errors import DistillPublishError
 
 
-def publish_dir(local_dir, backend, stdout, verify=True, parallel_publish=1):
+def publish_dir(backend, stdout, verify=True, parallel_publish=1, ignore_remote_content=False):
     stdout('Authenticating')
     backend.authenticate()
     stdout('Getting file indexes')
-    remote_files = backend.list_remote_files()
+    remote_files = set() if ignore_remote_content else backend.list_remote_files()
     local_files = backend.list_local_files()
     to_upload = set()
     to_delete = set()

@@ -1,6 +1,5 @@
 import os
-from tempfile import mkdtemp
-from shutil import rmtree
+import tempfile
 from django.conf import settings
 from django.core.management.base import (BaseCommand, CommandError)
 from django_distill.backends import get_backend
@@ -24,6 +23,7 @@ class Command(BaseCommand):
         parser.add_argument('--exclude-staticfiles', dest='exclude_staticfiles',
                     action='store_true')
         parser.add_argument('--skip-verify', dest='skip_verify', action='store_true')
+        parser.add_argument('--ignore-remote-content', dest='ignore_remote_content', action='store_true')
         parser.add_argument('--parallel-publish', dest='parallel_publish', type=int, default=1)
 
     def _quiet(self, *args, **kwargs):
@@ -47,15 +47,14 @@ class Command(BaseCommand):
         exclude_staticfiles = options.get('exclude_staticfiles')
         skip_verify = options.get('skip_verify', False)
         parallel_publish = options.get('parallel_publish')
+        ignore_remote_content = options.get('ignore_remote_content', False)
         quiet = options.get('quiet')
         force = options.get('force')
         if quiet:
             stdout = self._quiet
         else:
             stdout = self.stdout.write
-        static_url = settings.STATIC_URL
-        try:
-            output_dir = mkdtemp()
+        with tempfile.TemporaryDirectory() as output_dir:
             if not output_dir.endswith(os.sep):
                 output_dir += os.sep
             backend_class = get_backend(publish_engine)
@@ -96,10 +95,7 @@ class Command(BaseCommand):
             stdout('')
             stdout('Publishing site')
             backend.index_local_files()
-            publish_dir(output_dir, backend, stdout, not skip_verify, parallel_publish)
-        finally:
-            if os.path.exists(output_dir):
-                stdout('Deleting temporary directory.')
-                rmtree(output_dir)
+            publish_dir(backend, stdout, not skip_verify, parallel_publish, ignore_remote_content)
+
         stdout('')
         stdout('Site generation and publishing complete.')

@@ -309,9 +309,13 @@ Django views.
 
 `--skip-verify`: Do not test if files are correctly uploaded on the server.
 
-`--ignore-remote-content`: Do not fetch the list of remote files. It means that all files will be uploaded, and no existing remote file will be  deleted. This can be useful if you have a lot of files on the remote server, and you know that you want to update most of them, and you don't care if old files remain on the server.
+`--ignore-remote-content`: Do not fetch the list of remote files. It means that all
+files will be uploaded, and no existing remote file will be  deleted. This can be
+useful if you have a lot of files on the remote server, and you know that you want
+to update most of them, and you don't care if old files remain on the server.
 
-`--parallel-publish [number of threads]`: Publish files in parallel on multiple threads, this can speed up upload. Defaults to 1 thread.
+`--parallel-publish [number of threads]`: Publish files in parallel on multiple
+threads, this can speed up upload. Defaults to 1 thread.
 
 **Note** that this means if you use `--force` and `--quiet` that the output
 directory will have all files not part of the site export deleted without any
@@ -450,8 +454,8 @@ Django by changing the backend database engine. Currently the engines supported
 by `django-distill` are:
 
 **django_distill.backends.amazon_s3**: Publish to an Amazon S3 bucket. Requires
-  the Python library `boto3` (`$ pip install django-distill[amazon]`). The bucket must already
-  exist (use the AWS control panel). Options:
+  the Python library `boto3` (`$ pip install django-distill[amazon]`). The bucket
+  must already exist (use the AWS control panel). Options:
 
 ```python
 'some-s3-container': {

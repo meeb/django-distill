@@ -315,7 +315,7 @@ useful if you have a lot of files on the remote server, and you know that you wa
 to update most of them, and you don't care if old files remain on the server.
 
 `--parallel-publish [number of threads]`: Publish files in parallel on multiple
-threads, this can speed up upload. Defaults to 1 thread.
+threads, this can speed up publishing. Defaults to `1` thread.
 
 **Note** that this means if you use `--force` and `--quiet` that the output
 directory will have all files not part of the site export deleted without any

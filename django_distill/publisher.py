@@ -3,11 +3,11 @@ from concurrent.futures import ThreadPoolExecutor
 from django_distill.errors import DistillPublishError
 
 
-def publish_dir(local_dir, backend, stdout, verify=True, parallel_publish=1):
+def publish_dir(backend, stdout, verify=True, parallel_publish=1, ignore_remote_content=False):
     stdout('Authenticating')
     backend.authenticate()
     stdout('Getting file indexes')
-    remote_files = backend.list_remote_files()
+    remote_files = set() if ignore_remote_content else backend.list_remote_files()
     local_files = backend.list_local_files()
     to_upload = set()
     to_delete = set()
@@ -42,16 +42,16 @@ def publish_dir(local_dir, backend, stdout, verify=True, parallel_publish=1):
 
 def _publish_file(backend, f, verify, stdout):
     remote_f = backend.remote_path(f)
-    stdout('Publishing: {} -> {}'.format(f, remote_f))
+    stdout(f'Publishing: {f} -> {remote_f}')
     backend.upload_file(f, backend.remote_path(f))
     if verify:
         url = backend.remote_url(f)
-        stdout('Verifying: {}'.format(url))
+        stdout(f'Verifying: {url}')
         if not backend.check_file(f, url):
-            err = 'Remote file {} failed hash check'
-            raise DistillPublishError(err.format(url))
+            err = f'Remote file {url} failed hash check'
+            raise DistillPublishError(err)
 
 
 def _delete_file(backend, f, stdout):
-    stdout('Deleting remote: {}'.format(f))
+    stdout(f'Deleting remote: {f}')
     backend.delete_remote_file(f)

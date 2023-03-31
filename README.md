@@ -309,6 +309,7 @@ Django views.
 
 `--skip-verify`: Do not test if files are correctly uploaded on the server.
 
+`--parallel-publish [number of threads]`: Publish files in parallel on multiple threads, this can speed up upload. Defaults to 1 thread.
 
 **Note** that this means if you use `--force` and `--quiet` that the output
 directory will have all files not part of the site export deleted without any

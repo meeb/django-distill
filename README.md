@@ -483,7 +483,10 @@ by `django-distill` are:
 },
 ```
 
-Note that `JSON_CREDENTIALS` is optional; if it is not specified, the google libraries will try other authentication methods, in the search order described here: https://cloud.google.com/docs/authentication/application-default-credentials (e.g. the GOOGLE_APPLICATION_CREDENTIALS environment variable, an attached service account, etc).
+Note that `JSON_CREDENTIALS` is optional; if it is not specified, the google libraries
+will try other authentication methods, in the search order described here:
+https://cloud.google.com/docs/authentication/application-default-credentials (e.g. the
+`GOOGLE_APPLICATION_CREDENTIALS` environment variable, attached service account, etc).
 
 
 **django_distill.backends.microsoft_azure_storage**: Publish to a Microsoft

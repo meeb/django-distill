@@ -25,7 +25,7 @@ class GoogleCloudStorageBackend(BackendBase):
         Publisher for Google Cloud Storage. Implements the BackendBase.
     '''
 
-    REQUIRED_OPTIONS = ('ENGINE', 'JSON_CREDENTIALS', 'BUCKET')
+    REQUIRED_OPTIONS = ('ENGINE', 'BUCKET')
 
     def account_username(self):
         return
@@ -35,10 +35,12 @@ class GoogleCloudStorageBackend(BackendBase):
 
     def authenticate(self):
         credentials_file = self.options.get('JSON_CREDENTIALS', '')
-        if not os.path.exists(credentials_file):
-            err = 'Credentials file does not exist: {}'
-            raise DistillPublishError(err.format(credentials_file))
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_file
+        if credentials_file:
+            if not os.path.exists(credentials_file):
+                err = 'Credentials file does not exist: {}'
+                raise DistillPublishError(err.format(credentials_file))
+            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_file
+        
         bucket = self.account_container()
         self.d['connection'] = storage.Client()
         self.d['bucket'] = self.d['connection'].get_bucket(bucket)

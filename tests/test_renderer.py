@@ -425,3 +425,14 @@ class DjangoDistillRendererTestSuite(TestCase):
             b'',
         ])
         self.assertEqual(render.content, expected)
+
+    def test_request_has_resolver_match(self):
+        view = self._get_view("test-has-resolver-match")
+        assert view
+        view_url, view_func, file_name, status_codes, view_name, args, kwargs = view
+        param_set = self.renderer.get_uri_values(view_func, view_name)[0]
+        if not param_set:
+            param_set = ()
+        uri = self.renderer.generate_uri(view_url, view_name, param_set)
+        render = self.renderer.render_view(uri, status_codes, param_set, args, kwargs)
+        self.assertEqual(render.content, b"test_request_has_resolver_match")

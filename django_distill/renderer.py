@@ -75,11 +75,12 @@ class DistillHandler(ClientHandler):
     def resolve_request(self, request):
         for arg in self.view_args:
             self.view_uri_kwargs.update(**arg)
-        return ResolverMatch(
+        request.resolver_match = ResolverMatch(
             self.view_func,
             self.view_uri_args,
             self.view_uri_kwargs,
         )
+        return request.resolver_match
 
     def load_middleware(self, is_async=False):
         '''

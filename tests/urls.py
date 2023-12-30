@@ -94,6 +94,10 @@ def test_flatpages_func():
         yield {'url': flatpage.url}
 
 
+def test_request_has_resolver_match(request):
+    return HttpResponse(request.resolver_match.func.__name__)
+
+
 urlpatterns = [
 
     path('path/namespace1/',
@@ -217,6 +221,11 @@ if settings.HAS_PATH:
             name='test-kwargs'),
         distill_path('path/humanize',
             test_humanize_view,
-            name='test-humanize')
+            name='test-humanize'),
+        distill_path(
+            "path/has-resolver-match",
+            test_request_has_resolver_match,
+            name="test-has-resolver-match",
+        ),
 
     ]

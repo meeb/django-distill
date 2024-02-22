@@ -123,7 +123,7 @@ def get_all_blogposts():
     # You can just export a small subset of values here if you wish to
     # limit what pages will be generated.
     for post in Post.objects.all():
-        yield {'blog_id': post_id, 'blog_title': post.title}
+        yield {'blog_id': post.id, 'blog_title': post.title}
 
 def get_years():
     # You can also just return an iterable containing static strings if the

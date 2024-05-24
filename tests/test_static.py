@@ -30,3 +30,11 @@ class DjangoDistillStaticFilesTestSuite(TestCase):
             self.assertTrue(os.path.exists(test_static_file_path))
             test_admin_file_path = str(Path(tempdir) / 'static' / 'admin' / 'admin-test.txt')
             self.assertTrue(os.path.exists(test_admin_file_path))
+            test_appdir_file_path = str(Path(tempdir) / 'static' / 'appdir' / 'appdir-test.txt')
+            self.assertTrue(os.path.exists(test_appdir_file_path))
+        # Test static app dirs are skipped with DISTILL_SKIP_STATICFILES_DIRS populated
+        settings.DISTILL_SKIP_STATICFILES_DIRS = ['appdir']
+        with TemporaryDirectory() as tempdir:
+            copy_static_and_media_files(tempdir, null)
+            test_appdir_file_path = str(Path(tempdir) / 'static' / 'appdir' / 'appdir-test.txt')
+            self.assertFalse(os.path.exists(test_appdir_file_path))

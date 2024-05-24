@@ -347,10 +347,17 @@ def run_collectstatic(stdout):
 
 def filter_dirs(dirs):
     DISTILL_SKIP_ADMIN_DIRS = bool(getattr(settings, 'DISTILL_SKIP_ADMIN_DIRS', True))
+    _ignore_dirs = []
     if DISTILL_SKIP_ADMIN_DIRS:
-        _ignore_dirs = ('admin', 'grappelli')
-    else:
-        _ignore_dirs = ()
+        _ignore_dirs.append('admin')
+        _ignore_dirs.append('grappelli')
+    try:
+        DISTILL_SKIP_STATICFILES_DIRS = list(getattr(settings, 'DISTILL_SKIP_STATICFILES_DIRS', []))
+    except (ValueError, TypeError):
+        DISTILL_SKIP_STATICFILES_DIRS = []
+    for d in DISTILL_SKIP_STATICFILES_DIRS:
+        if isinstance(d, str) and os.sep not in d:
+            _ignore_dirs.append(d)
     return [d for d in dirs if d not in _ignore_dirs]
 
 

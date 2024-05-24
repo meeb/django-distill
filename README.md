@@ -375,6 +375,19 @@ desired for statically generated sites. The default behaviour is to skip static 
 files.
 
 
+**DISTILL_SKIP_STATICFILES_DIRS**: list, defaults to `[]`
+
+```python
+DISTILL_SKIP_STATICFILES_DIRS = ['some_dir']
+```
+
+Set `DISTILL_SKIP_STATICFILES_DIRS` to a list of directory names you want `django-distill`
+to ignore directories in your defined `static/` directory. You can use this to ignore
+copying directories containing files from apps you're not using that get bundled into your
+`static/` directory by `collect-static`. For example if you set `DISTILL_SKIP_STATICFILES_DIRS`
+to `['some_dir']` the static files directory `static/some_dir` would be skipped.
+
+
 # Writing single files
 
 As of `django-distill` version `3.0.0` you can use the

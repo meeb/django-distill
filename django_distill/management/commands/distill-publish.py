@@ -6,7 +6,7 @@ from django_distill.backends import get_backend
 from django_distill.distill import urls_to_distill
 from django_distill.errors import DistillError
 from django_distill.renderer import (run_collectstatic, render_to_dir,
-                                     copy_static_and_media_files)
+                                     copy_static_and_media_files, render_redirects)
 from django_distill.publisher import publish_dir
 
 
@@ -25,6 +25,7 @@ class Command(BaseCommand):
         parser.add_argument('--skip-verify', dest='skip_verify', action='store_true')
         parser.add_argument('--ignore-remote-content', dest='ignore_remote_content', action='store_true')
         parser.add_argument('--parallel-publish', dest='parallel_publish', type=int, default=1)
+        parser.add_argument('--generate-redirects', dest='generate_redirects', action='store_true')
 
     def _quiet(self, *args, **kwargs):
         pass
@@ -50,6 +51,7 @@ class Command(BaseCommand):
         ignore_remote_content = options.get('ignore_remote_content', False)
         quiet = options.get('quiet')
         force = options.get('force')
+        generate_redirects = options.get('generate_redirects')
         if quiet:
             stdout = self._quiet
         else:
@@ -93,9 +95,12 @@ class Command(BaseCommand):
             except DistillError as err:
                 raise CommandError(str(err)) from err
             stdout('')
+            if generate_redirects:
+                stdout('Generating redirects')
+                render_redirects(output_dir, stdout)
+                stdout('')
             stdout('Publishing site')
             backend.index_local_files()
             publish_dir(backend, stdout, not skip_verify, parallel_publish, ignore_remote_content)
-
         stdout('')
         stdout('Site generation and publishing complete.')

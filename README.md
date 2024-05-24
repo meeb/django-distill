@@ -197,7 +197,7 @@ urlpatterns = (
 
 ### Parameters in file names
 
-You can standard Python string formatting in `distill_file` as well to enable
+You can use standard Python string formatting in `distill_file` as well to enable
 you to change the output file path for a file if you wish. Note this does not
 update the URL used by Django so if you use this make sure your `path` pattern
 matches the `distill_file` pattern or your links might not work in Django. An
@@ -321,6 +321,11 @@ to update most of them, and you don't care if old files remain on the server.
 
 `--parallel-publish [number of threads]`: Publish files in parallel on multiple
 threads, this can speed up publishing. Defaults to `1` thread.
+
+`--generate-redirects`: Attempt to generate static redirects stored in the
+`django.contrib.redirects` app. If you have a redirect from `/old/` to `/new/` using
+this flag will create a static HTML `<meta http-equiv="refresh" content="...">`
+style redirect at `/old/index.html` to `/new/`.
 
 **Note** that this means if you use `--force` and `--quiet` that the output
 directory will have all files not part of the site export deleted without any

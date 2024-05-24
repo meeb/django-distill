@@ -89,7 +89,7 @@ class Command(BaseCommand):
             raise CommandError(str(err)) from err
         stdout('')
         if generate_redirects:
-            stdout('Generating redirects...')
+            stdout('Generating redirects')
             render_redirects(output_dir, stdout)
             stdout('')
         stdout('Site generation complete.')

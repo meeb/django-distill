@@ -8,6 +8,7 @@ from django.utils import translation
 from django.conf import settings
 from django.urls import include as include_urls, get_resolver
 from django.core.exceptions import ImproperlyConfigured, MiddlewareNotUsed
+from django.contrib.redirects.models import Redirect
 from django.utils.module_loading import import_string
 from django.test import RequestFactory
 from django.test.client import ClientHandler
@@ -436,4 +437,36 @@ def render_single_file(output_dir, view_name, *args, **kwargs):
     full_path, local_uri = get_filepath(output_dir, file_name, page_uri)
     content = http_response.content
     write_file(full_path, content)
+    return True
+
+
+def render_static_redirect(destination_url):
+    redir = []
+    redir.append(f'<!DOCTYPE html>')
+    redir.append(f'<html>')
+    redir.append(f'<head>')
+    redir.append(f'<meta charset="UTF-8">')
+    redir.append(f'<meta http-equiv="refresh" content="0;URL={destination_url}" />')
+    redir.append(f'<title>Redirecting to {destination_url}</title>')
+    redir.append(f'<meta name="robots" content="noindex" />')
+    redir.append(f'</head>')
+    redir.append(f'<body>')
+    redir.append(f'<h1>Redirecting to <a href="{destination_url}">{destination_url}</a></h1>')
+    redir.append(f'<p>If you are not automatically redirected please click <a href="{destination_url}">this link</a></p>')
+    redir.append(f'</html>')
+    return '\n'.join(redir).encode()
+
+
+def render_redirects(output_dir, stdout):
+    for redirect in Redirect.objects.all():
+        redirect_path = redirect.old_path.lstrip('/')
+        if redirect_path.lower().endswith('.html'):
+            redirect_file = redirect_path
+        else:
+            redirect_file = os.path.join(redirect_path, 'index.html')
+        full_path, local_uri = get_filepath(output_dir, redirect_file, redirect_file)
+        content = render_static_redirect(redirect.new_path)
+        msg = 'Rendering redirect: {} -> {}'
+        stdout(msg.format(local_uri, redirect.new_path))
+        write_file(full_path, content)
     return True

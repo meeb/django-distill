@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.sitemaps',
     'django.contrib.humanize',
+    'django.contrib.redirects',
     'django_distill',
     'tests',
 ]

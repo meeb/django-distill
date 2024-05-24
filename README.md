@@ -274,6 +274,11 @@ rendering, this is just a shortcut to save you typing an extra command.
 `--exclude-staticfiles`: Do not copy any static files at all, only render output from
 Django views.
 
+`--generate-redirects`: Attempt to generate static redirects stored in the
+`django.contrib.redirects` app. If you have a redirect from `/old/` to `/new/` using
+this flag will create a static HTML `<meta http-equiv="refresh" content="...">`
+style redirect at `/old/index.html` to `/new/`.
+
 **Note**  If any of your views contain a Python error then rendering will fail
 then the stack trace will be printed to the terminal and the rendering command
 will exit with a status code of 1.

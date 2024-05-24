@@ -4,7 +4,7 @@ from django.core.management.base import (BaseCommand, CommandError)
 from django.conf import settings
 from django_distill.distill import urls_to_distill
 from django_distill.renderer import (run_collectstatic, render_to_dir,
-                                     copy_static_and_media_files)
+                                     copy_static_and_media_files, render_redirects)
 from django_distill.errors import DistillError
 
 
@@ -20,6 +20,8 @@ class Command(BaseCommand):
         parser.add_argument('--force', dest='force', action='store_true')
         parser.add_argument('--exclude-staticfiles', dest='exclude_staticfiles',
                             action='store_true')
+        parser.add_argument('--generate-redirects', dest='generate_redirects',
+                            action='store_true')
 
     def _quiet(self, *args, **kwargs):
         pass
@@ -30,6 +32,7 @@ class Command(BaseCommand):
         quiet = options.get('quiet')
         force = options.get('force')
         exclude_staticfiles = options.get('exclude_staticfiles')
+        generate_redirects = options.get('generate_redirects')
         if quiet:
             stdout = self._quiet
         else:
@@ -85,4 +88,8 @@ class Command(BaseCommand):
         except DistillError as err:
             raise CommandError(str(err)) from err
         stdout('')
+        if generate_redirects:
+            stdout('Generating redirects...')
+            render_redirects(output_dir, stdout)
+            stdout('')
         stdout('Site generation complete.')

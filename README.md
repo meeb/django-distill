@@ -393,6 +393,14 @@ copying directories containing files from apps you're not using that get bundled
 to `['some_dir']` the static files directory `static/some_dir` would be skipped.
 
 
+# Developing locally with HTTPS
+
+If you are using a local development environment which has HTTPS support you may need
+to add `SECURE_SSL_REDIRECT = False` to your `settings.py` to prevent a `CommandError`
+being raised when a request returns a 301 redirect instead of the expected HTTP/200
+response code.
+
+
 # Writing single files
 
 As of `django-distill` version `3.0.0` you can use the

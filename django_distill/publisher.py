@@ -1,5 +1,4 @@
 from concurrent.futures import ThreadPoolExecutor
-
 from django_distill.errors import DistillPublishError
 
 

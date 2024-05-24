@@ -19,8 +19,7 @@ class AmazonS3Backend(BackendBase):
         Publisher for Amazon S3. Implements the BackendBase.
     '''
 
-    REQUIRED_OPTIONS = ('ENGINE', 'PUBLIC_URL', 'ACCESS_KEY_ID',
-                        'SECRET_ACCESS_KEY', 'BUCKET')
+    REQUIRED_OPTIONS = ('ENGINE', 'PUBLIC_URL', 'BUCKET')
 
     def _get_object(self, name):
         bucket = self.account_container()
@@ -36,8 +35,11 @@ class AmazonS3Backend(BackendBase):
         access_key_id = self.account_username()
         secret_access_key = self.options.get('SECRET_ACCESS_KEY', '')
         bucket = self.account_container()
-        self.d['connection'] = boto3.client('s3', aws_access_key_id=access_key_id,
-                                            aws_secret_access_key=secret_access_key)
+        if access_key_id and secret_access_key:
+            self.d['connection'] = boto3.client('s3', aws_access_key_id=access_key_id,
+                                                aws_secret_access_key=secret_access_key)
+        else:
+            self.d['connection'] = boto3.client('s3')
         self.d['bucket'] = bucket
 
     def list_remote_files(self):

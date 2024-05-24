@@ -42,7 +42,7 @@ def publish_dir(backend, stdout, verify=True, parallel_publish=1, ignore_remote_
 def _publish_file(backend, f, verify, stdout):
     remote_f = backend.remote_path(f)
     stdout(f'Publishing: {f} -> {remote_f}')
-    backend.upload_file(f, backend.remote_path(f))
+    backend.upload_file(f, remote_f)
     if verify:
         url = backend.remote_url(f)
         stdout(f'Verifying: {url}')

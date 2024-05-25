@@ -9,7 +9,6 @@ from django.utils.translation import activate as activate_lang
 from django.conf import settings
 from django.urls import include as include_urls, get_resolver
 from django.core.exceptions import ImproperlyConfigured, MiddlewareNotUsed
-from django.contrib.redirects.models import Redirect
 from django.utils.module_loading import import_string
 from django.test import RequestFactory
 from django.test.client import ClientHandler
@@ -482,6 +481,7 @@ def render_static_redirect(destination_url):
 
 
 def render_redirects(output_dir, stdout):
+    from django.contrib.redirects.models import Redirect
     for redirect in Redirect.objects.all():
         redirect_path = redirect.old_path.lstrip('/')
         if redirect_path.lower().endswith('.html'):

@@ -13,6 +13,7 @@ from django_distill.distill import urls_to_distill
 from django_distill.renderer import DistillRender, render_to_dir, render_single_file, get_renderer
 from django_distill.errors import DistillError
 
+
 class CustomRender(DistillRender):
     pass
 
@@ -367,6 +368,11 @@ class DjangoDistillRendererTestSuite(TestCase):
         if not settings.USE_I18N:
             self._skip('settings.USE_I18N')
             return
+        settings.LANGUAGES = [
+            ('en', 'English'),
+            ('fr', 'French'),
+            ('de', 'German'),
+        ]
         expected = {}
         for lang_code, lang_name in settings.LANGUAGES:
             expected[lang_code] = f'/{lang_code}/path/i18n/sub-url-with-i18n-prefix'
@@ -382,6 +388,31 @@ class DjangoDistillRendererTestSuite(TestCase):
             self.assertEqual(uri, path)
             render = self.renderer.render_view(uri, status_codes, param_set, args)
             self.assertEqual(render.content, b'test')
+        # Render the test URLs and confirm the expected language URI prefixes are present
+        def _blackhole(_):
+            pass
+        expected_files = (
+            ('test',),
+            ('re_path', '12345'),
+            ('re_path', 'test'),
+            ('re_path', 'x', '12345.html'),
+            ('re_path', 'x', 'test.html'),
+            ('en', 'path', 'i18n', 'sub-url-with-i18n-prefix'),
+            ('fr', 'path', 'i18n', 'sub-url-with-i18n-prefix'),
+            ('de', 'path', 'i18n', 'sub-url-with-i18n-prefix'),
+        )
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            with self.assertRaises(DistillError):
+                render_to_dir(tmpdirname, urls_to_distill, _blackhole, parallel_render=8)
+            written_files = []
+            for (root, dirs, files) in os.walk(tmpdirname):
+                for f in files:
+                    filepath = os.path.join(root, f)
+                    written_files.append(filepath)
+            for expected_file in expected_files:
+                filepath = os.path.join(tmpdirname, *expected_file)
+                self.assertIn(filepath, written_files)
+        settings.LANGUAGES = []
 
     def test_kwargs(self):
         if not settings.HAS_PATH:

@@ -5,7 +5,7 @@ import os
 import types
 from shutil import copy2
 from concurrent.futures import ThreadPoolExecutor
-from django.utils import translation
+from django.utils.translation import activate as activate_lang
 from django.conf import settings
 from django.urls import include as include_urls, get_resolver
 from django.core.exceptions import ImproperlyConfigured, MiddlewareNotUsed
@@ -163,8 +163,6 @@ class DistillRender(object):
         self.urls_to_distill = urls_to_distill
         self.parallel_render = parallel_render
         self.namespace_map = load_namespace_map()
-        # activate the default translation
-        translation.activate(settings.LANGUAGE_CODE)
         # set allowed hosts to '*', static rendering shouldn't care about the hostname
         settings.ALLOWED_HOSTS = ['*']
 
@@ -190,11 +188,15 @@ class DistillRender(object):
     def render_all_urls(self):
 
         def _render(item):
-            url, view_name, param_set, status_codes, file_name_base, a, k = item
-            uri = self.generate_uri(url, view_name, param_set)
-            render = self.render_view(uri, status_codes, param_set, a, k)
-            file_name = self._get_filename(file_name_base, uri, param_set)
-            return uri, file_name, render
+            rtn = []
+            for lang in self.get_langs():
+                activate_lang(lang)
+                url, view_name, param_set, status_codes, file_name_base, a, k = item
+                uri = self.generate_uri(url, view_name, param_set)
+                render = self.render_view(uri, status_codes, param_set, a, k)
+                file_name = self._get_filename(file_name_base, uri, param_set)
+                rtn.append((uri, file_name, render))
+            return rtn
 
         to_render = []
         for url, distill_func, file_name_base, status_codes, view_name, a, k in self.urls_to_distill:
@@ -206,8 +208,9 @@ class DistillRender(object):
                 to_render.append((url, view_name, param_set, status_codes, file_name_base, a, k))
         with ThreadPoolExecutor(max_workers=self.parallel_render) as executor:
             results = executor.map(_render, to_render)
-            for uri, file_name, render in results:
-                yield uri, file_name, render
+            for i18n_result in results:
+                for uri, file_name, render in i18n_result:
+                    yield uri, file_name, render
 
     def render(self, view_name=None, status_codes=None, view_args=None, view_kwargs=None):
         if view_name:
@@ -220,6 +223,15 @@ class DistillRender(object):
             return self.render_file(view_name, status_codes, view_args, view_kwargs)
         else:
             return self.render_all_urls()
+
+    def get_langs(self):
+        langs = []
+        if settings.LANGUAGES:
+            for code, name in settings.LANGUAGES:
+                langs.append(code)
+        else:
+            langs.append(settings.LANGUAGE_CODE)
+        return langs
 
     def _get_filename(self, file_name, uri, param_set):
         if file_name is not None:

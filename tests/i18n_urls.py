@@ -18,7 +18,6 @@ urlpatterns = [
     distill_path('sub-url-with-i18n-prefix',
         test_url_i18n_view,
         name='test-url-i18n',
-        distill_func=test_no_param_func,
-        distill_file='test_url_i18n'),
+        distill_func=test_no_param_func),
 
 ]

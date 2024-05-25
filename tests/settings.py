@@ -68,6 +68,7 @@ MEDIA_ROOT = BASE_DIR / 'tests' / 'media'
 LANGUAGE_CODE = 'en'
 USE_I18N = True
 
+
 LANGUAGES = [
     ('en', 'English'),
     ('fr', 'French'),

@@ -228,11 +228,11 @@ class DistillRender(object):
         default_lang = str(getattr(settings, 'LANGUAGE_CODE', 'en'))
         try:
             DISTILL_LANGUAGES = list(getattr(settings, 'DISTILL_LANGUAGES', []))
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, AttributeError):
             DISTILL_LANGUAGES = []
         if default_lang not in DISTILL_LANGUAGES:
             langs.append(default_lang)
-        for lang in settings.DISTILL_LANGUAGES:
+        for lang in DISTILL_LANGUAGES:
             langs.append(lang)
         return langs
 

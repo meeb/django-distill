@@ -72,10 +72,6 @@ It is assumed you are using URI parameters such as `/blog/123-abc` and not
 querystring parameters such as `/blog?post_id=123&title=abc`. Querystring
 parameters do not make sense for static page generation for obvious reasons.
 
-Additionally With one-off static pages dynamic internationalisation won't work
-so all files are generated using the `LANGUAGE_CODE` value in your
-`settings.py`.
-
 Static media files such as images and style sheets are copied from your static
 media directory defined in `STATIC_ROOT`. This means that you will want to run
 `./manage.py collectstatic` **before** you run `./manage.py distill-local`
@@ -245,6 +241,51 @@ therefore at some point the `distill_url` function will cease working in the fut
 when Django 2.x itself depreciates the `django.conf.urls.url` and `django.urls.url`
 functions. You can use `distill_re_path` as a drop-in replacement. It is advisable to
 use `distill_path` or `distill_re_path` if you're building a new site now.
+
+
+### Internationalization
+
+Internationalization is only supported for URLs, page content is unable to be
+dynamically translated. By default your site will be generated using the
+`LANGUAGE_CODE` value in your `settings.py`. If you also set `settings.USE_I18N` to
+`True` then set other languages in your `settings.LANGUAGES` value and register
+URLs with `i18n_patterns(...)` then your site will be generated in multiple languges.
+This assumes your multi-language site works as expected before adding `django-distill`.
+
+For example if you set `settings.LANGUAGE_CODE = 'en'` your site will be
+generated in one language.
+
+If you have something like this in your `settings.py` instead:
+
+```python
+USE_I18N = True
+
+LANGUAGES = [
+    ('en', 'English'),
+    ('fr', 'French'),
+    ('de', 'German'),
+]
+```
+
+While also using `i18n_patterns`in your `urls.py` like so:
+
+```python
+from django.conf.urls.i18n import i18n_patterns
+from django_distill import distill_path
+
+urlpatterns = i18n_patterns(
+    distill_path('some-file.html',
+                 SomeView.as_view(),
+                 name='i18n-view',
+                 distill_func=some_func
+    )
+)
+```
+
+Then your views will be generaged as `/en/some-file.html`, `/fr/some-file.html`
+and `/de/some-file.html`. These URLs should work (and be translated) by your
+site already. `django-distill` doesn't do any translation magic, it just
+calls the URLs with the language code prefix.
 
 
 # The `distill-local` command

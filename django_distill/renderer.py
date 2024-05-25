@@ -415,14 +415,14 @@ def write_file(full_path, content):
     except IOError as e:
         if e.errno == errno.EISDIR:
             err = ('Output path: {} is a directory! Try adding a '
-                    '"distill_file" arg to your distill_url()')
+                   '"distill_file" arg to your distill_url()')
             raise DistillError(err.format(full_path))
         else:
             raise
 
 
 def get_renderer(urls_to_distill, parallel_render=1):
-    import_path = getattr(settings, "DISTILL_RENDERER", None)
+    import_path = getattr(settings, 'DISTILL_RENDERER', None)
     if import_path:
         render_cls = import_string(import_path)
     else:

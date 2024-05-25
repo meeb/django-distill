@@ -248,7 +248,7 @@ use `distill_path` or `distill_re_path` if you're building a new site now.
 Internationalization is only supported for URLs, page content is unable to be
 dynamically translated. By default your site will be generated using the
 `LANGUAGE_CODE` value in your `settings.py`. If you also set `settings.USE_I18N` to
-`True` then set other languages in your `settings.LANGUAGES` value and register
+`True` then set other language codes in your `settings.DISTILL_LANGUAGES` value and register
 URLs with `i18n_patterns(...)` then your site will be generated in multiple languges.
 This assumes your multi-language site works as expected before adding `django-distill`.
 
@@ -260,10 +260,10 @@ If you have something like this in your `settings.py` instead:
 ```python
 USE_I18N = True
 
-LANGUAGES = [
-    ('en', 'English'),
-    ('fr', 'French'),
-    ('de', 'German'),
+DISTILL_LANGUAGES = [
+    'en',
+    'fr',
+    'de',
 ]
 ```
 
@@ -443,6 +443,20 @@ to ignore directories in your defined `static/` directory. You can use this to i
 copying directories containing files from apps you're not using that get bundled into your
 `static/` directory by `collect-static`. For example if you set `DISTILL_SKIP_STATICFILES_DIRS`
 to `['some_dir']` the static files directory `static/some_dir` would be skipped.
+
+
+**DISTILL_LANGUAGES**: list, defaults to `[]`
+
+```python
+DISTILL_LANGUAGES = [
+    'en',
+    'fr',
+    'de',
+]
+```
+
+Set `DISTILL_LANGUAGES` to a list of language codes to attempt to render URLs with.
+See the "Internationalization" section for more details.
 
 
 # Developing locally with HTTPS

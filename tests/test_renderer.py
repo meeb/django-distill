@@ -368,13 +368,13 @@ class DjangoDistillRendererTestSuite(TestCase):
         if not settings.USE_I18N:
             self._skip('settings.USE_I18N')
             return
-        settings.LANGUAGES = [
-            ('en', 'English'),
-            ('fr', 'French'),
-            ('de', 'German'),
+        settings.DISTILL_LANGUAGES = [
+            'en',
+            'fr',
+            'de',
         ]
         expected = {}
-        for lang_code, lang_name in settings.LANGUAGES:
+        for lang_code, lang_name in settings.DISTILL_LANGUAGES:
             expected[lang_code] = f'/{lang_code}/path/i18n/sub-url-with-i18n-prefix'
         view = self._get_view('test-url-i18n')
         assert view
@@ -412,7 +412,7 @@ class DjangoDistillRendererTestSuite(TestCase):
             for expected_file in expected_files:
                 filepath = os.path.join(tmpdirname, *expected_file)
                 self.assertIn(filepath, written_files)
-        settings.LANGUAGES = []
+        settings.DISTILL_LANGUAGES = []
 
     def test_kwargs(self):
         if not settings.HAS_PATH:

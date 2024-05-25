@@ -232,10 +232,8 @@ class DistillRender(object):
             DISTILL_LANGUAGES = []
         if default_lang not in DISTILL_LANGUAGES:
             langs.append(default_lang)
-        for lang in settings.LANGUAGES:
-            if len(lang) != 2:
-                raise DistillError('Invalid settings.LANGUAGES value')
-            langs.append(lang[0])
+        for lang in settings.DISTILL_LANGUAGES:
+            langs.append(lang)
         return langs
 
     def _get_filename(self, file_name, uri, param_set):

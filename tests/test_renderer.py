@@ -243,7 +243,7 @@ class DjangoDistillRendererTestSuite(TestCase):
             for expected_file in expected_files:
                 filepath = os.path.join(tmpdirname, *expected_file)
                 self.assertIn(filepath, written_files)
-        self.assertEqual(render_view_spy.call_count, 13)
+        self.assertEqual(render_view_spy.call_count, 34)
 
     def test_sessions_are_ignored(self):
         if settings.HAS_PATH:
@@ -436,3 +436,25 @@ class DjangoDistillRendererTestSuite(TestCase):
         uri = self.renderer.generate_uri(view_url, view_name, param_set)
         render = self.renderer.render_view(uri, status_codes, param_set, args, kwargs)
         self.assertEqual(render.content, b"test_request_has_resolver_match")
+
+    def test_parallel_rendering(self):
+        def _blackhole(_):
+            pass
+        expected_files = (
+            ('test',),
+            ('re_path', '12345'),
+            ('re_path', 'test'),
+            ('re_path', 'x', '12345.html'),
+            ('re_path', 'x', 'test.html'),
+        )
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            with self.assertRaises(DistillError):
+                render_to_dir(tmpdirname, urls_to_distill, _blackhole, parallel_render=8)
+            written_files = []
+            for (root, dirs, files) in os.walk(tmpdirname):
+                for f in files:
+                    filepath = os.path.join(root, f)
+                    written_files.append(filepath)
+            for expected_file in expected_files:
+                filepath = os.path.join(tmpdirname, *expected_file)
+                self.assertIn(filepath, written_files)

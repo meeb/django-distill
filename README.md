@@ -274,6 +274,9 @@ rendering, this is just a shortcut to save you typing an extra command.
 `--exclude-staticfiles`: Do not copy any static files at all, only render output from
 Django views.
 
+`--parallel-render [number of threads]`: Render files in parallel on multiple
+threads, this can speed up rendering. Defaults to `1` thread.
+
 `--generate-redirects`: Attempt to generate static redirects stored in the
 `django.contrib.redirects` app. If you have a redirect from `/old/` to `/new/` using
 this flag will create a static HTML `<meta http-equiv="refresh" content="...">`
@@ -321,6 +324,9 @@ to update most of them, and you don't care if old files remain on the server.
 
 `--parallel-publish [number of threads]`: Publish files in parallel on multiple
 threads, this can speed up publishing. Defaults to `1` thread.
+
+`--parallel-render [number of threads]`: Render files in parallel on multiple
+threads, this can speed up rendering. Defaults to `1` thread.
 
 `--generate-redirects`: Attempt to generate static redirects stored in the
 `django.contrib.redirects` app. If you have a redirect from `/old/` to `/new/` using

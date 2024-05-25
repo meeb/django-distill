@@ -4,6 +4,7 @@ import logging
 import os
 import types
 from shutil import copy2
+from concurrent.futures import ThreadPoolExecutor
 from django.utils import translation
 from django.conf import settings
 from django.urls import include as include_urls, get_resolver
@@ -158,8 +159,9 @@ class DistillRender(object):
         distill_url() and then copies over all static media.
     '''
 
-    def __init__(self, urls_to_distill):
+    def __init__(self, urls_to_distill, parallel_render=1):
         self.urls_to_distill = urls_to_distill
+        self.parallel_render = parallel_render
         self.namespace_map = load_namespace_map()
         # activate the default translation
         translation.activate(settings.LANGUAGE_CODE)
@@ -186,15 +188,25 @@ class DistillRender(object):
         return uri, file_name, render
 
     def render_all_urls(self):
+
+        def _render(item):
+            url, view_name, param_set, status_codes, file_name_base, a, k = item
+            uri = self.generate_uri(url, view_name, param_set)
+            render = self.render_view(uri, status_codes, param_set, a, k)
+            file_name = self._get_filename(file_name_base, uri, param_set)
+            return uri, file_name, render
+
+        to_render = []
         for url, distill_func, file_name_base, status_codes, view_name, a, k in self.urls_to_distill:
             for param_set in self.get_uri_values(distill_func, view_name):
                 if not param_set:
                     param_set = ()
                 elif self._is_str(param_set):
                     param_set = (param_set,)
-                uri = self.generate_uri(url, view_name, param_set)
-                render = self.render_view(uri, status_codes, param_set, a, k)
-                file_name = self._get_filename(file_name_base, uri, param_set)
+                to_render.append((url, view_name, param_set, status_codes, file_name_base, a, k))
+        with ThreadPoolExecutor(max_workers=self.parallel_render) as executor:
+            results = executor.map(_render, to_render)
+            for uri, file_name, render in results:
                 yield uri, file_name, render
 
     def render(self, view_name=None, status_codes=None, view_args=None, view_kwargs=None):
@@ -398,18 +410,18 @@ def write_file(full_path, content):
             raise
 
 
-def get_renderer(urls_to_distill):
+def get_renderer(urls_to_distill, parallel_render=1):
     import_path = getattr(settings, "DISTILL_RENDERER", None)
     if import_path:
         render_cls = import_string(import_path)
     else:
         render_cls = DistillRender
-    return render_cls(urls_to_distill)
+    return render_cls(urls_to_distill, parallel_render)
 
 
-def render_to_dir(output_dir, urls_to_distill, stdout):
+def render_to_dir(output_dir, urls_to_distill, stdout, parallel_render=1):
     load_urls(stdout)
-    renderer = get_renderer(urls_to_distill)
+    renderer = get_renderer(urls_to_distill, parallel_render)
     for page_uri, file_name, http_response in renderer.render():
         full_path, local_uri = get_filepath(output_dir, file_name, page_uri)
         content = http_response.content

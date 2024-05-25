@@ -14,14 +14,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('output_dir', nargs='?', type=str)
-        parser.add_argument('--collectstatic', dest='collectstatic',
-                            action='store_true')
+        parser.add_argument('--collectstatic', dest='collectstatic', action='store_true')
         parser.add_argument('--quiet', dest='quiet', action='store_true')
         parser.add_argument('--force', dest='force', action='store_true')
-        parser.add_argument('--exclude-staticfiles', dest='exclude_staticfiles',
-                            action='store_true')
-        parser.add_argument('--generate-redirects', dest='generate_redirects',
-                            action='store_true')
+        parser.add_argument('--exclude-staticfiles', dest='exclude_staticfiles', action='store_true')
+        parser.add_argument('--generate-redirects', dest='generate_redirects', action='store_true')
+        parser.add_argument('--parallel-render', dest='parallel_render', type=int, default=1)
 
     def _quiet(self, *args, **kwargs):
         pass
@@ -33,6 +31,7 @@ class Command(BaseCommand):
         force = options.get('force')
         exclude_staticfiles = options.get('exclude_staticfiles')
         generate_redirects = options.get('generate_redirects')
+        parallel_render = options.get('parallel_render')
         if quiet:
             stdout = self._quiet
         else:
@@ -82,7 +81,7 @@ class Command(BaseCommand):
         stdout('')
         stdout('Generating static site into directory: {}'.format(output_dir))
         try:
-            render_to_dir(output_dir, urls_to_distill, stdout)
+            render_to_dir(output_dir, urls_to_distill, stdout, parallel_render=parallel_render)
             if not exclude_staticfiles:
                 copy_static_and_media_files(output_dir, stdout)
         except DistillError as err:

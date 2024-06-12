@@ -34,10 +34,12 @@ class AmazonS3Backend(BackendBase):
     def authenticate(self, calling_format=None):
         access_key_id = self.account_username()
         secret_access_key = self.options.get('SECRET_ACCESS_KEY', '')
+        endpoint_url = self.options.get('ENDPOINT_URL', '')
         bucket = self.account_container()
         if access_key_id and secret_access_key:
             self.d['connection'] = boto3.client('s3', aws_access_key_id=access_key_id,
-                                                aws_secret_access_key=secret_access_key)
+                                                aws_secret_access_key=secret_access_key,
+                                                endpoint_url=endpoint_url)
         else:
             self.d['connection'] = boto3.client('s3')
         self.d['bucket'] = bucket

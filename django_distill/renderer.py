@@ -6,7 +6,7 @@ import types
 from shutil import copy2
 from concurrent.futures import ThreadPoolExecutor
 from django.utils.translation import activate as activate_lang
-from django.conf import settings
+from django.conf import settings, global_settings
 from django.urls import include as include_urls, get_resolver
 from django.core.exceptions import ImproperlyConfigured, MiddlewareNotUsed
 from django.utils.module_loading import import_string
@@ -225,13 +225,21 @@ class DistillRender(object):
 
     def get_langs(self):
         langs = []
-        default_lang = str(getattr(settings, 'LANGUAGE_CODE', 'en'))
+        LANGUAGE_CODE = str(getattr(settings, 'LANGUAGE_CODE', 'en'))
+        GLOBAL_LANGUAGES = list(getattr(global_settings, 'LANGUAGES', []))
+        try:
+            LANGUAGES = list(getattr(settings, 'LANGUAGES', []))
+        except (ValueError, TypeError, AttributeError):
+            LANGUAGES = []
         try:
             DISTILL_LANGUAGES = list(getattr(settings, 'DISTILL_LANGUAGES', []))
-        except (ValueError, TypeError, AttributeError):
+        except (ValueError, TypeError, AttributeError) as e:
             DISTILL_LANGUAGES = []
-        if default_lang not in DISTILL_LANGUAGES:
-            langs.append(default_lang)
+        if LANGUAGES != GLOBAL_LANGUAGES:
+            for lang_code, lang_name in LANGUAGES:
+                langs.append(lang_code)
+        if LANGUAGE_CODE not in DISTILL_LANGUAGES and LANGUAGE_CODE not in langs:
+            langs.append(LANGUAGE_CODE)
         for lang in DISTILL_LANGUAGES:
             langs.append(lang)
         return langs

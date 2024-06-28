@@ -7,7 +7,7 @@ except ImportError:
     name = 'django_distill.backends.amazon_s3'
     pipm = 'boto3'
     sys.stdout.write('{} backend requires {}:\n'.format(name, pipm))
-    sys.stdout.write('$ pip install .[amazon]{}\n\n'.format(pipm))
+    sys.stdout.write('$ pip install django-distill[amazon]{}\n\n'.format(pipm))
     raise
 
 from django_distill.errors import DistillPublishError

@@ -287,6 +287,10 @@ and `/de/some-file.html`. These URLs should work (and be translated) by your
 site already. `django-distill` doesn't do any translation magic, it just
 calls the URLs with the language code prefix.
 
+**Note** While the default suggested method is to use `settings.DISTILL_LANGUAGES`
+to keep things seperate `django-distill` will also check `settings.LANGUAGES` for
+language codes.
+
 
 # The `distill-local` command
 
@@ -323,7 +327,7 @@ threads, this can speed up rendering. Defaults to `1` thread.
 this flag will create a static HTML `<meta http-equiv="refresh" content="...">`
 style redirect at `/old/index.html` to `/new/`.
 
-**Note**  If any of your views contain a Python error then rendering will fail
+**Note** If any of your views contain a Python error then rendering will fail
 then the stack trace will be printed to the terminal and the rendering command
 will exit with a status code of 1.
 

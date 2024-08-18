@@ -292,6 +292,30 @@ to keep things seperate `django-distill` will also check `settings.LANGUAGES` fo
 language codes.
 
 
+### Sitemaps
+
+You may need to generate a list of all the URLs registered with `django-distill`.
+For example, you have a statically generated blog with a few hundred pages and
+you want to list all of the URLs easily in a `sitemap.xml` or other similar list
+of all URLs. You could wrap your sitemap view in `distill_path` then replicate
+all of your URL generation logic by importing your views `distill_func`s from
+your `urls.py` and generating these all manually, but given this is quite a hassle
+there's a built-in helper to generate all your URLs that will be distilled for you.
+
+```python
+from django_distill import distilled_urls
+
+for uri, file_name in distilled_urls():
+    # URI is the generated, complete URI for the page
+    print(uri)        # for example: /blog/my-post-123/
+    # file_name is the actual file name on disk, this may be None or a string
+    print(file_name)  # for example: /blog/my-post-123/index.html
+```
+
+**Note** that `distilled_urls()` will only return URLs after all of your URLs
+in `urls.py` have been loaded with `distill_path(...)`.
+
+
 # The `distill-local` command
 
 Once you have wrapped the URLs you want to generate statically you can now

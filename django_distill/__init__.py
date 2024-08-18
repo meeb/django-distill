@@ -3,6 +3,8 @@ __version__ = '3.2.4'
 
 from django import __version__ as django_version
 from django_distill.errors import DistillError
+from django_distill.distill import urls_to_distill
+from django_distill.renderer import generate_urls
 
 
 try:
@@ -31,3 +33,7 @@ except ImportError:
         err = ('Your installed version of Django ({}) does not supprt '
                'django.urls.path, please upgrade')
         raise DistillError(err.format(django_version))
+
+
+def distilled_urls():
+    return generate_urls(urls_to_distill)

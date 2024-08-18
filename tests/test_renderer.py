@@ -12,6 +12,7 @@ from django.utils.translation import activate as activate_lang
 from django_distill.distill import urls_to_distill
 from django_distill.renderer import DistillRender, render_to_dir, render_single_file, get_renderer
 from django_distill.errors import DistillError
+from django_distill import distilled_urls
 
 
 class CustomRender(DistillRender):
@@ -489,3 +490,46 @@ class DjangoDistillRendererTestSuite(TestCase):
             for expected_file in expected_files:
                 filepath = os.path.join(tmpdirname, *expected_file)
                 self.assertIn(filepath, written_files)
+
+    def test_generate_urls(self):
+        urls = distilled_urls()
+        generated_urls = []
+        for url, file_name in urls:
+            generated_urls.append(url)
+        expected_urls = (
+            '/path/namespace1/sub-url-in-namespace',
+            '/path/namespace1/path/sub-namespace/sub-url-in-sub-namespace',
+            '/path/no-namespace/sub-url-in-no-namespace',
+            '/en/path/i18n/sub-url-with-i18n-prefix',
+            '/re_path/',
+            '/re_path-no-func/',
+            '/re_path/12345',
+            '/re_path/67890',
+            '/re_path/x/12345',
+            '/re_path/x/67890',
+            '/re_path/test',
+            '/re_path/x/test',
+            '/re_path/broken',
+            '/re_path/ignore-sessions',
+            '/re_path/404',
+            '/re_path/flatpage/flat/page1.html',
+            '/re_path/flatpage/flat/page2.html',
+            '/path/',
+            '/path-no-func/',
+            '/path/12345',
+            '/path/67890',
+            '/path/x/12345',
+            '/path/x/67890',
+            '/path/test',
+            '/path/x/test',
+            '/path/broken',
+            '/path/ignore-sessions',
+            '/path/404',
+            '/path/flatpage/flat/page1.html',
+            '/path/flatpage/flat/page2.html',
+            '/path/test-sitemap',
+            '/path/kwargs',
+            '/path/humanize',
+            '/path/has-resolver-match'
+        )
+        self.assertEqual(sorted(generated_urls), sorted(expected_urls))

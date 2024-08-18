@@ -184,15 +184,18 @@ class DistillRender(object):
         file_name = self._get_filename(file_name, uri, args)
         return uri, file_name, render
 
-    def render_all_urls(self):
+    def render_all_urls(self, do_render=True):
 
         def _render(item):
             rtn = []
             for lang in self.get_langs():
                 activate_lang(lang)
-                url, view_name, param_set, status_codes, file_name_base, a, k = item
+                url, view_name, param_set, status_codes, file_name_base, a, k, do_render = item
                 uri = self.generate_uri(url, view_name, param_set)
-                render = self.render_view(uri, status_codes, param_set, a, k)
+                if do_render:
+                    render = self.render_view(uri, status_codes, param_set, a, k)
+                else:
+                    render = None
                 file_name = self._get_filename(file_name_base, uri, param_set)
                 rtn.append((uri, file_name, render))
             return rtn
@@ -204,7 +207,7 @@ class DistillRender(object):
                     param_set = ()
                 elif self._is_str(param_set):
                     param_set = (param_set,)
-                to_render.append((url, view_name, param_set, status_codes, file_name_base, a, k))
+                to_render.append((url, view_name, param_set, status_codes, file_name_base, a, k, do_render))
         with ThreadPoolExecutor(max_workers=self.parallel_render) as executor:
             results = executor.map(_render, to_render)
             for i18n_result in results:
@@ -222,6 +225,10 @@ class DistillRender(object):
             return self.render_file(view_name, status_codes, view_args, view_kwargs)
         else:
             return self.render_all_urls()
+
+    def urls(self):
+        for (uri, file_name, _) in self.render_all_urls(do_render=False):
+            yield uri, file_name
 
     def get_langs(self):
         langs = []
@@ -473,6 +480,12 @@ def render_single_file(output_dir, view_name, *args, **kwargs):
     content = http_response.content
     write_file(full_path, content)
     return True
+
+
+def generate_urls(urls_to_distill):
+    load_urls()
+    renderer = get_renderer(urls_to_distill)
+    return renderer.urls()
 
 
 def render_static_redirect(destination_url):

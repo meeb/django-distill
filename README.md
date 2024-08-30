@@ -584,6 +584,8 @@ by `django-distill` are:
     'ACCESS_KEY_ID': '...',
     'SECRET_ACCESS_KEY': '...',
     'BUCKET': '...',
+    'ENDPOINT_URL': 'https://.../',  # Optional, set to use a different S3 endpoint
+    'DEFAULT_CONTENT_TYPE': 'application/octet-stream',  # Optional
 },
 ```
 

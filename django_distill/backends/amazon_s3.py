@@ -61,9 +61,10 @@ class AmazonS3Backend(BackendBase):
         return local_hash == obj['ETag'][1:-1]
 
     def upload_file(self, local_name, remote_name):
+        default_content_type = self.options.get('DEFAULT_CONTENT_TYPE', 'application/octet-stream')
         content_type, _ = mimetypes.guess_type(local_name)
         if content_type is None:
-            content_type = 'application/octet-stream'
+            content_type = default_content_type
         extra_args = {'ContentType': content_type}
         self.d['connection'].upload_file(local_name, self.d['bucket'], remote_name, ExtraArgs=extra_args)
 

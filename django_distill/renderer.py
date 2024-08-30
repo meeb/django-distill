@@ -392,8 +392,11 @@ def filter_dirs(dirs):
     DISTILL_SKIP_ADMIN_DIRS = bool(getattr(settings, 'DISTILL_SKIP_ADMIN_DIRS', True))
     _ignore_dirs = []
     if DISTILL_SKIP_ADMIN_DIRS:
-        _ignore_dirs.append('admin')
-        _ignore_dirs.append('grappelli')
+        _ignore_dirs = [
+            'admin',
+            'grappelli',
+            'unfold',
+        ]
     try:
         DISTILL_SKIP_STATICFILES_DIRS = list(getattr(settings, 'DISTILL_SKIP_STATICFILES_DIRS', []))
     except (ValueError, TypeError):

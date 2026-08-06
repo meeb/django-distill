@@ -31,7 +31,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          uv pip install --system -e ".[test]"
-          uv pip install --system "Django==${{ matrix.django-version }}.*"
+          uv venv --python ${{ matrix.python-version }}
+          uv pip install -e ".[test]"
+          uv pip install Django==${{ matrix.django-version }}.*"
       - name: Run Django tests
         run: uv run manage.py testsuite

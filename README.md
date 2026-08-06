@@ -52,7 +52,8 @@ The following changes are implemented in version 4.0.0 and later:
 
 As of `django-distill` version 4.0.0 logging of rendering has been moved to using the standard
 `logging` module. If you don't see full logs when running `distill generate` or other commands, 
-you will likely need to configure a `console` handler for your `settings.LOGGING` configuration.
+you will likely need to configure a `console` handler for your `settings.LOGGING` configuration
+with the `level` set to `INFO`.
 
 
 ## Optional extras

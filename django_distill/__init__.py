@@ -10,7 +10,7 @@ __all__ = [
     "get_distilled_urls",
     "urls_to_distill",
 ]
-__version__ = "4.0.1"
+__version__ = "4.0.2"
 
 
 # Populated by django_distill.apps.DistillConfig.ready()

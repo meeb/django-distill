@@ -3,9 +3,9 @@ import tempfile
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib.flatpages.models import FlatPage
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TransactionTestCase
 from django.utils.translation import activate as activate_lang
-from django.core.exceptions import ImproperlyConfigured
 
 from django_distill.errors import DistillError
 from django_distill.renderer import DistillRenderer, render_uri, write_single_pattern

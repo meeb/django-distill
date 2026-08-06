@@ -10,8 +10,8 @@ from django.shortcuts import render
 from django.urls import include, path, re_path, reverse
 from django.utils import timezone
 
-from django_distill.utils import set_func_attr
 from django_distill import distill_path
+from django_distill.utils import set_func_attr
 
 app_name = "django-distill-tests"
 

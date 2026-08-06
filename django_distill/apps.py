@@ -82,8 +82,12 @@ class DistillConfig(AppConfig):
         urls.re_path = urls.conf.re_path
 
         # Shims to make the interface compatible with django_distill > 4.0.0
-        django_distill.distill_path = partial(_distilled_path_enabled, Pattern=RoutePattern)
-        django_distill.distill_re_path = partial(_distilled_path_enabled, Pattern=RegexPattern)
+        django_distill.distill_path = partial(
+            _distilled_path_enabled, Pattern=RoutePattern
+        )
+        django_distill.distill_re_path = partial(
+            _distilled_path_enabled, Pattern=RegexPattern
+        )
 
         # Iterate all loaded URLs and store any URLs defined as a Distilled path.
         for pattern, namespace, _ in iter_url_patterns():

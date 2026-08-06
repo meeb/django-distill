@@ -45,6 +45,14 @@ The following changes are implemented in version 4.0.0 and later:
 * Consolidation of commands into a single `distill` command
 * Full compatibility when integrated with other contrib modules, such as `humanize`, `sitemaps`, `flatpages` etc.
 * Using normal logging and the usual Django logging configuration
+* Messages of rendering changed to use the standard `logging` module
+
+
+## Logging
+
+As of `django-distill` version 4.0.0 logging of rendering has been moved to using the standard
+`logging` module. If you don't see full logs when running `distill generate` or other commands, 
+you will likely need to configure a `console` handler for your `settings.LOGGING` configuration.
 
 
 ## Optional extras

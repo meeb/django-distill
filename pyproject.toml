@@ -1,27 +1,68 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "django-distill"
 version = "4.0.0"
-description = "Minimal configuration static site generator for Django"
+description = "Static site renderer and publisher for Django."
 readme = "README.md"
+authors = [
+  { name = "https://github.com/meeb", email = "meeb@meeb.org" }
+]
+license = { text = "MIT" }
 requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = [
+    "django",
+    "distill",
+    "static",
+    "website",
+    "jamstack",
+    "s3",
+    "amazon s3",
+    "aws",
+    "amazon",
+    "google",
+    "microsoft",
+    "google cloud",
+    "google cloud storage",
+    "azure",
+    "azure storage",
+    "azure blob storage",
+]
 dependencies = [
     "django>=5.2",
     "typing-extensions>=4.16.0",
 ]
 
+[project.optional-dependencies]
+amazon = ["boto3"]
+google = ["google-api-python-client", "google-cloud-storage"]
+microsoft = ["azure-storage-blob"]
+
+[project.urls]
+Homepage = "https://github.com/meeb/django-distill"
+
+[tool.setuptools]
+packages = { find = {} }
+include-package-data = true
+
 [dependency-groups]
 dev = [
     "ruff>=0.14.3",
-]
-
-[project.optional-dependencies]
-amazon = [
-  "boto3>=1.40.68"
-]
-google = [
-    "google-cloud-storage>=3.5.0",
-]
-microsoft = [
-    "azure-identity>=1.25.1",
-    "azure-storage-blob>=12.27.1",
 ]

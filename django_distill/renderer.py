@@ -8,7 +8,6 @@ from types import TracebackType
 from django.conf import settings
 from django.urls import URLPattern
 from django.utils.translation import activate as activate_lang
-from typing_extensions import Self
 
 from .errors import DistillError, DistillRenderError
 from .request import (
@@ -171,7 +170,7 @@ class DistillRenderer:
         self.enable_debug = enable_debug
         self.concurrency = concurrency
 
-    def __enter__(self) -> Self:
+    def __enter__(self) -> "DistillRenderer":
         if self.hostname:
             settings.ALLOWED_HOSTS = [self.hostname]
         else:

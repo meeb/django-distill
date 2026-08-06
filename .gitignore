@@ -60,5 +60,8 @@ target/
 .vscode
 .idea
 
+# SQLite
+*.sqlite3
+
 # Pipenv lockfile
 Pipfile.lock

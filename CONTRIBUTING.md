@@ -93,13 +93,11 @@ Enhancement suggestions are tracked as [GitHub issues](/issues).
 Sensible and well formatted, easy to follow and concise pull requests are welcome. We may not merge your requested feature but it will be reviewed and discussed.
 
 
-
 ### Improving The Documentation
 
 Sensible and well formatted, easy to follow and concise amendments to the documentation submitted as pull requests are welcome.
 
 
-
 ## Maintainers
 
-`django-distill` is not currently looking for additional maintainers or administrators, however contributions are welcome.
+`django-distill` is not currently looking for additional maintainers or administrators, however, contributions are welcome.

@@ -1,10 +1,14 @@
 class DistillError(Exception):
-    pass
+    """Base class for all Distill errors."""
 
 
 class DistillWarning(RuntimeWarning):
-    pass
+    """Base class for all Distill warnings."""
 
 
-class DistillPublishError(Exception):
-    pass
+class DistillPublishError(DistillError):
+    """Raised when there is an error publishing a Distilled site."""
+
+
+class DistillRenderError(DistillError):
+    """Raised when there is an error rendering a Distilled site."""

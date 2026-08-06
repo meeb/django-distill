@@ -1,35 +1,53 @@
 # django-distill
 
-`django-distill` now has a website. Read more at:
-
-## :link: https://django-distill.com/
-
 `django-distill` is a minimal configuration static site generator and publisher
-for Django. Most Django versions are supported, however up to date versions are
-advised including the Django 3.x releases. `django-distill` as of the 1.7 release
-only supports Python 3. Python 2 support has been dropped. If you require Python 2
-support please pin `django-distill` to version 1.6 in your requirements.txt or
-Pipfile. Python 3.6 or above is advised.
+for Django. Most Django versions are supported, however, up-to-date versions are
+ advised, including the Django 5.x releases.
 
 `django-distill` extends existing Django sites with the ability to export
 fully functional static sites. It is suitable for sites such as blogs that have
-a mostly static front end but you still want to use a CMS to manage the
+a mostly static front-end but you still want to use a CMS to manage the
 content.
 
-`django-distill` iterates over URLs in your Django project using easy to write
+`django-distill` iterates over URLs in your Django project using easy-to-write
 iterable functions to yield the parameters for whatever pages you want to save
 as static HTML. These static files can be automatically uploaded to a bucket-style
 remote container such as Amazon S3, Googe Cloud Files, Microsoft Azure Storage,
-or, written to a local directory as a fully working local static version of
+ or written to a local directory as a fully working local static version of
 your project. The site generation, or distillation process, can be easily
 integrated into CI/CD workflows to auto-deploy static sites on commit.
 `django-distill` can be defined as an extension to Django to make Django
-projects compatible with "Jamstack"-style site architecture.
+projects compatible with any static site hosting.
 
 `django-distill` plugs directly into the existing Django framework without the
 need to write custom renderers or other more verbose code. You can also integrate
 `django-distill` with existing dynamic sites and just generate static pages for
 a small subsection of pages rather than the entire site.
+
+
+## 4.0.0 and later
+
+`django-distill` 4.0.0 and later is a ground-up rebuild of `django-distll`.
+Full compatability with `django-distll` 3.x.x and older is not guaranteed. The API
+and interfaces have been made as compatible as possible with previous versions of
+`django-distll`, however, some method names and interfaces may have changed. You
+should treat upgrading to `django-distill` 4.0.0 and later as a breaking change and
+review the documentation as well as thoroughly test your projects.
+
+The following changes are implemeted in version 4.0.0 and later:
+
+* Usage of the Django test framework has been replaced with internal WSGI requests
+* Modernisation of the codebase, removal of legacy Python and legacy Django support
+* Type hints and linted (with ruff) and packaged via uv
+* Improved test coverage
+* Broadly compatible where possible with the logic and implementation of Django Distill
+* Switch to using patched `URLPattern`s rather than custom `path(...)` overrides
+* Consolidation of commands into a single `distill` command
+* Full compatability when integrated with other contrib modules, such as `humanize`, `sitemaps`, `flatpages` etc.
+* Using normal logging and the usual Django logging configuration
+
+
+## Optional extras
 
 For static files on CDNs you can use the following 'cache buster' library to
 allow for fast static media updates when pushing changes:
@@ -45,7 +63,7 @@ available here:
 
 # Installation
 
-Install from pip:
+Install from pip (or pipenv or uv or poetry etc.):
 
 ```bash
 $ pip install django-distill
@@ -56,7 +74,7 @@ Add `django_distill` to your `INSTALLED_APPS` in your `settings.py`:
 ```python
 INSTALLED_APPS = [
     # ... other apps here ...
-    'django_distill',
+    "django_distill",
 ]
 ```
 
@@ -108,10 +126,12 @@ from django_distill import distill_path
 from blog.views import PostIndex, PostView, PostYear
 from blog.models import Post
 
+
 def get_index():
     # The index URI path, '', contains no parameters, named or otherwise.
     # You can simply just return nothing here.
     return None
+
 
 def get_all_blogposts():
     # This function needs to return an iterable of dictionaries. Dictionaries
@@ -119,7 +139,8 @@ def get_all_blogposts():
     # You can just export a small subset of values here if you wish to
     # limit what pages will be generated.
     for post in Post.objects.all():
-        yield {'blog_id': post.id, 'blog_title': post.title}
+        yield {"blog_id": post.id, "blog_title": post.title}
+
 
 def get_years():
     # You can also just return an iterable containing static strings if the
@@ -127,27 +148,34 @@ def get_years():
     return (2014, 2015)
     # This is really just shorthand for ((2014,), (2015,))
 
+
 urlpatterns = (
     # e.g. / the blog index
-    distill_path('',
-                 PostIndex.as_view(),
-                 name='blog-index',
-                 # Note that for paths which have no paramters
-                 # distill_func is optional
-                 distill_func=get_index,
-                 # '' is not a valid file name! override it to index.html
-                 distill_file='index.html'),
+    distill_path(
+        "",
+        PostIndex.as_view(),
+        name="blog-index",
+        # Note that for paths which have no paramters
+        # distill_func is optional
+        distill_func=get_index,
+        # '' is not a valid file name! override it to index.html
+        distill_file="index.html",
+    ),
     # e.g. /post/123-some-post-title using named parameters
-    distill_path('post/<int:blog_id>-<slug:blog_title>.html',
-                 PostView.as_view(),
-                 name='blog-post',
-                 distill_func=get_all_blogposts),
+    distill_path(
+        "post/<int:blog_id>-<slug:blog_title>.html",
+        PostView.as_view(),
+        name="blog-post",
+        distill_func=get_all_blogposts,
+    ),
     # e.g. /posts-by-year/2015 using positional parameters
     # url ends in / so file path will have /index.html appended
-    distill_path('posts-by-year/<int:year>/',
-                 PostYear.as_view(),
-                 name='blog-year',
-                 distill_func=get_years),
+    distill_path(
+        "posts-by-year/<int:year>/",
+        PostYear.as_view(),
+        name="blog-year",
+        distill_func=get_years,
+    ),
 )
 ```
 
@@ -176,26 +204,12 @@ urlpatterns = (
 
 ```
 
-If you are using an older version of Django in the 1.x series you can use the
-`distill_url` function instead which replaces the `django.conf.urls.url` or
-`django.urls.url` functions. Its usage is identical to the above:
-
-```python
-from django_distill import distill_url
-
-urlpatterns = (
-    distill_url(r'some/regex'
-                SomeView.as_view(),
-                name='url-view',
-                distill_func=some_func),
-)
-```
 
 ### Parameters in file names
 
 You can use standard Python string formatting in `distill_file` as well to enable
 you to change the output file path for a file if you wish. Note this does not
-update the URL used by Django so if you use this make sure your `path` pattern
+update the URL used by Django, so if you use this, make sure your `path` pattern
 matches the `distill_file` pattern or your links might not work in Django. An
 example:
 
@@ -214,7 +228,7 @@ urlpatterns = (
 
 All views rendered by `django-distill` into static pages must return an HTTP 200 status
 code. If for any reason you need to render a view which does not return an HTTP 200
-status code, for example you also want to statically generate a 404 page which has a
+status code, for example, you also want to statically generate a 404 page which has a
 view which (correctly) returns an HTTP 404 status code you can use the
 `distill_status_codes` optional argument to a view. For example:
 
@@ -231,7 +245,7 @@ urlpatterns = (
 ```
 
 The optional `distill_status_codes` argument accepts a tuple of status codes as integers
-which are permitted for the view to return without raising an error. By default this is
+which are permitted for the view to return without raising an error. By default, this is
 set to `(200,)` but you can override it if you need to for your site.
 
 ### Tracking Django's URL function support
@@ -246,7 +260,7 @@ use `distill_path` or `distill_re_path` if you're building a new site now.
 ### Internationalization
 
 Internationalization is only supported for URLs, page content is unable to be
-dynamically translated. By default your site will be generated using the
+dynamically translated. By default, your site will be generated using the
 `LANGUAGE_CODE` value in your `settings.py`. If you also set `settings.USE_I18N` to
 `True` then set other language codes in your `settings.DISTILL_LANGUAGES` value and register
 URLs with `i18n_patterns(...)` then your site will be generated in multiple languges.
@@ -261,9 +275,9 @@ If you have something like this in your `settings.py` instead:
 USE_I18N = True
 
 DISTILL_LANGUAGES = [
-    'en',
-    'fr',
-    'de',
+    "en",
+    "fr",
+    "de",
 ]
 ```
 
@@ -274,10 +288,8 @@ from django.conf.urls.i18n import i18n_patterns
 from django_distill import distill_path
 
 urlpatterns = i18n_patterns(
-    distill_path('some-file.html',
-                 SomeView.as_view(),
-                 name='i18n-view',
-                 distill_func=some_func
+    distill_path(
+        "some-file.html", SomeView.as_view(), name="i18n-view", distill_func=some_func
     )
 )
 ```
@@ -307,7 +319,7 @@ from django_distill import distilled_urls
 
 for uri, file_name in distilled_urls():
     # URI is the generated, complete URI for the page
-    print(uri)        # for example: /blog/my-post-123/
+    print(uri)  # for example: /blog/my-post-123/
     # file_name is the actual file name on disk, this may be None or a string
     print(file_name)  # for example: /blog/my-post-123/index.html
 ```
@@ -322,7 +334,7 @@ Once you have wrapped the URLs you want to generate statically you can now
 generate a complete functioning static site with:
 
 ```bash
-$ ./manage.py distill-local [optional /path/to/export/directory]
+$ ./manage.py distill generate --output-directory [optional /path/to/export/directory]
 ```
 
 Under the hood this simply iterates all URLs registered with `distill_url` and
@@ -331,7 +343,7 @@ spoof requests. Once the site pages have been rendered then files from the
 `STATIC_ROOT` are copied over. Existing files with the same name are replaced in
 the target directory and orphan files are deleted.
 
-`distill-local` supports the following optional arguments:
+`distill generate` supports the following optional arguments:
 
 `--collectstatic`: Automatically run `collectstatic` on your site before
 rendering, this is just a shortcut to save you typing an extra command.
@@ -356,14 +368,14 @@ then the stack trace will be printed to the terminal and the rendering command
 will exit with a status code of 1.
 
 
-# The `distill-publish` command
+# The `distill publish` command
 
 ```bash
-$ ./manage.py distill-publish [optional destination here]
+$ ./manage.py distill publish --target=[optional destination here]
 ```
 
 If you have configured at least one publishing destination (see below) you can
-use the `distill-publish` command to publish the site to a remote location.
+use the `distill publish` command to publish the site to a remote location.
 
 This will perform a full synchronisation, removing any remote files that are no
 longer present in the generated static site and uploading any new or changed
@@ -372,7 +384,7 @@ publishing which is deleted once the site has been published. Each file will be
 checked that it has been published correctly by requesting it via the
 `PUBLIC_URL`.
 
-`distill-publish` supports the following optional arguments:
+`distill publish` supports the following optional arguments:
 
 `--collectstatic`: Automatically run `collectstatic` on your site before
 rendering, this is just a shortcut to save you typing an extra command.
@@ -411,17 +423,41 @@ then the stack trace will be printed to the terminal and the rendering command
 will exit with a status code of 1.
 
 
-# The `distill-test-publish` command
+# The `distill test-target` command
 
 ```bash
-$ ./manage.py distill-test-publish [optional destination here]
+$ ./manage.py distill test-target --target=[optional destination here]
 ```
 
 This will connect to your publishing target, authenticate to it, upload a
 randomly named file, verify it exists on the `PUBLIC_URL` and then delete it
 again. Use this to check your publishing settings are correct.
 
-`distill-test-publish` has no arguments.
+`distill test-target` has no additional arguments.
+
+
+# The `distill list-static-urls` command
+
+```bash
+$ ./manage.py distill list-static-urls
+```
+
+This command will output any paths in your Django project which have been
+registered as static paths for Distill to generate.
+
+`distill list-static-urls` has no additional arguments.
+
+
+# The `distill list-publish-targets` command
+
+```bash
+$ ./manage.py distill list-publish-targets
+```
+
+This command will output any targets specified in your `settings.py` with
+the `DISTILL_PUBLISH` dictionary.
+
+`distill list-publish-targets` has no additional arguments.
 
 
 # Optional configuration settings
@@ -431,7 +467,7 @@ You can set the following optional `settings.py` variables:
 **DISTILL_DIR**: string, default directory to export to:
 
 ```python
-DISTILL_DIR = '/path/to/export/directory'
+DISTILL_DIR = "/path/to/export/directory"
 ```
 
 **DISTILL_PUBLISH**: dictionary, like Django's `settings.DATABASES`, supports
@@ -463,7 +499,7 @@ files.
 **DISTILL_SKIP_STATICFILES_DIRS**: list, defaults to `[]`
 
 ```python
-DISTILL_SKIP_STATICFILES_DIRS = ['some_dir']
+DISTILL_SKIP_STATICFILES_DIRS = ["some_dir"]
 ```
 
 Set `DISTILL_SKIP_STATICFILES_DIRS` to a list of directory names you want `django-distill`
@@ -477,9 +513,9 @@ to `['some_dir']` the static files directory `static/some_dir` would be skipped.
 
 ```python
 DISTILL_LANGUAGES = [
-    'en',
-    'fr',
-    'de',
+    "en",
+    "fr",
+    "de",
 ]
 ```
 
@@ -511,13 +547,14 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django_distill.renderer import render_single_file
 
+
 @receiver(post_save, sender=SomeBlogPostModel)
 def write_blog_post_static_file_post_save(sender, **kwargs):
     render_single_file(
-        '/path/to/output/directory',
-        'blog-post-view-name',
+        "/path/to/output/directory",
+        "blog-post-view-name",
         blog_id=sender.pk,
-        blog_slug=sender.slug
+        blog_slug=sender.slug,
     )
 ```
 
@@ -526,31 +563,32 @@ usage interface is:
 
 ```python
 render_single_file(
-    '/path/to/output/directory',
-    'view-name-set-in-urls-py',
-    *view_args,
-    **view_kwargs
+    "/path/to/output/directory", "view-name-set-in-urls-py", *view_args, **view_kwargs
 )
 ```
 
 For example, if you had a blog post URL defined as:
 
 ```python
-    # in urls.py
-    distill_path('post/<int:blog_id>_<slug:blog_slug>.html',
-                 PostView.as_view(),
-                 name='blog-post',
-                 distill_func=get_all_blogposts),
+# in urls.py
+(
+    distill_path(
+        "post/<int:blog_id>_<slug:blog_slug>.html",
+        PostView.as_view(),
+        name="blog-post",
+        distill_func=get_all_blogposts,
+    ),
+)
 ```
 
 Your usage would be:
 
 ```python
 render_single_file(
-    '/path/to/output/directory',
-    'blog-post',
+    "/path/to/output/directory",
+    "blog-post",
     blog_id=123,
-    blog_slug='blog-title-slug',
+    blog_slug="blog-title-slug",
 )
 ```
 

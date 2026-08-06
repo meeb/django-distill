@@ -12,39 +12,28 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14', 'pypy3.10', 'pypy3.11']
-        django-version: ['3.2', '4.2', '5.2', '6.0']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        django-version: ['5.2', '6.0', '6.1']
         exclude:
-          - django-version: '3.2'
-            python-version: '3.11'
-          - django-version: '3.2'
-            python-version: '3.12'
-          - django-version: '3.2'
-            python-version: '3.13'
-          - django-version: '3.2'
-            python-version: '3.14'
-          - django-version: '4.2'
-            python-version: '3.13'
-          - django-version: '4.2'
-            python-version: '3.14'
           - django-version: '6.0'
             python-version: '3.10'
           - django-version: '6.0'
             python-version: '3.11'
-          - django-version: '6.0'
-            python-version: 'pypy3.10'
-          - django-version: '6.0'
-            python-version: 'pypy3.11'
+          - django-version: '6.1'
+            python-version: '3.10'
+          - django-version: '6.2'
+            python-version: '3.11'
     steps:
-      - uses: actions/checkout@v4
-      - name: Install Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1     # v7.0.1
+      - name: Install uv and set the Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9   # v9.0.0
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Set up Python
+        run: uv python install
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install "Django==${{ matrix.django-version }}.*"
+          uv sync
+          uv pip install pip install "Django==${{ matrix.django-version }}.*"
       - name: Run Django tests
-        run: ./run-tests.py
+        run: uv run manage.py testsuite

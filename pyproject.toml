@@ -1,0 +1,27 @@
+[project]
+name = "django-distill"
+version = "4.0.0"
+description = "Minimal configuration static site generator for Django"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "django>=5.2",
+    "typing-extensions>=4.16.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.3",
+]
+
+[project.optional-dependencies]
+amazon = [
+  "boto3>=1.40.68"
+]
+google = [
+    "google-cloud-storage>=3.5.0",
+]
+microsoft = [
+    "azure-identity>=1.25.1",
+    "azure-storage-blob>=12.27.1",
+]

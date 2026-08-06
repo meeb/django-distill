@@ -1,14 +1,26 @@
-from importlib import import_module
+from io import StringIO
+
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase
 
 
-class DjangoDistillCommandTestSuite(TestCase):
+class DistillCommandsTestSuite(TestCase):
+    def test_command_help(self):
+        with StringIO() as o:
+            call_command("distill", "help", stdout=o)
+            o.seek(0)
+            command_output = o.read()
+            command_lines = command_output.split("\n")
+            self.assertEqual(command_lines[0], "Generates a local static site")
 
-    def test_command_imports_distill_local(self):
-        import_module('django_distill.management.commands.distill-local')
+    def test_unknown_command(self):
+        with self.assertRaises(CommandError):
+            call_command("distill", "unknown")
 
-    def test_command_imports_distill_publish(self):
-        import_module('django_distill.management.commands.distill-publish')
-
-    def test_command_imports_distill_test_publish(self):
-        import_module('django_distill.management.commands.distill-test-publish')
+    def test_quiet_flag(self):
+        with StringIO() as o:
+            call_command("distill", "help", "--quiet", stdout=o)
+            o.seek(0)
+            command_output = o.read()
+            self.assertEqual(command_output, "")

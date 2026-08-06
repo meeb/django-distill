@@ -1,39 +1,19 @@
-__version__ = '3.2.7'
+from django_distill.urls import (
+    add_distilled_url,
+    get_distilled_url_by_name,
+    get_distilled_urls,
+)
+
+__all__ = [
+    "add_distilled_url",
+    "get_distilled_url_by_name",
+    "get_distilled_urls",
+    "urls_to_distill",
+]
+__version__ = "4.0.0"
 
 
-from django import __version__ as django_version
-from django_distill.errors import DistillError
-from django_distill.distill import urls_to_distill
-from django_distill.renderer import generate_urls
-
-
-try:
-    from django_distill.distill import distill_url
-except ImportError:
-    def distill_url(*args, **kwargs):
-        err = ('Your installed version of Django ({}) does not supprt '
-               'django.urls.url or django.conf.urls.url, use '
-               'django_distill.distill_re_path or django_distill.distill_path')
-        raise DistillError(err.format(django_version))
-
-
-try:
-    from django_distill.distill import distill_re_path
-except ImportError:
-    def distill_re_path(*args, **kwargs):
-        err = ('Your installed version of Django ({}) does not supprt '
-               'django.urls.re_path, please upgrade')
-        raise DistillError(err.format(django_version))
-
-
-try:
-    from django_distill.distill import distill_path
-except ImportError:
-    def distill_path(*args, **kwargs):
-        err = ('Your installed version of Django ({}) does not supprt '
-               'django.urls.path, please upgrade')
-        raise DistillError(err.format(django_version))
-
-
-def distilled_urls():
-    return generate_urls(urls_to_distill)
+# Populated by django_distill.apps.DistillConfig.ready()
+urls_to_distill = []
+distill_path = None
+distill_re_path = None

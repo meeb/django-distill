@@ -1,8 +1,9 @@
+import mimetypes
 import os
+import pathlib
 import tempfile
 from binascii import hexlify
 from collections.abc import Generator
-from pathlib import Path
 
 from django.conf import global_settings, settings
 from django.urls import URLPattern, URLResolver, get_resolver
@@ -78,6 +79,36 @@ def get_langs() -> list[str]:
     for lang in distill_languages:
         langs.append(str(lang))
     return sorted(langs)
+
+
+def guess_filepath_type(filepath: pathlib.Path) -> str:
+    """
+    Guess the file type based on the file extension.
+    """
+    if hasattr(mimetypes, "guess_file_type"):
+        # Python >= 3.13
+        return mimetypes.guess_file_type(filepath)
+    else:
+        return mimetypes.guess_type(filepath)
+
+
+class Path(type(pathlib.Path())):
+    """
+    A shim for pathlib.Path that adds the walk() method for Python < 3.12.
+    """
+
+    def walk(self, top_down=True, on_error=None, follow_symlinks=False):
+        """
+        Walk the directory tree, yielding a tuple of (root, dirs, files).
+        This is a shim for pathlib.Path.walk() added in Python 3.12.
+        """
+        if hasattr(super(), "walk"):
+            yield from super().walk(top_down, on_error, follow_symlinks)
+        else:
+            for root, dirs, files in os.walk(
+                self, topdown=top_down, onerror=on_error, followlinks=follow_symlinks
+            ):
+                yield Path(root), dirs, files
 
 
 class NamedTestFile:

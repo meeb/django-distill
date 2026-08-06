@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from django.apps import apps as django_apps
@@ -7,6 +6,7 @@ from django.contrib.redirects.models import Redirect
 from django.test import TestCase
 
 from django_distill.renderer import render_redirects, render_static_redirect
+from django_distill.utils import Path
 
 
 class StaticSiteRedirectsTestSuite(TestCase):

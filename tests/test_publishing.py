@@ -1,11 +1,11 @@
 import tempfile
 from hashlib import sha256
-from pathlib import Path
 
 from django.test import TestCase
 
 from django_distill.errors import DistillPublishError
 from django_distill.publisher import PublisherBackendBase
+from django_distill.utils import Path
 
 
 class TestBackend(PublisherBackendBase):

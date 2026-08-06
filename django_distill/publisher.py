@@ -7,8 +7,6 @@ from hashlib import md5
 from http.client import HTTPConnection, HTTPSConnection
 from importlib import import_module
 from logging import getLogger
-from mimetypes import guess_file_type
-from pathlib import Path
 from sys import stderr
 from types import ModuleType
 from typing import Any
@@ -16,8 +14,9 @@ from urllib.parse import urlsplit, urlunsplit
 
 from django.conf import settings
 
-from .errors import DistillPublishError
-from .static import filter_static_dirs
+from django_distill.errors import DistillPublishError
+from django_distill.static import filter_static_dirs
+from django_distill.utils import Path, guess_filepath_type
 
 log = getLogger("main")
 
@@ -173,7 +172,7 @@ class PublisherBackendBase:
         if isinstance(local_name, str):
             local_name = Path(local_name)
         try:
-            mimetype = guess_file_type(local_name)[0]
+            mimetype = guess_filepath_type(local_name)[0]
         except Exception as e:
             raise DistillPublishError(
                 f"Failed to guess mimetype for {local_name}: {e}"

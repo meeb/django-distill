@@ -1,11 +1,11 @@
 import os
-from pathlib import Path
 
 from django.test import TestCase, override_settings
 from django.urls import URLPattern, include, path
 
 from django_distill.utils import (
     NamedTestFile,
+    Path,
     get_header,
     get_langs,
     iter_url_patterns,
@@ -72,6 +72,43 @@ class UtilsTestCase(TestCase):
         self.assertTrue(os.path.exists(name))
         ntf.unlink()
         self.assertFalse(os.path.exists(name))
+
+    def test_path_walk_shim(self):
+        # Create a temporary directory structure
+        with NamedTestFile() as ntf:
+            tmp_dir = Path(ntf.name).parent / "test_walk_shim"
+            tmp_dir.mkdir(exist_ok=True)
+            try:
+                (tmp_dir / "file1.txt").touch()
+                subdir = tmp_dir / "subdir"
+                subdir.mkdir(exist_ok=True)
+                (subdir / "file2.txt").touch()
+
+                p = Path(tmp_dir)
+                self.assertTrue(hasattr(p, "walk"))
+                results = list(p.walk())
+
+                # Check results
+                # Depending on OS, order might vary, but we expect two entries
+                self.assertGreaterEqual(len(results), 2)
+
+                roots = [str(r) for r, d, f in results]
+                self.assertTrue(any(str(tmp_dir) in r for r in roots))
+                self.assertTrue(any("subdir" in r for r in roots))
+
+                # Verify that root is a Path object (or our shim)
+                for root, dirs, files in results:
+                    self.assertIsInstance(root, Path)
+
+            finally:
+                if (tmp_dir / "subdir" / "file2.txt").exists():
+                    (tmp_dir / "subdir" / "file2.txt").unlink()
+                if (tmp_dir / "subdir").exists():
+                    (tmp_dir / "subdir").rmdir()
+                if (tmp_dir / "file1.txt").exists():
+                    (tmp_dir / "file1.txt").unlink()
+                if tmp_dir.exists():
+                    tmp_dir.rmdir()
 
     def test_iter_url_patterns(self):
         def dummy_view(request):

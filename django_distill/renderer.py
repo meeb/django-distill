@@ -2,12 +2,15 @@ import errno
 from collections.abc import Generator
 from concurrent.futures import ThreadPoolExecutor
 from logging import getLogger
-from pathlib import Path
 from types import TracebackType
 
 from django.conf import settings
 from django.urls import URLPattern
 from django.utils.translation import activate as activate_lang
+from typing_extensions import Self
+
+from django_distill.urls import get_distilled_url_by_name, get_distilled_urls
+from django_distill.utils import Path, get_header, get_langs
 
 from .errors import DistillError, DistillRenderError
 from .request import (
@@ -17,8 +20,6 @@ from .request import (
     get_uri_values,
     internal_wsgi_request,
 )
-from .urls import get_distilled_url_by_name, get_distilled_urls
-from .utils import get_header, get_langs
 
 log = getLogger("main")
 
@@ -170,7 +171,7 @@ class DistillRenderer:
         self.enable_debug = enable_debug
         self.concurrency = concurrency
 
-    def __enter__(self) -> "DistillRenderer":
+    def __enter__(self) -> Self:
         if self.hostname:
             settings.ALLOWED_HOSTS = [self.hostname]
         else:

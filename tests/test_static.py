@@ -1,17 +1,17 @@
 import os
-from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from django.conf import settings
 from django.test import TestCase
 
 from django_distill.static import copy_static_and_media_files
+from django_distill.utils import Path
 
 
 class StaticSiteStaticTestSuite(TestCase):
     def test_copying_static_and_media_files(self):
         # Test default behavior
-        with TemporaryDirectory(delete=False) as tempdir:
+        with TemporaryDirectory() as tempdir:
             tempdir = Path(tempdir)
             copy_static_and_media_files(tempdir)
             test_media_file_path = tempdir / "media" / "media-test.txt"

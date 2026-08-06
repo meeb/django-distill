@@ -1,14 +1,14 @@
 import os
 from inspect import getfullargspec
 from io import BytesIO
-from pathlib import Path
 from types import FunctionType, GeneratorType
 from urllib.parse import urlencode
 
 from django.core.wsgi import get_wsgi_application
 from django.urls import NoReverseMatch, reverse
 
-from .errors import DistillError
+from django_distill.errors import DistillError
+from django_distill.utils import Path
 
 
 def internal_wsgi_request(

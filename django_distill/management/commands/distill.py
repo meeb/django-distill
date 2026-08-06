@@ -1,6 +1,5 @@
 import tempfile
 from logging import getLogger
-from pathlib import Path
 from shutil import rmtree
 
 from django.conf import settings
@@ -15,7 +14,7 @@ from django_distill.publisher import (
 )
 from django_distill.renderer import DistillRenderer, render_redirects
 from django_distill.static import copy_static_and_media_files
-from django_distill.utils import NamedTestFile
+from django_distill.utils import NamedTestFile, Path
 
 log = getLogger("main")
 

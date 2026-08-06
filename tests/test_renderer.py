@@ -1,5 +1,4 @@
 import tempfile
-from pathlib import Path
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -11,6 +10,7 @@ from django_distill.errors import DistillError
 from django_distill.renderer import DistillRenderer, render_uri, write_single_pattern
 from django_distill.request import generate_uri, get_uri_values
 from django_distill.urls import get_distilled_url_by_name, get_distilled_urls
+from django_distill.utils import Path
 
 test_urls = get_distilled_urls()
 # A list of all the test urls that are not broken views. This is used for "loop all URLs" tests where
@@ -257,7 +257,7 @@ class StaticSiteRendererTestSuite(TransactionTestCase):
             write_single_pattern(tmpdirname, "path-named-param", param="test")
             written_files = []
             tmpdirpath = Path(tmpdirname)
-            for root, dirs, files in tmpdirpath.walk():
+            for root, dirs, files in Path(tmpdirpath).walk():
                 for f in files:
                     written_files.append(root / f)
             for expected_file in expected_files:

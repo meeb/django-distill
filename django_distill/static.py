@@ -1,9 +1,10 @@
 from collections.abc import Generator
 from logging import getLogger
-from pathlib import Path
 from shutil import copy2
 
 from django.conf import settings
+
+from django_distill.utils import Path
 
 log = getLogger("main")
 

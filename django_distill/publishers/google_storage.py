@@ -1,10 +1,10 @@
 import os
 from base64 import b64decode
 from binascii import hexlify
-from pathlib import Path
 
 from django_distill.errors import DistillPublishError
 from django_distill.publisher import PublisherBackendBase, check_publisher_dependencies
+from django_distill.utils import Path
 
 discovery = check_publisher_dependencies(
     "django_distill.backends.google_storage",

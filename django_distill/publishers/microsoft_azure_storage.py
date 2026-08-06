@@ -1,10 +1,10 @@
 from binascii import hexlify
-from pathlib import Path
 from time import sleep
 from urllib.parse import quote_plus, urlsplit, urlunsplit
 
 from django_distill.errors import DistillPublishError
 from django_distill.publisher import PublisherBackendBase, check_publisher_dependencies
+from django_distill.utils import Path
 
 BlobServiceClient = check_publisher_dependencies(
     "django_distill.backends.azure_storage", "azure.storage.blob", "BlobServiceClient"

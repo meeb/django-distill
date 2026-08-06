@@ -32,6 +32,6 @@ jobs:
       - name: Install dependencies
         run: |
           uv pip install --system -e ".[test]"
-          uv pip install pip install "Django==${{ matrix.django-version }}.*"
+          uv pip install --system "Django==${{ matrix.django-version }}.*"
       - name: Run Django tests
         run: uv run manage.py testsuite

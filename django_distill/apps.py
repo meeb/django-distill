@@ -21,7 +21,7 @@ def _distilled_path(
     view: FunctionType,
     kwargs: dict | None = None,
     name: str | None = None,
-    distill_path: bool = True,
+    distill_path: bool = False,
     distill_func: FunctionType | None = None,
     distill_file: str | None = None,
     distill_status_codes: tuple[int] | None = None,
@@ -60,6 +60,14 @@ def _distilled_path(
     return pattern_or_resolver
 
 
+def _distilled_path_enabled(*args, **kwargs) -> URLResolver | URLPattern:
+    """
+    Wrapper for _distilled_path called by the legacy distill_path function which defaults distill_path to True.
+    """
+    kwargs["distill_path"] = True
+    return _distilled_path(*args, **kwargs)
+
+
 class DistillConfig(AppConfig):
     name = "django_distill"
 
@@ -74,8 +82,8 @@ class DistillConfig(AppConfig):
         urls.re_path = urls.conf.re_path
 
         # Shims to make the interface compatible with django_distill > 4.0.0
-        django_distill.distill_path = urls.conf.path
-        django_distill.distill_re_path = urls.conf.re_path
+        django_distill.distill_path = partial(_distilled_path_enabled, Pattern=RoutePattern)
+        django_distill.distill_re_path = partial(_distilled_path_enabled, Pattern=RegexPattern)
 
         # Iterate all loaded URLs and store any URLs defined as a Distilled path.
         for pattern, namespace, _ in iter_url_patterns():

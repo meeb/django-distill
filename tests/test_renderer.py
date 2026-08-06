@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.flatpages.models import FlatPage
 from django.test import TransactionTestCase
 from django.utils.translation import activate as activate_lang
+from django.core.exceptions import ImproperlyConfigured
 
 from django_distill.errors import DistillError
 from django_distill.renderer import DistillRenderer, render_uri, write_single_pattern
@@ -114,6 +115,21 @@ class StaticSiteRendererTestSuite(TransactionTestCase):
         status, _headers, body = render_uri(uri, u.distill_status_codes)
         self.assertEqual(status, 200)
         self.assertEqual(body, b"test")
+
+    def test_path_legacy(self):
+        u = get_distilled_url_by_name("path-legacy")
+        self.assertEqual(u.name, "path-legacy")
+        param_set = get_uri_values(u.distill_func, u.name)[0]
+        uri = generate_uri(u.distill_namespace, u.name, param_set)
+        self.assertEqual(uri, "/path/legacy")
+        status, _headers, body = render_uri(uri, u.distill_status_codes)
+        self.assertEqual(status, 200)
+        self.assertEqual(body, b"test")
+
+    def test_path_disabled_legacy(self):
+        with self.assertRaises(ImproperlyConfigured):
+            # This should not be a registered distilled path because distill_path defaults to False
+            get_distilled_url_by_name("path-disabled-legacy")
 
     def test_path_positional_param(self):
         u = get_distilled_url_by_name("path-positional-param")
@@ -360,6 +376,7 @@ class StaticSiteRendererTestSuite(TransactionTestCase):
             ("re_path", "flatpage", "flat", "page1.html"),
             ("re_path", "flatpage", "flat", "page2.html"),
             ("path", "no-param"),
+            ("path", "legacy"),
             ("path", "no-func"),
             ("path", "positional-param", "12345"),
             ("path", "positional-param", "67890"),
@@ -403,6 +420,7 @@ class StaticSiteRendererTestSuite(TransactionTestCase):
             "/path/no-func",
             "/path/no-namespace/sub-url-in-no-namespace",
             "/path/no-param",
+            "/path/legacy",
             "/path/positional-override-filename/12345",
             "/path/positional-override-filename/67890",
             "/path/positional-param/12345",

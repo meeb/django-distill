@@ -11,6 +11,7 @@ from django.urls import include, path, re_path, reverse
 from django.utils import timezone
 
 from django_distill.utils import set_func_attr
+from django_distill import distill_path
 
 app_name = "django-distill-tests"
 
@@ -203,6 +204,18 @@ urlpatterns += [
         test_no_param_view,
         name="path-no-param",
         distill_path=True,
+        distill_func=test_no_param_func,
+    ),
+    distill_path(  # Test that distill_path=True is implicit for distill_path(...) usage
+        "path/legacy",
+        test_no_param_view,
+        name="path-legacy",
+        distill_func=test_no_param_func,
+    ),
+    path(  # Confirm that distill_path=False by default
+        "path/disabled-legacy",
+        test_no_param_view,
+        name="path-disabled-legacy",
         distill_func=test_no_param_func,
     ),
     path(

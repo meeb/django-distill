@@ -12,7 +12,7 @@ content.
 `django-distill` iterates over URLs in your Django project using easy-to-write
 iterable functions to yield the parameters for whatever pages you want to save
 as static HTML. These static files can be automatically uploaded to a bucket-style
-remote container such as Amazon S3, Googe Cloud Files, Microsoft Azure Storage,
+remote container such as Amazon S3, Google Cloud Files, Microsoft Azure Storage,
  or written to a local directory as a fully working local static version of
 your project. The site generation, or distillation process, can be easily
 integrated into CI/CD workflows to auto-deploy static sites on commit.
@@ -27,23 +27,23 @@ a small subsection of pages rather than the entire site.
 
 ## 4.0.0 and later
 
-`django-distill` 4.0.0 and later is a ground-up rebuild of `django-distll`.
-Full compatability with `django-distll` 3.x.x and older is not guaranteed. The API
+`django-distill` 4.0.0 and later is a ground-up rebuild of `django-distill`.
+Full compatibility with `django-distill` 3.x.x and older is not guaranteed. The API
 and interfaces have been made as compatible as possible with previous versions of
-`django-distll`, however, some method names and interfaces may have changed. You
+`django-distill`, however, some method names and interfaces may have changed. You
 should treat upgrading to `django-distill` 4.0.0 and later as a breaking change and
 review the documentation as well as thoroughly test your projects.
 
-The following changes are implemeted in version 4.0.0 and later:
+The following changes are implemented in version 4.0.0 and later:
 
 * Usage of the Django test framework has been replaced with internal WSGI requests
-* Modernisation of the codebase, removal of legacy Python and legacy Django support
+* Modernization of the codebase, removal of legacy Python and legacy Django support
 * Type hints and linted (with ruff) and packaged via uv
 * Improved test coverage
 * Broadly compatible where possible with the logic and implementation of Django Distill
 * Switch to using patched `URLPattern`s rather than custom `path(...)` overrides
 * Consolidation of commands into a single `distill` command
-* Full compatability when integrated with other contrib modules, such as `humanize`, `sitemaps`, `flatpages` etc.
+* Full compatibility when integrated with other contrib modules, such as `humanize`, `sitemaps`, `flatpages` etc.
 * Using normal logging and the usual Django logging configuration
 
 
@@ -90,9 +90,9 @@ It is assumed you are using URI parameters such as `/blog/123-abc` and not
 querystring parameters such as `/blog?post_id=123&title=abc`. Querystring
 parameters do not make sense for static page generation for obvious reasons.
 
-Static media files such as images and style sheets are copied from your static
+Static media files such as images and stylesheets are copied from your static
 media directory defined in `STATIC_ROOT`. This means that you will want to run
-`./manage.py collectstatic` **before** you run `./manage.py distill-local`
+`./manage.py collectstatic` **before** you run `./manage.py distill generate`
 if you have made changes to static media. `django-distill` doesn't chain this
 request by design, however you can enable it with the `--collectstatic`
 argument.
@@ -112,7 +112,7 @@ URL that would otherwise be generated from the reverse of the URL regex. This
 allows you to rename URLs like `/example` to any other name like
 `example.html`. As of v0.8 any URIs ending in a slash `/` are automatically
 modified to end in `/index.html`. You can use format string parameters in the
-`distill_file` to customise the file name, arg values from the URL will be
+`distill_file` to customize the file name, arg values from the URL will be
 substituted in, for example `{}` for positional args or `{param_name}` for
 named args.
 
@@ -248,14 +248,6 @@ The optional `distill_status_codes` argument accepts a tuple of status codes as 
 which are permitted for the view to return without raising an error. By default, this is
 set to `(200,)` but you can override it if you need to for your site.
 
-### Tracking Django's URL function support
-
-`django-distill` will mirror whatever your installed version of Django supports,
-therefore at some point the `distill_url` function will cease working in the future
-when Django 2.x itself depreciates the `django.conf.urls.url` and `django.urls.url`
-functions. You can use `distill_re_path` as a drop-in replacement. It is advisable to
-use `distill_path` or `distill_re_path` if you're building a new site now.
-
 
 ### Internationalization
 
@@ -263,7 +255,7 @@ Internationalization is only supported for URLs, page content is unable to be
 dynamically translated. By default, your site will be generated using the
 `LANGUAGE_CODE` value in your `settings.py`. If you also set `settings.USE_I18N` to
 `True` then set other language codes in your `settings.DISTILL_LANGUAGES` value and register
-URLs with `i18n_patterns(...)` then your site will be generated in multiple languges.
+URLs with `i18n_patterns(...)` then your site will be generated in multiple languages.
 This assumes your multi-language site works as expected before adding `django-distill`.
 
 For example if you set `settings.LANGUAGE_CODE = 'en'` your site will be
@@ -281,7 +273,7 @@ DISTILL_LANGUAGES = [
 ]
 ```
 
-While also using `i18n_patterns`in your `urls.py` like so:
+While also using `i18n_patterns` in your `urls.py` like so:
 
 ```python
 from django.conf.urls.i18n import i18n_patterns
@@ -294,13 +286,13 @@ urlpatterns = i18n_patterns(
 )
 ```
 
-Then your views will be generaged as `/en/some-file.html`, `/fr/some-file.html`
+Then your views will be generated as `/en/some-file.html`, `/fr/some-file.html`
 and `/de/some-file.html`. These URLs should work (and be translated) by your
 site already. `django-distill` doesn't do any translation magic, it just
 calls the URLs with the language code prefix.
 
 **Note** While the default suggested method is to use `settings.DISTILL_LANGUAGES`
-to keep things seperate `django-distill` will also check `settings.LANGUAGES` for
+to keep things separate `django-distill` will also check `settings.LANGUAGES` for
 language codes.
 
 
@@ -328,7 +320,7 @@ for uri, file_name in distilled_urls():
 in `urls.py` have been loaded with `distill_path(...)`.
 
 
-# The `distill-local` command
+# The `distill generate` command
 
 Once you have wrapped the URLs you want to generate statically you can now
 generate a complete functioning static site with:
@@ -601,7 +593,7 @@ apply, such as URLs ending in `/` will be saved as `/index.html` to make sense
 for a physical file on disk.
 
 Also note that `render_single_file` can only be imported and used into an
-initialised Django project.
+initialized Django project.
 
 
 # Publishing targets
@@ -670,8 +662,8 @@ publish your site.
 
 # Tests
 
-There is a minimal test suite, you can run it by cloing this repository,
-installing the required dependancies in `requirements.txt` then execuiting:
+There is a minimal test suite, you can run it by cloning this repository,
+installing the required dependencies in `requirements.txt` then executing:
 
 ```bash
 # ./run-tests.py

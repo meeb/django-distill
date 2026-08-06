@@ -14,4 +14,13 @@ format:
 
 
 runserver:
+		uv run manage.py migrate
 		uv run manage.py runserver
+
+
+build:
+		uv build
+
+
+publish:
+		uv publish

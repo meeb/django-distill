@@ -396,6 +396,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "django", version = "5.2.17", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "typing-extensions" },
 ]
 
 [package.optional-dependencies]
@@ -422,6 +423,7 @@ requires-dist = [
     { name = "boto3", marker = "extra == 'amazon'", specifier = ">=1.40.68" },
     { name = "django", specifier = ">=5.2" },
     { name = "google-cloud-storage", marker = "extra == 'google'", specifier = ">=3.5.0" },
+    { name = "typing-extensions", specifier = ">=4.16.0" },
 ]
 provides-extras = ["amazon", "google", "microsoft"]
 

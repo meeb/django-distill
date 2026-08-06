@@ -20,7 +20,7 @@ def set_func_attr(name, value):
 
 
 def iter_url_patterns(
-    url_patterns: list | None = None, namespace: str | None = "", depth: int = 0
+    url_patterns: list | None = None, namespace: str | None = None, depth: int = 0
 ) -> Generator[tuple[URLPattern, str | None, int]]:
     """
     Yield tuples of (URLPattern, namespace) for all URLPattern objects in the
@@ -30,22 +30,22 @@ def iter_url_patterns(
         url_patterns = get_resolver().url_patterns
     for pattern in url_patterns:
         if isinstance(pattern, URLPattern):
-            if depth == 0:
-                namespace = None
-            yield pattern, namespace, 1
+            yield pattern, namespace, depth + 1
         elif isinstance(pattern, URLResolver):
+            current_namespace = namespace
             if pattern.namespace:
-                if namespace:
-                    namespace = f"{namespace}:{pattern.namespace}"
+                if current_namespace:
+                    current_namespace = f"{current_namespace}:{pattern.namespace}"
                 else:
-                    namespace = pattern.namespace
-            else:
-                namespace = None
-            yield from iter_url_patterns(pattern.url_patterns, namespace, depth + 1)
+                    current_namespace = pattern.namespace
+            yield from iter_url_patterns(
+                pattern.url_patterns, current_namespace, depth + 1
+            )
         else:
-            if namespace is None:
-                namespace = ""
-            raise TypeError(f"Unexpected pattern type: {type(pattern)} in {namespace}")
+            current_namespace = namespace if namespace is not None else ""
+            raise TypeError(
+                f"Unexpected pattern type: {type(pattern)} in {current_namespace}"
+            )
 
 
 def get_header(headers: list[tuple[str, str]], name: str) -> str | None:

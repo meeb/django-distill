@@ -130,11 +130,10 @@ class UtilsTestCase(TestCase):
         ]
 
         # iter_url_patterns yields (URLPattern, namespace, depth)
-        # Note: iter_url_patterns in utils.py treats depth 0 specially for namespace
         results = list(iter_url_patterns(patterns))
 
         # results[0] -> (path('a/'), None, 1)
-        # results[1] -> (path('c/'), 'ns1', 1)
+        # results[1] -> (path('c/'), 'ns1', 2)
 
         self.assertEqual(len(results), 2)
 
@@ -146,7 +145,7 @@ class UtilsTestCase(TestCase):
         p2, ns2, d2 = results[1]
         self.assertIsInstance(p2, URLPattern)
         self.assertEqual(ns2, "ns1")
-        self.assertEqual(d2, 1)
+        self.assertEqual(d2, 2)
 
     def test_iter_url_patterns_nested(self):
         def dummy_view(request):
@@ -171,9 +170,51 @@ class UtilsTestCase(TestCase):
         self.assertEqual(len(results), 1)
         p, ns, d = results[0]
         # When URLResolver has namespace, it appends to parent namespace.
-        # Here: depth 0 -> pattern is URLResolver. pattern.namespace is 'outerns'
-        # call iter_url_patterns(pattern.url_patterns, 'outerns', 1)
-        # depth 1 -> pattern is URLPattern. yields (pattern, 'outerns', 1)
         self.assertIsInstance(p, URLPattern)
         self.assertEqual(ns, "outerns")
-        self.assertEqual(d, 1)
+        self.assertEqual(d, 2)
+
+    def test_iter_url_patterns_mixed(self):
+        def dummy_view(request):
+            pass
+
+        patterns = [
+            path(
+                "top-ns/",
+                include(
+                    (
+                        [
+                            path("leaf-in-ns/", dummy_view, name="leaf-in-ns"),
+                            path(
+                                "sub-no-ns/",
+                                include(
+                                    [
+                                        path(
+                                            "leaf-deep-no-ns/",
+                                            dummy_view,
+                                            name="leaf-deep-no-ns",
+                                        ),
+                                    ]
+                                ),
+                            ),
+                        ],
+                        "top_ns",
+                    )
+                ),
+            ),
+        ]
+
+        results = list(iter_url_patterns(patterns))
+        self.assertEqual(len(results), 2)
+
+        # First leaf
+        p1, ns1, d1 = results[0]
+        self.assertEqual(p1.name, "leaf-in-ns")
+        self.assertEqual(ns1, "top_ns")
+        self.assertEqual(d1, 2)
+
+        # Deep leaf (now correctly inherits top_ns)
+        p2, ns2, d2 = results[1]
+        self.assertEqual(p2.name, "leaf-deep-no-ns")
+        self.assertEqual(ns2, "top_ns")
+        self.assertEqual(d2, 3)

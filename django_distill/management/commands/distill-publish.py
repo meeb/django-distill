@@ -52,6 +52,8 @@ class Command(BaseCommand):
         wrapped_args.append(options.get("parallel_render"))
         wrapped_args.append("--parallel-publish")
         wrapped_args.append(options.get("parallel_publish"))
+        wrapped_args.append("--debug")
+        wrapped_args.append(options.get("debug"))
         warnings.warn(
             '"./manage.py distill-publish" is depreciated, use "./manage.py distill publish" instead'
         )

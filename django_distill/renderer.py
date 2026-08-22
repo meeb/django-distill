@@ -177,8 +177,8 @@ class DistillRenderer:
         else:
             # Static sites generally want to ignore hostnames when being generated
             settings.ALLOWED_HOSTS = ["*"]
-        # if self.enable_debug:
-        settings.DEBUG = True
+        if self.enable_debug:
+            settings.DEBUG = True
         return self
 
     def __exit__(

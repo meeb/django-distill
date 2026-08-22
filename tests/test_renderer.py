@@ -4,7 +4,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib.flatpages.models import FlatPage
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TransactionTestCase
+from django.test import TransactionTestCase, override_settings
 from django.utils.translation import activate as activate_lang
 
 from django_distill.errors import DistillError
@@ -443,3 +443,91 @@ class StaticSiteRendererTestSuite(TransactionTestCase):
             for generated_url in renderer.urls():
                 generated_urls.append(str(generated_url))
         self.assertEqual(sorted(generated_urls), sorted(expected_urls))
+
+    @override_settings(DEBUG=False)
+    def test_distill_renderer_debug_handling(self):
+        # When settings.DEBUG is False and enable_debug=True (default)
+        self.assertFalse(settings.DEBUG)
+        with DistillRenderer(enable_debug=True):
+            self.assertTrue(settings.DEBUG)
+        self.assertFalse(settings.DEBUG)
+
+        # Default argument for enable_debug is True
+        with DistillRenderer():
+            self.assertTrue(settings.DEBUG)
+        self.assertFalse(settings.DEBUG)
+
+        # When settings.DEBUG is False and enable_debug=False
+        with DistillRenderer(enable_debug=False):
+            self.assertFalse(settings.DEBUG)
+        self.assertFalse(settings.DEBUG)
+
+    @override_settings(DEBUG=True)
+    def test_distill_renderer_debug_handling_when_debug_already_true(self):
+        # When settings.DEBUG is True and enable_debug=True
+        self.assertTrue(settings.DEBUG)
+        with DistillRenderer(enable_debug=True):
+            self.assertTrue(settings.DEBUG)
+        self.assertTrue(settings.DEBUG)
+
+        # When settings.DEBUG is True and enable_debug=False
+        with DistillRenderer(enable_debug=False):
+            self.assertTrue(settings.DEBUG)
+        self.assertTrue(settings.DEBUG)
+
+    @override_settings(ALLOWED_HOSTS=["example.com"])
+    def test_distill_renderer_hostname_handling(self):
+        # Default hostname (None) sets ALLOWED_HOSTS to ["*"]
+        self.assertEqual(settings.ALLOWED_HOSTS, ["example.com"])
+        with DistillRenderer():
+            self.assertEqual(settings.ALLOWED_HOSTS, ["*"])
+        self.assertEqual(settings.ALLOWED_HOSTS, ["example.com"])
+
+        with DistillRenderer(hostname=None):
+            self.assertEqual(settings.ALLOWED_HOSTS, ["*"])
+        self.assertEqual(settings.ALLOWED_HOSTS, ["example.com"])
+
+        # Explicit hostname sets ALLOWED_HOSTS to [hostname]
+        with DistillRenderer(hostname="static.example.org"):
+            self.assertEqual(settings.ALLOWED_HOSTS, ["static.example.org"])
+        self.assertEqual(settings.ALLOWED_HOSTS, ["example.com"])
+
+    @override_settings(DEBUG=False, ALLOWED_HOSTS=["original.domain.com"])
+    def test_distill_renderer_debug_and_hostname_combinations(self):
+        # Test combined settings: enable_debug and custom hostname
+        self.assertFalse(settings.DEBUG)
+        self.assertEqual(settings.ALLOWED_HOSTS, ["original.domain.com"])
+
+        with DistillRenderer(hostname="custom.domain.com", enable_debug=True):
+            self.assertTrue(settings.DEBUG)
+            self.assertEqual(settings.ALLOWED_HOSTS, ["custom.domain.com"])
+        self.assertFalse(settings.DEBUG)
+        self.assertEqual(settings.ALLOWED_HOSTS, ["original.domain.com"])
+
+        with DistillRenderer(hostname="custom.domain.com", enable_debug=False):
+            self.assertFalse(settings.DEBUG)
+            self.assertEqual(settings.ALLOWED_HOSTS, ["custom.domain.com"])
+        self.assertFalse(settings.DEBUG)
+        self.assertEqual(settings.ALLOWED_HOSTS, ["original.domain.com"])
+
+        with DistillRenderer(hostname=None, enable_debug=False):
+            self.assertFalse(settings.DEBUG)
+            self.assertEqual(settings.ALLOWED_HOSTS, ["*"])
+        self.assertFalse(settings.DEBUG)
+        self.assertEqual(settings.ALLOWED_HOSTS, ["original.domain.com"])
+
+    @override_settings(DEBUG=False, ALLOWED_HOSTS=["original.domain.com"])
+    def test_distill_renderer_settings_restoration_on_exception(self):
+        self.assertFalse(settings.DEBUG)
+        self.assertEqual(settings.ALLOWED_HOSTS, ["original.domain.com"])
+
+        with (
+            self.assertRaises(RuntimeError),
+            DistillRenderer(hostname="temp.host.org", enable_debug=True),
+        ):
+            self.assertTrue(settings.DEBUG)
+            self.assertEqual(settings.ALLOWED_HOSTS, ["temp.host.org"])
+            raise RuntimeError("Test exception")
+
+        self.assertFalse(settings.DEBUG)
+        self.assertEqual(settings.ALLOWED_HOSTS, ["original.domain.com"])

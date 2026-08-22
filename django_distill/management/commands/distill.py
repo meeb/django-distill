@@ -48,6 +48,7 @@ class Command(BaseCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.quiet = False
+        self.debug = True
 
     def add_arguments(self, parser):
         parser.add_argument("subcommand", nargs="?", type=str)
@@ -60,6 +61,7 @@ class Command(BaseCommand):
         )
         parser.add_argument("--quiet", dest="quiet", action="store_true")
         parser.add_argument("--force", dest="force", action="store_true")
+        parser.add_argument("--debug", dest="debug", type=str, default="true")
         parser.add_argument(
             "--exclude-staticfiles", dest="exclude_staticfiles", action="store_true"
         )
@@ -95,6 +97,8 @@ class Command(BaseCommand):
         }
         subcommand_name = options.get("subcommand")
         self.quiet = options.get("quiet")
+        debug_str = options.get("debug", "").strip().lower()
+        self.debug = debug_str == "true"
         if subcommand_name is None:
             subcommand_func = self.command_help
         else:
@@ -202,7 +206,7 @@ class Command(BaseCommand):
         self.write(f"Generating static site into directory: {output_directory}")
         try:
             with DistillRenderer(
-                concurrency=options.get("parallel_render")
+                enable_debug=self.debug, concurrency=options.get("parallel_render")
             ) as renderer:
                 renderer.render_to_directory(output_directory)
             if not exclude_staticfiles:
@@ -254,7 +258,9 @@ class Command(BaseCommand):
                 self.write(
                     f"Generating static site into temporary directory: {tmpdirpath}"
                 )
-                with DistillRenderer(concurrency=parallel_render) as renderer:
+                with DistillRenderer(
+                    enable_debug=self.debug, concurrency=parallel_render
+                ) as renderer:
                     renderer.render_to_directory(tmpdirpath)
                 if not exclude_staticfiles:
                     copy_static_and_media_files(tmpdirpath)
@@ -322,7 +328,7 @@ class Command(BaseCommand):
         self.write("")
         self.write("Defined static site URLs:")
         self.write("")
-        with DistillRenderer() as renderer:
+        with DistillRenderer(enable_debug=self.debug) as renderer:
             for url in renderer.urls():
                 self.write(f"    {url}")
         self.write("")

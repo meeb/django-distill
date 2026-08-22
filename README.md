@@ -353,6 +353,13 @@ rendering, this is just a shortcut to save you typing an extra command.
 
 `--force`: Assume 'yes' to all confirmation questions.
 
+`--debug [true or false]`: Sets `settings.DEBUG` to `True` or `False` when a static
+site is generated. This is reset when the static site generation is complete. Defauts
+to `False`. Debug can be enabled for static site generation, so any errors in  your
+views will be shown in the logs when the site is being generated. With debug disabled, 
+if you have any errors, your site will fail to generate with no  indication of the issue.
+Debug can affect the behaviour of various Django modules and plugins.
+
 `--exclude-staticfiles`: Do not copy any static files at all, only render output from
 Django views.
 
@@ -393,6 +400,13 @@ rendering, this is just a shortcut to save you typing an extra command.
 `--quiet`: Disable all output other than asking confirmation questions.
 
 `--force`: Assume 'yes' to all confirmation questions.
+
+`--debug [true or false]`: Sets `settings.DEBUG` to `True` or `False` when a static
+site is generated. This is reset when the static site generation is complete. Defauts
+to `False`. Debug can be enabled for static site generation, so any errors in  your
+views will be shown in the logs when the site is being generated. With debug disabled, 
+if you have any errors, your site will fail to generate with no  indication of the issue.
+Debug can affect the behaviour of various Django modules and plugins.
 
 `--exclude-staticfiles`: Do not copy any static files at all, only render output from
 Django views.

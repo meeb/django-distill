@@ -43,7 +43,7 @@ class DistillCommandsTestSuite(TestCase):
 
             with StringIO() as o:
                 call_command("distill", "list-static-urls", stdout=o)
-            mock_renderer.assert_called_with(enable_debug=True)
+            mock_renderer.assert_called_with(enable_debug=False)
 
         cmd = DistillCommand()
         cmd.stdout = StringIO()

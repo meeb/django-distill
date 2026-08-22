@@ -61,7 +61,7 @@ class Command(BaseCommand):
         )
         parser.add_argument("--quiet", dest="quiet", action="store_true")
         parser.add_argument("--force", dest="force", action="store_true")
-        parser.add_argument("--debug", dest="debug", type=str, default="true")
+        parser.add_argument("--debug", dest="debug", type=str, default="false")
         parser.add_argument(
             "--exclude-staticfiles", dest="exclude_staticfiles", action="store_true"
         )

@@ -452,10 +452,9 @@ class StaticSiteRendererTestSuite(TransactionTestCase):
             self.assertTrue(settings.DEBUG)
         self.assertFalse(settings.DEBUG)
 
-        # Default argument for enable_debug is True
+        # Default argument for enable_debug is False
         with DistillRenderer():
-            self.assertTrue(settings.DEBUG)
-        self.assertFalse(settings.DEBUG)
+            self.assertFalse(settings.DEBUG)
 
         # When settings.DEBUG is False and enable_debug=False
         with DistillRenderer(enable_debug=False):

@@ -157,7 +157,7 @@ class DistillRenderer:
         self,
         urls_to_render: list[URLPattern] | None = None,
         hostname: str | None = None,
-        enable_debug: bool = True,
+        enable_debug: bool = False,
         concurrency: int = 1,
     ) -> None:
         self._site_debug = settings.DEBUG

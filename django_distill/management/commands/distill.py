@@ -61,7 +61,7 @@ class Command(BaseCommand):
         )
         parser.add_argument("--quiet", dest="quiet", action="store_true")
         parser.add_argument("--force", dest="force", action="store_true")
-        parser.add_argument("--debug", dest="debug", type=str, default="false")
+        parser.add_argument("--debug", dest="debug", action="store_true")
         parser.add_argument(
             "--exclude-staticfiles", dest="exclude_staticfiles", action="store_true"
         )
@@ -97,8 +97,7 @@ class Command(BaseCommand):
         }
         subcommand_name = options.get("subcommand")
         self.quiet = options.get("quiet")
-        debug_str = options.get("debug", "").strip().lower()
-        self.debug = debug_str == "true"
+        self.debug = options.get("debug")
         if subcommand_name is None:
             subcommand_func = self.command_help
         else:

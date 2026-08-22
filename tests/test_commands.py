@@ -34,11 +34,11 @@ class DistillCommandsTestSuite(TestCase):
         ) as mock_renderer:
             mock_renderer.return_value.__enter__.return_value.urls.return_value = []
             with StringIO() as o:
-                call_command("distill", "list-static-urls", "--debug=false", stdout=o)
+                call_command("distill", "list-static-urls", stdout=o)
             mock_renderer.assert_called_with(enable_debug=False)
 
             with StringIO() as o:
-                call_command("distill", "list-static-urls", "--debug=true", stdout=o)
+                call_command("distill", "list-static-urls", "--debug", stdout=o)
             mock_renderer.assert_called_with(enable_debug=True)
 
             with StringIO() as o:
@@ -47,11 +47,11 @@ class DistillCommandsTestSuite(TestCase):
 
         cmd = DistillCommand()
         cmd.stdout = StringIO()
-        cmd.handle(subcommand="help", debug="false")
+        cmd.handle(subcommand="help")
         self.assertFalse(cmd.debug)
         cmd.handle(subcommand="help", debug="true")
         self.assertTrue(cmd.debug)
         cmd.handle(subcommand="help", debug="True")
         self.assertTrue(cmd.debug)
-        cmd.handle(subcommand="help", debug="False")
+        cmd.handle(subcommand="help")
         self.assertFalse(cmd.debug)

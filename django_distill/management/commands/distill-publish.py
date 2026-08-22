@@ -15,7 +15,7 @@ class Command(BaseCommand):
         )
         parser.add_argument("--quiet", dest="quiet", action="store_true")
         parser.add_argument("--force", dest="force", action="store_true")
-        parser.add_argument("--debug", dest="debug", type=str, default="false")
+        parser.add_argument("--debug", dest="debug", action="store_true")
         parser.add_argument(
             "--exclude-staticfiles", dest="exclude_staticfiles", action="store_true"
         )
@@ -41,6 +41,8 @@ class Command(BaseCommand):
             wrapped_args.append("--quiet")
         if options.get("force"):
             wrapped_args.append("--force")
+        if options.get("debug"):
+            wrapped_args.append("--debug")
         if options.get("exclude_staticfiles"):
             wrapped_args.append("--exclude-staticfiles")
         if options.get("generate_redirects"):
@@ -53,8 +55,6 @@ class Command(BaseCommand):
         wrapped_args.append(options.get("parallel_render"))
         wrapped_args.append("--parallel-publish")
         wrapped_args.append(options.get("parallel_publish"))
-        wrapped_args.append("--debug")
-        wrapped_args.append(options.get("debug"))
         warnings.warn(
             '"./manage.py distill-publish" is depreciated, use "./manage.py distill publish" instead'
         )

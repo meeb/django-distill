@@ -197,9 +197,11 @@ class PublisherBackendBase:
                 f'Local distilled site file "{local_name}" is not '
                 f'in source dir "{self.source_dir}"'
             )
-        remote_path_prefix = self.remote_url_parts.path
-        remote_path_prefix = remote_path_prefix.removeprefix("/")
-        remote_uri = remote_path_prefix + self.remote_path(local_name)
+        remote_path_prefix = self.remote_url_parts.path.strip("/")
+        remote_path = self.remote_path(local_name)
+        remote_uri = (
+            f"{remote_path_prefix}/{remote_path}" if remote_path_prefix else remote_path
+        )
         return urlunsplit(
             (
                 self.remote_url_parts.scheme,
@@ -231,7 +233,7 @@ class PublisherBackendBase:
     def remote_path(self, local_name: Path | str) -> str:
         if isinstance(local_name, str):
             local_name = Path(local_name)
-        remote_path = Path("/") / local_name.relative_to(self.source_dir)
+        remote_path = local_name.relative_to(self.source_dir)
         return str(remote_path).replace(os.sep, "/")
 
     def publish(

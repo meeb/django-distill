@@ -7,12 +7,12 @@ from django_distill.publisher import PublisherBackendBase, check_publisher_depen
 from django_distill.utils import Path
 
 discovery = check_publisher_dependencies(
-    "django_distill.backends.google_storage",
+    "django_distill.publishers.google_storage",
     "googleapiclientgoogleapiclient",
     "discovery",
 )
 storage = check_publisher_dependencies(
-    "django_distill.backends.google_storage", "google.cloud", "storage"
+    "django_distill.publishers.google_storage", "google.cloud", "storage"
 )
 
 

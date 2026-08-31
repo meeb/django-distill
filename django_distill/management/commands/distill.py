@@ -271,8 +271,8 @@ class Command(BaseCommand):
                 publisher.authenticate()
                 self.write("Publishing static site to target ...")
                 publisher.publish(
-                    skip_verify=skip_verify,
-                    parallel_publish=parallel_publish,
+                    verify=not skip_verify,
+                    concurrency=parallel_publish,
                     ignore_remote_content=ignore_remote_content,
                 )
             self.write("Publishing static site complete.")

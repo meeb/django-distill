@@ -624,13 +624,13 @@ backends just like how you can use MySQL, SQLite, PostgreSQL etc. with
 Django by changing the backend database engine. Currently the engines supported
 by `django-distill` are:
 
-**django_distill.backends.amazon_s3**: Publish to an Amazon S3 bucket. Requires
+**django_distill.publishers.amazon_s3**: Publish to an Amazon S3 bucket. Requires
   the Python library `boto3` (`$ pip install django-distill[amazon]`). The bucket
   must already exist (use the AWS control panel). Options:
 
 ```python
 'some-s3-container': {
-    'ENGINE': 'django_distill.backends.amazon_s3',
+    'ENGINE': 'django_distill.publishers.amazon_s3',
     'PUBLIC_URL': 'http://.../',
     'ACCESS_KEY_ID': '...',
     'SECRET_ACCESS_KEY': '...',
@@ -640,7 +640,7 @@ by `django-distill` are:
 },
 ```
 
-**django_distill.backends.google_storage**: Publish to a Google Cloud Storage
+**django_distill.publishers.google_storage**: Publish to a Google Cloud Storage
   bucket. Requires the Python libraries `google-api-python-client` and
   `google-cloud-storage`
   (`$ pip install django-distill[google]`). The bucket
@@ -649,7 +649,7 @@ by `django-distill` are:
 
 ```python
 'some-google-storage-bucket': {
-    'ENGINE': 'django_distill.backends.google_storage',
+    'ENGINE': 'django_distill.publishers.google_storage',
     'PUBLIC_URL': 'https://storage.googleapis.com/[bucket.name.here]/',
     'BUCKET': '[bucket.name.here]',
     'JSON_CREDENTIALS': '/path/to/some/credentials.json',
@@ -662,7 +662,7 @@ https://cloud.google.com/docs/authentication/application-default-credentials (e.
 `GOOGLE_APPLICATION_CREDENTIALS` environment variable, attached service account, etc).
 
 
-**django_distill.backends.microsoft_azure_storage**: Publish to a Microsoft
+**django_distill.publishers.microsoft_azure_storage**: Publish to a Microsoft
   Azure Blob Storage container. Requires the Python library
   `azure-storage-blob` (`$ pip install django-distill[microsoft]`). The storage
   account must already exist and be set up to host a public static website
@@ -670,7 +670,7 @@ https://cloud.google.com/docs/authentication/application-default-credentials (e.
 
 ```python
 'some-microsoft-storage-account': {
-    'ENGINE': 'django_distill.backends.microsoft_azure_storage',
+    'ENGINE': 'django_distill.publishers.microsoft_azure_storage',
     'PUBLIC_URL': 'https://[storage-account-name]...windows.net/',
     'CONNECTION_STRING': '...',
 },

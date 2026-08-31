@@ -33,19 +33,25 @@ def check_publisher_dependencies(
         raise
 
 
-def get_publisher(engine_name: str) -> ModuleType:
+def get_publisher(engine_name: str) -> type["PublisherBackendBase"]:
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         try:
-            return import_module(engine_name, "backend_class")
+            module = import_module(engine_name)
         except ImportError as e:
             stderr.write(
                 f'Distill site backend "{engine_name}" not found or failed to import: {e}'
             )
             raise
+    try:
+        return module.backend_class
+    except AttributeError:
+        raise DistillPublishError(
+            f'Distill site backend "{engine_name}" does not define "backend_class"'
+        ) from None
 
 
-def get_publisher_from_options(options: dict) -> ModuleType:
+def get_publisher_from_options(options: dict) -> type["PublisherBackendBase"]:
     engine_name = options.get("ENGINE", "")
     if not engine_name:
         raise DistillPublishError(
@@ -241,7 +247,7 @@ class PublisherBackendBase:
             )
         self.index_local_files()
         local_files = self.get_local_files()
-        remote_files = set() if ignore_remote_content else self.list_remote_files()
+        remote_files = set() if ignore_remote_content else self.get_remote_files()
         local_files_remote_names = set()
         to_upload = set()
         to_delete = set()
@@ -283,12 +289,13 @@ class PublisherBackendBase:
             return True
 
         with ThreadPoolExecutor(max_workers=concurrency) as executor:
-            # upload any new or changed files
-            executor.map(lambda f: _publish_local_file(f), to_upload)
+            # upload any new or changed files, consuming the results so that any
+            # error raised in a worker propagates rather than being discarded
+            list(executor.map(_publish_local_file, to_upload))
             # Call any final checks that may be needed by the backend
             self.final_checks()
             # delete any orphan files
-            executor.map(lambda f: _delete_remote_file(f), to_delete)
+            list(executor.map(_delete_remote_file, to_delete))
 
         return True
 
@@ -301,8 +308,8 @@ class PublisherBackendBase:
     def authenticate(self) -> bool:
         raise NotImplementedError("authenticate() must be implemented")
 
-    def list_remote_files(self) -> set[str]:
-        raise NotImplementedError("list_remote_files() must be implemented")
+    def get_remote_files(self) -> set[str]:
+        raise NotImplementedError("get_remote_files() must be implemented")
 
     def delete_remote_file(self, remote_name: str) -> bool:
         raise NotImplementedError("delete_remote_file() must be implemented")

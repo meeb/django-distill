@@ -1,7 +1,7 @@
 from django_distill.publisher import PublisherBackendBase, check_publisher_dependencies
 from django_distill.utils import Path
 
-boto3 = check_publisher_dependencies("django_distill.backends.amazon_s3", "boto3")
+boto3 = check_publisher_dependencies("django_distill.publishers.amazon_s3", "boto3")
 
 
 class AmazonS3Backend(PublisherBackendBase):

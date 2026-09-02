@@ -7,13 +7,19 @@ from django_distill.publisher import PublisherBackendBase, check_publisher_depen
 from django_distill.utils import Path
 
 BlobServiceClient = check_publisher_dependencies(
-    "django_distill.backends.azure_storage", "azure.storage.blob", "BlobServiceClient"
+    "django_distill.publishers.microsoft_azure_storage",
+    "azure.storage.blob",
+    "BlobServiceClient",
 )
 BlobClient = check_publisher_dependencies(
-    "django_distill.backends.azure_storage", "azure.storage.blob", "BlobClient"
+    "django_distill.publishers.microsoft_azure_storage",
+    "azure.storage.blob",
+    "BlobClient",
 )
 ContentSettings = check_publisher_dependencies(
-    "django_distill.backends.azure_storage", "azure.storage.blob", "ContentSettings"
+    "django_distill.publishers.microsoft_azure_storage",
+    "azure.storage.blob",
+    "ContentSettings",
 )
 
 

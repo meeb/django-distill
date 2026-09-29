@@ -150,7 +150,9 @@ class PublisherBackendBase:
             http_connector, http_port = HTTPSConnection, 443
         else:
             raise DistillPublishError(f'Unsupported URL protocol "{protocol}"')
-        connection = http_connector(url, http_port, self.HTTP_TIMEOUT)
+        connection = http_connector(
+            url_parts.netloc, http_port, timeout=self.HTTP_TIMEOUT
+        )
         connection.request("GET", url_parts.path, headers={"Host": url_parts.netloc})
         response = connection.getresponse()
         if response.status == 404:
